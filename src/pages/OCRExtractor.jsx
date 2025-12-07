@@ -48,28 +48,23 @@ export default function OCRExtractor() {
     // Upload file first
     const { file_url } = await base44.integrations.Core.UploadFile({ file });
 
-    // Extract data
-    const result = await base44.integrations.Core.ExtractDataFromUploadedFile({
+    // MODIFIED: Create document record and use PDF extraction function
+    const doc = await base44.entities.Document.create({
+      case_id: "system", // System-level extraction
+      name: file.name,
+      category: "other",
       file_url,
-      json_schema: {
-        type: "object",
-        properties: {
-          owner_name: { type: "string", description: "Property owner full name" },
-          case_number: { type: "string", description: "Case or document number" },
-          property_address: { type: "string", description: "Property address" },
-          surplus_amount: { type: "number", description: "Surplus or overage amount" },
-          sale_date: { type: "string", description: "Sale date" },
-          sale_amount: { type: "number", description: "Sale amount" },
-          county: { type: "string", description: "County name" },
-          court_info: { type: "string", description: "Court or filing information" },
-          raw_text: { type: "string", description: "All text extracted from document" },
-        },
-      },
+      extraction_status: "processing",
+    });
+
+    // Call PDF extraction function
+    const { data: result } = await base44.functions.invoke("extractPDFData", {
+      document_id: doc.id,
     });
 
     if (result.status === "success") {
-      setExtractedData(result.output);
-      setRawText(result.output?.raw_text || "");
+      setExtractedData(result.extracted_data);
+      setRawText(result.extracted_data?.raw_text || "");
     }
 
     setIsProcessing(false);

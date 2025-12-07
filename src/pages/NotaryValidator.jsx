@@ -47,29 +47,41 @@ export default function NotaryValidator() {
     const { file_url } = await base44.integrations.Core.UploadFile({ file });
     setProgress(30);
 
-    // Extract notary information using AI
-    const result = await base44.integrations.Core.ExtractDataFromUploadedFile({
-      file_url,
-      json_schema: {
+    // MODIFIED: Use LLM integration instead of ExtractDataFromUploadedFile
+    const result = await base44.integrations.Core.InvokeLLM({
+      prompt: `Analyze this notarized document and extract:
+- Notary public name
+- Commission number
+- Commission expiration date
+- Date of notarization
+- State of commission
+- Whether there's a visible notary seal/stamp
+- Whether there's a notary signature
+- Name of the person who signed
+- Whether the document is clearly legible
+
+Return validation assessment.`,
+      file_urls: file_url,
+      response_json_schema: {
         type: "object",
         properties: {
-          notary_name: { type: "string", description: "Name of the notary public" },
-          commission_number: { type: "string", description: "Notary commission number" },
-          expiration_date: { type: "string", description: "Commission expiration date" },
-          notary_date: { type: "string", description: "Date of notarization" },
-          state: { type: "string", description: "State of notary commission" },
-          has_seal: { type: "boolean", description: "Is there a visible notary seal/stamp?" },
-          has_signature: { type: "boolean", description: "Is there a notary signature?" },
-          signer_name: { type: "string", description: "Name of the person who signed" },
-          is_legible: { type: "boolean", description: "Is the document clearly legible?" },
+          notary_name: { type: "string" },
+          commission_number: { type: "string" },
+          expiration_date: { type: "string" },
+          notary_date: { type: "string" },
+          state: { type: "string" },
+          has_seal: { type: "boolean" },
+          has_signature: { type: "boolean" },
+          signer_name: { type: "string" },
+          is_legible: { type: "boolean" },
         },
       },
     });
 
     setProgress(70);
 
-    if (result.status === "success") {
-      const data = result.output;
+    // MODIFIED: result is direct output from LLM
+    const data = result;
       
       // Calculate validation scores
       const checks = {
@@ -85,14 +97,13 @@ export default function NotaryValidator() {
       const totalChecks = Object.keys(checks).length;
       const score = Math.round((passedCount / totalChecks) * 100);
 
-      setValidationResult({
-        ...data,
-        checks,
-        score,
-        status: score >= 80 ? "valid" : score >= 50 ? "warning" : "invalid",
-        file_url,
-      });
-    }
+    setValidationResult({
+      ...data,
+      checks,
+      score,
+      status: score >= 80 ? "valid" : score >= 50 ? "warning" : "invalid",
+      file_url,
+    });
 
     setProgress(100);
     setIsProcessing(false);
