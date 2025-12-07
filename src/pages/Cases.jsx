@@ -16,6 +16,10 @@ import {
   Eye,
   ChevronLeft,
   ChevronRight,
+  FileUp, // ADDED for PDF import
+  Globe, // ADDED for URL import
+  Edit3, // ADDED for manual entry
+  ChevronDown, // ADDED for dropdown
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -52,6 +56,8 @@ import {
 } from "@/components/ui/dialog";
 import { format } from "date-fns";
 import NewCaseForm from "@/components/cases/NewCaseForm";
+import PDFCaseBuilder from "@/components/cases/PDFCaseBuilder"; // ADDED
+import URLCaseBuilder from "@/components/cases/URLCaseBuilder"; // ADDED
 
 const stageColors = {
   imported: "bg-slate-100 text-slate-700",
@@ -93,6 +99,7 @@ export default function Cases() {
   const [stageFilter, setStageFilter] = useState("all");
   const [selectedCases, setSelectedCases] = useState([]);
   const [showNewCaseDialog, setShowNewCaseDialog] = useState(false);
+  const [importMethod, setImportMethod] = useState(null); // ADDED: "manual" | "pdf" | "url"
   const [page, setPage] = useState(1);
   const pageSize = 20;
 
@@ -177,24 +184,94 @@ export default function Cases() {
           <h1 className="text-3xl font-bold text-slate-900">Cases</h1>
           <p className="text-slate-500 mt-1">{filteredCases.length} total cases</p>
         </div>
-        <Dialog open={showNewCaseDialog} onOpenChange={setShowNewCaseDialog}>
-          <DialogTrigger asChild>
+        
+        {/* MODIFIED: New Case Dropdown with 3 methods */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
             <Button className="bg-emerald-600 hover:bg-emerald-700">
               <Plus className="w-4 h-4 mr-2" />
               New Case
+              <ChevronDown className="w-4 h-4 ml-2" />
             </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuItem onClick={() => {
+              setImportMethod("manual");
+              setShowNewCaseDialog(true);
+            }}>
+              <Edit3 className="w-4 h-4 mr-2" />
+              Manual Entry
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => {
+              setImportMethod("pdf");
+              setShowNewCaseDialog(true);
+            }}>
+              <FileUp className="w-4 h-4 mr-2" />
+              Upload PDF (Auto Extract)
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => {
+              setImportMethod("url");
+              setShowNewCaseDialog(true);
+            }}>
+              <Globe className="w-4 h-4 mr-2" />
+              Import From URL (Web Crawler)
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        {/* ADDED: Dialog for all import methods */}
+        <Dialog open={showNewCaseDialog} onOpenChange={(open) => {
+          setShowNewCaseDialog(open);
+          if (!open) setImportMethod(null);
+        }}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Create New Case</DialogTitle>
+              <DialogTitle>
+                {importMethod === "manual" && "Create New Case - Manual Entry"}
+                {importMethod === "pdf" && "Create Cases - Upload PDF"}
+                {importMethod === "url" && "Create Cases - Import From URL"}
+              </DialogTitle>
             </DialogHeader>
-            <NewCaseForm 
-              counties={counties} 
-              onSuccess={() => {
-                setShowNewCaseDialog(false);
-                queryClient.invalidateQueries({ queryKey: ["cases"] });
-              }} 
-            />
+            
+            {/* ADDED: Conditional render based on import method */}
+            {importMethod === "manual" && (
+              <NewCaseForm 
+                counties={counties} 
+                onSuccess={() => {
+                  setShowNewCaseDialog(false);
+                  setImportMethod(null);
+                  queryClient.invalidateQueries({ queryKey: ["cases"] });
+                }} 
+              />
+            )}
+            
+            {importMethod === "pdf" && (
+              <PDFCaseBuilder
+                onSuccess={() => {
+                  setShowNewCaseDialog(false);
+                  setImportMethod(null);
+                  queryClient.invalidateQueries({ queryKey: ["cases"] });
+                }}
+                onCancel={() => {
+                  setShowNewCaseDialog(false);
+                  setImportMethod(null);
+                }}
+              />
+            )}
+            
+            {importMethod === "url" && (
+              <URLCaseBuilder
+                onSuccess={() => {
+                  setShowNewCaseDialog(false);
+                  setImportMethod(null);
+                  queryClient.invalidateQueries({ queryKey: ["cases"] });
+                }}
+                onCancel={() => {
+                  setShowNewCaseDialog(false);
+                  setImportMethod(null);
+                }}
+              />
+            )}
           </DialogContent>
         </Dialog>
       </div>
@@ -241,6 +318,7 @@ export default function Cases() {
               ))}
             </SelectContent>
           </Select>
+          {/* ADDED: Additional filter for county (optional enhancement) */}
         </div>
 
         {/* Bulk Actions */}
@@ -280,10 +358,11 @@ export default function Cases() {
                 <TableHead className="font-semibold">Owner</TableHead>
                 <TableHead className="font-semibold">Case #</TableHead>
                 <TableHead className="font-semibold">County</TableHead>
+                <TableHead className="font-semibold">Property Address</TableHead>{/* ADDED */}
                 <TableHead className="font-semibold text-right">Surplus</TableHead>
                 <TableHead className="font-semibold">Status</TableHead>
                 <TableHead className="font-semibold">Stage</TableHead>
-                <TableHead className="font-semibold">Verified</TableHead>{/* ADDED */}
+                <TableHead className="font-semibold">Verified</TableHead>
                 <TableHead className="font-semibold">Updated</TableHead>
                 <TableHead className="font-semibold w-10"></TableHead>
                 <TableHead className="font-semibold w-20"></TableHead>
@@ -292,13 +371,13 @@ export default function Cases() {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={10} className="text-center py-8 text-slate-500">
+                  <TableCell colSpan={11} className="text-center py-8 text-slate-500">{/* MODIFIED: colspan */}
                     Loading cases...
                   </TableCell>
                 </TableRow>
               ) : paginatedCases.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={10} className="text-center py-8 text-slate-500">
+                  <TableCell colSpan={11} className="text-center py-8 text-slate-500">{/* MODIFIED: colspan */}
                     No cases found
                   </TableCell>
                 </TableRow>
@@ -327,6 +406,10 @@ export default function Cases() {
                     <TableCell className="text-slate-600">
                       {caseItem.county}{caseItem.state ? `, ${caseItem.state}` : ""}
                     </TableCell>
+                    {/* ADDED: Property Address column */}
+                    <TableCell className="text-slate-600 text-sm max-w-xs truncate">
+                      {caseItem.property_address || "—"}
+                    </TableCell>
                     <TableCell className="text-right font-semibold text-slate-900">
                       ${caseItem.surplus_amount?.toLocaleString() || "0"}
                     </TableCell>
@@ -341,16 +424,24 @@ export default function Cases() {
                         {stageLabels[caseItem.stage]}
                       </Badge>
                     </TableCell>
-                    {/* ADDED: Verification status column */}
+                    {/* MODIFIED: Verification status with better visibility */}
                     <TableCell>
                       {caseItem.verification_status && caseItem.verification_status !== "pending" ? (
-                        <div className={`w-2 h-2 rounded-full ${
-                          caseItem.verification_status === "green" ? "bg-emerald-500" :
-                          caseItem.verification_status === "yellow" ? "bg-amber-500" :
-                          "bg-red-500"
-                        }`} />
+                        <Badge 
+                          variant="outline" 
+                          className={`text-xs border-0 ${
+                            caseItem.verification_status === "green" ? "bg-emerald-100 text-emerald-700" :
+                            caseItem.verification_status === "yellow" ? "bg-amber-100 text-amber-700" :
+                            "bg-red-100 text-red-700"
+                          }`}
+                        >
+                          {caseItem.verification_status === "green" ? "✓" :
+                           caseItem.verification_status === "yellow" ? "⚠" : "✗"}
+                        </Badge>
                       ) : (
-                        <div className="w-2 h-2 rounded-full bg-slate-300" />
+                        <Badge variant="outline" className="text-xs bg-slate-100 text-slate-500 border-0">
+                          —
+                        </Badge>
                       )}
                     </TableCell>
                     <TableCell className="text-slate-500 text-sm">
