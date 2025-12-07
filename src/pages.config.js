@@ -17,6 +17,8 @@ import NotaryValidator from './pages/NotaryValidator';
 import FileManager from './pages/FileManager';
 import AutomationLog from './pages/AutomationLog';
 import CleanupTools from './pages/CleanupTools';
+import Settings from './pages/Settings';
+import Profile from './pages/Profile';
 import __Layout from './Layout.jsx';
 
 
@@ -40,6 +42,8 @@ export const PAGES = {
     "FileManager": FileManager,
     "AutomationLog": AutomationLog,
     "CleanupTools": CleanupTools,
+    "Settings": Settings,
+    "Profile": Profile,
 }
 
 export const pagesConfig = {
