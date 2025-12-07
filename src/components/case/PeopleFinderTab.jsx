@@ -16,6 +16,12 @@ import {
   ExternalLink,
   Plus,
   ChevronRight,
+  Target, // ADDED for scoring
+  AlertTriangle, // ADDED for warnings
+  UserCheck, // ADDED for set primary owner
+  UserPlus, // ADDED for add contact
+  Home, // ADDED for address
+  RefreshCw, // ADDED for replace
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -53,6 +59,9 @@ const confidenceIcons = {
 export default function PeopleFinderTab({ caseId, caseData }) {
   const [searchName, setSearchName] = useState(caseData?.owner_name || "");
   const [searchAddress, setSearchAddress] = useState(caseData?.property_address || "");
+  const [searchCounty, setSearchCounty] = useState(caseData?.county || ""); // ADDED
+  const [searchCaseNumber, setSearchCaseNumber] = useState(caseData?.case_number || ""); // ADDED
+  const [searchParcel, setSearchParcel] = useState(caseData?.parcel_number || ""); // ADDED
   const [isRunning, setIsRunning] = useState(false);
   const [selectedCandidate, setSelectedCandidate] = useState(null);
 
@@ -119,6 +128,53 @@ export default function PeopleFinderTab({ caseId, caseData }) {
     setIsRunning(false);
   };
 
+  // ADDED: Set as primary owner action
+  const setPrimaryOwner = async (candidate) => {
+    await attachPerson(candidate, "primary_owner");
+    
+    // ADDED: Update case with full identity data
+    const updateData = {
+      owner_name: candidate.candidate_name,
+      owner_confidence: candidate.confidence_level,
+    };
+    if (candidate.candidate_phones?.[0]) updateData.owner_phone = candidate.candidate_phones[0];
+    if (candidate.candidate_emails?.[0]) updateData.owner_email = candidate.candidate_emails[0];
+    if (candidate.candidate_addresses?.[0]) updateData.owner_address = candidate.candidate_addresses[0];
+    
+    await base44.entities.Case.update(caseId, updateData);
+    
+    // ADDED: Trigger verification update (optional: call verification function)
+    queryClient.invalidateQueries({ queryKey: ["case", caseId] });
+    alert("Primary owner set successfully");
+  };
+
+  // ADDED: Add specific contact to case
+  const addContactToCase = async (candidate, contactType) => {
+    const updateData = {};
+    if (contactType === "phone" && candidate.candidate_phones?.[0]) {
+      updateData.owner_phone = candidate.candidate_phones[0];
+    } else if (contactType === "email" && candidate.candidate_emails?.[0]) {
+      updateData.owner_email = candidate.candidate_emails[0];
+    }
+    
+    if (Object.keys(updateData).length > 0) {
+      await base44.entities.Case.update(caseId, updateData);
+      queryClient.invalidateQueries({ queryKey: ["case", caseId] });
+      alert(`${contactType} added to case`);
+    }
+  };
+
+  // ADDED: Replace mailing address
+  const replaceMailingAddress = async (candidate) => {
+    if (candidate.candidate_addresses?.[0]) {
+      await base44.entities.Case.update(caseId, {
+        owner_address: candidate.candidate_addresses[0],
+      });
+      queryClient.invalidateQueries({ queryKey: ["case", caseId] });
+      alert("Mailing address updated");
+    }
+  };
+
   const attachPerson = async (candidate, role) => {
     // Create or link person
     let personId = candidate.person_id;
@@ -169,36 +225,25 @@ export default function PeopleFinderTab({ caseId, caseData }) {
       }
     }
 
-    // Update case with primary contact if high confidence
-    if (role === "primary_owner" && candidate.confidence_level === "high") {
-      const updateData = {};
-      if (candidate.candidate_phones?.[0]) updateData.owner_phone = candidate.candidate_phones[0];
-      if (candidate.candidate_emails?.[0]) updateData.owner_email = candidate.candidate_emails[0];
-      if (candidate.candidate_addresses?.[0]) updateData.owner_address = candidate.candidate_addresses[0];
-      
-      if (Object.keys(updateData).length > 0) {
-        await base44.entities.Case.update(caseId, {
-          ...updateData,
-          owner_confidence: "high",
-        });
-      }
-    }
-
     queryClient.invalidateQueries({ queryKey: ["case-persons", caseId] });
     queryClient.invalidateQueries({ queryKey: ["case", caseId] });
   };
 
   return (
     <div className="space-y-6">
-      {/* Search Controls */}
+      {/* SECTION A: Search Context - ENHANCED */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Search Context</CardTitle>
+          <CardTitle className="text-base flex items-center gap-2">
+            <Search className="w-4 h-4" />
+            Search Context
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid md:grid-cols-2 gap-4">
+          {/* MODIFIED: Expanded grid with all search fields */}
+          <div className="grid md:grid-cols-3 gap-4">
             <div>
-              <Label>Owner Name</Label>
+              <Label>Owner Name *</Label>
               <Input
                 value={searchName}
                 onChange={(e) => setSearchName(e.target.value)}
@@ -213,7 +258,33 @@ export default function PeopleFinderTab({ caseId, caseData }) {
                 placeholder="Address..."
               />
             </div>
+            <div>
+              <Label>County</Label>
+              <Input
+                value={searchCounty}
+                onChange={(e) => setSearchCounty(e.target.value)}
+                placeholder="County name..."
+              />
+            </div>
+            {/* ADDED: Case number and parcel fields */}
+            <div>
+              <Label>Case Number</Label>
+              <Input
+                value={searchCaseNumber}
+                onChange={(e) => setSearchCaseNumber(e.target.value)}
+                placeholder="Case #..."
+              />
+            </div>
+            <div>
+              <Label>Parcel ID</Label>
+              <Input
+                value={searchParcel}
+                onChange={(e) => setSearchParcel(e.target.value)}
+                placeholder="Parcel number..."
+              />
+            </div>
           </div>
+          
           <div className="flex gap-3">
             <Button
               onClick={() => runSearch("internal_only")}
@@ -237,102 +308,288 @@ export default function PeopleFinderTab({ caseId, caseData }) {
               ) : (
                 <ExternalLink className="w-4 h-4 mr-2" />
               )}
-              Internal + Public Search
+              Run Full Search (Internal + Web)
             </Button>
           </div>
           {latestQuery && (
-            <div className="text-sm text-slate-500">
-              Last search: {latestQuery.completed_at 
-                ? new Date(latestQuery.completed_at).toLocaleString()
-                : "In progress..."
-              } • {latestQuery.candidates_found || 0} candidates found
+            <div className="text-sm text-slate-500 flex items-center justify-between pt-2 border-t">
+              <span>
+                Last search: {latestQuery.completed_at 
+                  ? new Date(latestQuery.completed_at).toLocaleString()
+                  : "In progress..."
+                }
+              </span>
+              <Badge variant="secondary">
+                {latestQuery.candidates_found || 0} candidates found
+              </Badge>
             </div>
           )}
         </CardContent>
       </Card>
 
-      {/* MODIFIED: Use PDFIdentityPanel component */}
+      {/* SECTION B: Data Extracted from PDFs */}
       <PDFIdentityPanel caseId={caseId} />
 
-      {/* Candidate List */}
+      {/* SECTION C: Candidate Matches - ENHANCED */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Match Candidates</CardTitle>
+          <CardTitle className="text-base flex items-center gap-2">
+            <Target className="w-4 h-4" />
+            Match Candidates
+          </CardTitle>
         </CardHeader>
         <CardContent>
           {candidates.length === 0 ? (
             <div className="text-center py-8 text-slate-500">
               <Users className="w-12 h-12 mx-auto mb-3 text-slate-300" />
               <p>Run a search to find owner candidates</p>
+              <p className="text-sm text-slate-400 mt-1">
+                Search will use PDF data, internal records, and optional web scraping
+              </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Confidence</TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Best Phone</TableHead>
-                    <TableHead>Best Address</TableHead>
-                    <TableHead>Owner Match</TableHead>
-                    <TableHead className="w-32">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {candidates.map((candidate) => {
-                    const ConfIcon = confidenceIcons[candidate.confidence_level];
-                    return (
-                      <TableRow key={candidate.id} className="group">
-                        <TableCell>
-                          <Badge className={`${confidenceColors[candidate.confidence_level]} border gap-1`}>
-                            <ConfIcon className="w-3 h-3" />
-                            {candidate.confidence_level.toUpperCase()}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="font-medium">
-                          {candidate.candidate_name}
-                        </TableCell>
-                        <TableCell className="text-slate-600">
-                          {candidate.candidate_phones?.[0] || "—"}
-                        </TableCell>
-                        <TableCell className="text-slate-600 text-sm">
-                          {candidate.candidate_addresses?.[0]?.substring(0, 40) || "—"}
-                        </TableCell>
-                        <TableCell>
-                          {candidate.reason_codes?.includes("OWNER_MATCH") ? (
-                            <Badge className="bg-green-100 text-green-700">Yes</Badge>
-                          ) : (
-                            <Badge variant="outline">Likely</Badge>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-1">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => setSelectedCandidate(candidate)}
-                            >
-                              View
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="text-emerald-600"
-                              onClick={() => attachPerson(candidate, "primary_owner")}
-                            >
-                              Attach
-                            </Button>
+            <div className="space-y-4">
+              {/* MODIFIED: Card-based candidate display instead of table */}
+              {candidates.map((candidate, idx) => {
+                const ConfIcon = confidenceIcons[candidate.confidence_level];
+                const isHighConf = candidate.confidence_level === "high";
+                const isMediumConf = candidate.confidence_level === "medium";
+                
+                return (
+                  <div 
+                    key={candidate.id} 
+                    className={`border-2 rounded-xl p-5 ${
+                      isHighConf ? "border-emerald-300 bg-emerald-50/30" :
+                      isMediumConf ? "border-amber-300 bg-amber-50/30" :
+                      "border-slate-200 bg-slate-50/30"
+                    }`}
+                  >
+                    {/* ADDED: Header with confidence and score */}
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                          isHighConf ? "bg-emerald-500" :
+                          isMediumConf ? "bg-amber-500" :
+                          "bg-slate-400"
+                        }`}>
+                          <ConfIcon className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <Badge className={`${confidenceColors[candidate.confidence_level]} border-0 text-sm px-3 py-1`}>
+                              {candidate.confidence_level.toUpperCase()} CONFIDENCE
+                            </Badge>
+                            <span className="text-sm font-semibold text-slate-600">
+                              Match #{idx + 1}
+                            </span>
                           </div>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
+                          <p className="font-bold text-lg mt-1">{candidate.candidate_name}</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-sm text-slate-500">Match Score:</span>
+                            <span className="font-bold text-slate-900">{candidate.match_score}</span>
+                            <span className="text-slate-400 text-sm">/100</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* ADDED: Match reasons */}
+                    {candidate.reason_codes && candidate.reason_codes.length > 0 && (
+                      <div className="mb-4">
+                        <Label className="text-xs text-slate-600 mb-2 block">REASONS:</Label>
+                        <div className="flex flex-wrap gap-2">
+                          {candidate.reason_codes.map((code) => (
+                            <Badge key={code} variant="secondary" className="text-xs">
+                              {code.replace(/_/g, " ")}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* ADDED: Contact details grid */}
+                    <div className="grid md:grid-cols-3 gap-4 mb-4 text-sm">
+                      <div>
+                        <Label className="text-xs text-slate-600 mb-1 flex items-center gap-1">
+                          <Phone className="w-3 h-3" /> PHONES
+                        </Label>
+                        {candidate.candidate_phones?.length > 0 ? (
+                          <div className="space-y-1">
+                            {candidate.candidate_phones.map((phone, i) => (
+                              <div key={i} className="text-slate-900 font-mono text-xs">
+                                {phone}
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-slate-400 text-xs">None found</span>
+                        )}
+                      </div>
+                      <div>
+                        <Label className="text-xs text-slate-600 mb-1 flex items-center gap-1">
+                          <Mail className="w-3 h-3" /> EMAILS
+                        </Label>
+                        {candidate.candidate_emails?.length > 0 ? (
+                          <div className="space-y-1">
+                            {candidate.candidate_emails.map((email, i) => (
+                              <div key={i} className="text-slate-900 text-xs truncate">
+                                {email}
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-slate-400 text-xs">None found</span>
+                        )}
+                      </div>
+                      <div>
+                        <Label className="text-xs text-slate-600 mb-1 flex items-center gap-1">
+                          <MapPin className="w-3 h-3" /> ADDRESSES
+                        </Label>
+                        {candidate.candidate_addresses?.length > 0 ? (
+                          <div className="space-y-1">
+                            {candidate.candidate_addresses.slice(0, 2).map((addr, i) => (
+                              <div key={i} className="text-slate-900 text-xs">
+                                {addr}
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-slate-400 text-xs">None found</span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* ADDED: Action buttons */}
+                    <div className="flex flex-wrap gap-2 pt-3 border-t">
+                      <Button
+                        size="sm"
+                        className="bg-emerald-600 hover:bg-emerald-700"
+                        onClick={() => setPrimaryOwner(candidate)}
+                      >
+                        <UserCheck className="w-3 h-3 mr-1" />
+                        Set as Primary Owner
+                      </Button>
+                      {candidate.candidate_phones?.[0] && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => addContactToCase(candidate, "phone")}
+                        >
+                          <Phone className="w-3 h-3 mr-1" />
+                          Add Phone
+                        </Button>
+                      )}
+                      {candidate.candidate_addresses?.[0] && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => replaceMailingAddress(candidate)}
+                        >
+                          <RefreshCw className="w-3 h-3 mr-1" />
+                          Replace Mailing Address
+                        </Button>
+                      )}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setSelectedCandidate(candidate)}
+                      >
+                        View Full Details
+                      </Button>
+                      {!isHighConf && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="text-slate-500"
+                          onClick={() => attachPerson(candidate, "other")}
+                        >
+                          Attach as Relative
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
         </CardContent>
       </Card>
+
+      {/* SECTION D: Identity Reasoning & Warnings - NEW */}
+      {candidates.length > 0 && (
+        <Card className="border-amber-200 bg-amber-50/20">
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-amber-600" />
+              Identity Reasoning & Warnings
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {/* ADDED: Dynamic warnings based on candidates */}
+              {candidates.some(c => c.raw_source_data?.deceased_indicator) && (
+                <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <AlertTriangle className="w-4 h-4 text-red-600 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="font-medium text-sm text-red-900">Possible deceased owner</p>
+                    <p className="text-xs text-red-700 mt-1">
+                      Obituary or death record found. May require probate/estate handling.
+                    </p>
+                  </div>
+                </div>
+              )}
+              
+              {candidates.filter(c => c.confidence_level === "high").length > 1 && (
+                <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                  <AlertTriangle className="w-4 h-4 text-amber-600 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="font-medium text-sm text-amber-900">Multiple high-confidence matches</p>
+                    <p className="text-xs text-amber-700 mt-1">
+                      Found multiple strong candidates. May indicate co-owners or similar names.
+                    </p>
+                  </div>
+                </div>
+              )}
+              
+              {candidates.some(c => c.candidate_phones?.length === 0 && c.candidate_emails?.length === 0) && (
+                <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                  <AlertCircle className="w-4 h-4 text-amber-600 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="font-medium text-sm text-amber-900">No contact information found</p>
+                    <p className="text-xs text-amber-700 mt-1">
+                      Unable to locate phone or email. Consider skip tracing or mail-only approach.
+                    </p>
+                  </div>
+                </div>
+              )}
+              
+              {candidates.every(c => c.confidence_level === "low") && (
+                <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                  <XCircle className="w-4 h-4 text-amber-600 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="font-medium text-sm text-amber-900">Low confidence matches only</p>
+                    <p className="text-xs text-amber-700 mt-1">
+                      All candidates are low confidence. Verify identity before proceeding.
+                    </p>
+                  </div>
+                </div>
+              )}
+              
+              {candidates.length === 0 && latestQuery && (
+                <div className="flex items-start gap-2 p-3 bg-slate-50 border border-slate-200 rounded-lg">
+                  <AlertCircle className="w-4 h-4 text-slate-600 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="font-medium text-sm text-slate-900">No matches found</p>
+                    <p className="text-xs text-slate-700 mt-1">
+                      Try running Full Search with web scraping enabled for more results.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Linked Persons */}
       {personLinks.length > 0 && (
