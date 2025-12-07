@@ -28,10 +28,11 @@ import {
   PackageOpen,
   ScanText,
   CheckSquare,
+  Users, // ADDED for People Finder
   FolderOpen,
   Activity,
-  Trash2 } from
-"lucide-react";
+  Trash2
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -39,40 +40,41 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
-  DropdownMenuTrigger } from
-"@/components/ui/dropdown-menu";
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 
 const navigation = [
-{ name: "Dashboard", href: "Dashboard", icon: LayoutDashboard },
-{ name: "Cases", href: "Cases", icon: Briefcase },
-{ name: "Hot Cases", href: "HotCases", icon: Flame },
-{ name: "County Directory", href: "Counties", icon: Building2 },
-{
-  name: "Templates",
-  icon: FileText,
-  children: [
-  { name: "Phone Scripts", href: "Templates?category=phone_script", icon: Phone },
-  { name: "SMS", href: "Templates?category=sms", icon: MessageSquare },
-  { name: "Emails", href: "Templates?category=email", icon: Mail },
-  { name: "Rebuttals", href: "Templates?category=rebuttal", icon: MessageCircle },
-  { name: "Documents", href: "Templates?category=document", icon: FileCode }]
-
-},
-{ name: "How-To", href: "HowTo", icon: BookOpen },
-{
-  name: "System Tools",
-  icon: Wrench,
-  children: [
-  { name: "Packet Builder", href: "PacketBuilder", icon: PackageOpen },
-  { name: "OCR Extractor", href: "OCRExtractor", icon: ScanText },
-  { name: "Notary Validator", href: "NotaryValidator", icon: CheckSquare },
-  { name: "File Manager", href: "FileManager", icon: FolderOpen },
-  { name: "Automation Log", href: "AutomationLog", icon: Activity },
-  { name: "Cleanup Tools", href: "CleanupTools", icon: Trash2 }]
-
-}];
-
+  { name: "Dashboard", href: "Dashboard", icon: LayoutDashboard },
+  { name: "Cases", href: "Cases", icon: Briefcase },
+  { name: "Hot Cases", href: "HotCases", icon: Flame },
+  { name: "County Directory", href: "Counties", icon: Building2 },
+  {
+    name: "Templates",
+    icon: FileText,
+    children: [
+      { name: "Phone Scripts", href: "Templates?category=phone_script", icon: Phone },
+      { name: "SMS", href: "Templates?category=sms", icon: MessageSquare },
+      { name: "Emails", href: "Templates?category=email", icon: Mail },
+      { name: "Rebuttals", href: "Templates?category=rebuttal", icon: MessageCircle },
+      { name: "Documents", href: "Templates?category=document", icon: FileCode },
+    ],
+  },
+  { name: "How-To", href: "HowTo", icon: BookOpen },
+  {
+    name: "System Tools",
+    icon: Wrench,
+    children: [
+      { name: "Packet Builder", href: "PacketBuilder", icon: PackageOpen },
+      { name: "OCR Extractor", href: "OCRExtractor", icon: ScanText },
+      { name: "Notary Validator", href: "NotaryValidator", icon: CheckSquare },
+      { name: "People Finder", href: "PeopleFinder", icon: Users }, // ADDED
+      { name: "File Manager", href: "FileManager", icon: FolderOpen },
+      { name: "Automation Log", href: "AutomationLog", icon: Activity },
+      { name: "Cleanup Tools", href: "CleanupTools", icon: Trash2 },
+    ],
+  },
+];
 
 export default function Layout({ children, currentPageName }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -81,7 +83,7 @@ export default function Layout({ children, currentPageName }) {
 
   const { data: user } = useQuery({
     queryKey: ["currentUser"],
-    queryFn: () => base44.auth.me()
+    queryFn: () => base44.auth.me(),
   });
 
   const { data: alerts = [] } = useQuery({
@@ -89,13 +91,13 @@ export default function Layout({ children, currentPageName }) {
     queryFn: async () => {
       const allAlerts = await base44.entities.Alert.filter({ is_read: false });
       return allAlerts.slice(0, 5);
-    }
+    },
   });
 
   const toggleMenu = (menuName) => {
     setExpandedMenus((prev) => ({
       ...prev,
-      [menuName]: !prev[menuName]
+      [menuName]: !prev[menuName],
     }));
   };
 
@@ -112,96 +114,96 @@ export default function Layout({ children, currentPageName }) {
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Mobile sidebar backdrop */}
-      {sidebarOpen &&
-      <div
-        className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-        onClick={() => setSidebarOpen(false)} />
-
-      }
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
 
       {/* Sidebar */}
       <aside
         className={`fixed top-0 left-0 z-50 h-full w-72 bg-slate-900 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
-        sidebarOpen ? "translate-x-0" : "-translate-x-full"}`
-        }>
-
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
         {/* Logo */}
         <div className="flex items-center justify-between h-16 px-6 border-b border-slate-800">
           <Link to={createPageUrl("Dashboard")} className="flex items-center gap-3">
             <div className="w-9 h-9 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-xl flex items-center justify-center">
               <span className="text-white font-bold text-lg">B</span>
             </div>
-            <span className="text-white font-semibold text-xl tracking-tight">TENNO RECOVERY
-            </span>
+            <span className="text-white font-semibold text-xl tracking-tight">Base44</span>
           </Link>
-          <button onClick={() => setSidebarOpen(false)}
-          className="lg:hidden text-slate-400 hover:text-white">
-
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="lg:hidden text-slate-400 hover:text-white"
+          >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Navigation */}
         <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto h-[calc(100vh-64px)]">
-          {navigation.map((item) =>
-          <div key={item.name}>
-              {item.children ?
-            <>
+          {navigation.map((item) => (
+            <div key={item.name}>
+              {item.children ? (
+                <>
                   <button
-                onClick={() => toggleMenu(item.name)}
-                className="w-full flex items-center justify-between px-4 py-3 text-slate-300 hover:bg-slate-800/50 rounded-xl transition-colors group">
-
+                    onClick={() => toggleMenu(item.name)}
+                    className="w-full flex items-center justify-between px-4 py-3 text-slate-300 hover:bg-slate-800/50 rounded-xl transition-colors group"
+                  >
                     <div className="flex items-center gap-3">
                       <item.icon className="w-5 h-5 text-slate-400 group-hover:text-emerald-400 transition-colors" />
                       <span className="font-medium">{item.name}</span>
                     </div>
-                    {expandedMenus[item.name] ?
-                <ChevronDown className="w-4 h-4 text-slate-500" /> :
-
-                <ChevronRight className="w-4 h-4 text-slate-500" />
-                }
+                    {expandedMenus[item.name] ? (
+                      <ChevronDown className="w-4 h-4 text-slate-500" />
+                    ) : (
+                      <ChevronRight className="w-4 h-4 text-slate-500" />
+                    )}
                   </button>
-                  {expandedMenus[item.name] &&
-              <div className="ml-4 mt-1 space-y-1">
-                      {item.children.map((child) =>
-                <Link
-                  key={child.name}
-                  to={createPageUrl(child.href)}
-                  className="flex items-center gap-3 px-4 py-2.5 text-slate-400 hover:text-white hover:bg-slate-800/30 rounded-lg transition-colors text-sm">
-
+                  {expandedMenus[item.name] && (
+                    <div className="ml-4 mt-1 space-y-1">
+                      {item.children.map((child) => (
+                        <Link
+                          key={child.name}
+                          to={createPageUrl(child.href)}
+                          className="flex items-center gap-3 px-4 py-2.5 text-slate-400 hover:text-white hover:bg-slate-800/30 rounded-lg transition-colors text-sm"
+                        >
                           <child.icon className="w-4 h-4" />
                           {child.name}
                         </Link>
-                )}
+                      ))}
                     </div>
-              }
-                </> :
-
-            <Link
-              to={createPageUrl(item.href)}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all group ${
-              currentPageName === item.href ?
-              "bg-emerald-500/10 text-emerald-400" :
-              "text-slate-300 hover:bg-slate-800/50"}`
-              }>
-
+                  )}
+                </>
+              ) : (
+                <Link
+                  to={createPageUrl(item.href)}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all group ${
+                    currentPageName === item.href
+                      ? "bg-emerald-500/10 text-emerald-400"
+                      : "text-slate-300 hover:bg-slate-800/50"
+                  }`}
+                >
                   <item.icon
-                className={`w-5 h-5 transition-colors ${
-                currentPageName === item.href ?
-                "text-emerald-400" :
-                "text-slate-400 group-hover:text-emerald-400"}`
-                } />
-
+                    className={`w-5 h-5 transition-colors ${
+                      currentPageName === item.href
+                        ? "text-emerald-400"
+                        : "text-slate-400 group-hover:text-emerald-400"
+                    }`}
+                  />
                   <span className="font-medium">{item.name}</span>
-                  {item.name === "Hot Cases" &&
-              <Badge className="ml-auto bg-orange-500/20 text-orange-400 border-0 text-xs">
+                  {item.name === "Hot Cases" && (
+                    <Badge className="ml-auto bg-orange-500/20 text-orange-400 border-0 text-xs">
                       HOT
                     </Badge>
-              }
+                  )}
                 </Link>
-            }
+              )}
             </div>
-          )}
+          ))}
         </nav>
       </aside>
 
@@ -214,8 +216,8 @@ export default function Layout({ children, currentPageName }) {
             <div className="flex items-center gap-4 flex-1">
               <button
                 onClick={() => setSidebarOpen(true)}
-                className="lg:hidden text-slate-600 hover:text-slate-900">
-
+                className="lg:hidden text-slate-600 hover:text-slate-900"
+              >
                 <Menu className="w-6 h-6" />
               </button>
 
@@ -225,8 +227,8 @@ export default function Layout({ children, currentPageName }) {
                   placeholder="Search cases, counties..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 bg-slate-100/50 border-0 focus-visible:ring-emerald-500/20 focus-visible:ring-2" />
-
+                  className="pl-10 bg-slate-100/50 border-0 focus-visible:ring-emerald-500/20 focus-visible:ring-2"
+                />
               </div>
             </div>
 
@@ -237,29 +239,29 @@ export default function Layout({ children, currentPageName }) {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="relative">
                     <Bell className="w-5 h-5 text-slate-600" />
-                    {alerts.length > 0 &&
-                    <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
-                    }
+                    {alerts.length > 0 && (
+                      <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
+                    )}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-80">
                   <div className="px-4 py-3 border-b">
                     <h3 className="font-semibold text-sm">Notifications</h3>
                   </div>
-                  {alerts.length === 0 ?
-                  <div className="px-4 py-6 text-center text-slate-500 text-sm">
+                  {alerts.length === 0 ? (
+                    <div className="px-4 py-6 text-center text-slate-500 text-sm">
                       No new notifications
-                    </div> :
-
-                  alerts.map((alert) =>
-                  <DropdownMenuItem key={alert.id} className="px-4 py-3">
+                    </div>
+                  ) : (
+                    alerts.map((alert) => (
+                      <DropdownMenuItem key={alert.id} className="px-4 py-3">
                         <div>
                           <p className="font-medium text-sm">{alert.title}</p>
                           <p className="text-xs text-slate-500 mt-1">{alert.message}</p>
                         </div>
                       </DropdownMenuItem>
-                  )
-                  }
+                    ))
+                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
 
@@ -315,6 +317,6 @@ export default function Layout({ children, currentPageName }) {
         {/* Page content */}
         <main className="p-4 lg:p-8">{children}</main>
       </div>
-    </div>);
-
+    </div>
+  );
 }

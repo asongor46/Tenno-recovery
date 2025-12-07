@@ -19,6 +19,7 @@ import AutomationLog from './pages/AutomationLog';
 import CleanupTools from './pages/CleanupTools';
 import Settings from './pages/Settings';
 import Profile from './pages/Profile';
+import PeopleFinder from './pages/PeopleFinder';
 import __Layout from './Layout.jsx';
 
 
@@ -44,6 +45,7 @@ export const PAGES = {
     "CleanupTools": CleanupTools,
     "Settings": Settings,
     "Profile": Profile,
+    "PeopleFinder": PeopleFinder,
 }
 
 export const pagesConfig = {
