@@ -50,90 +50,79 @@ function normalizeOwnerName(rawName) {
   };
 }
 
-// ADDED: Main parcel resolution function
+// REMOVED MOCK DATA - Now uses CountyScraperEngine
 async function resolveParcel(parcelNumber, county, state) {
-  const appraiserInfo = PROPERTY_APPRAISER_APIS[county];
+  // Map county to profile ID
+  const normalizedCounty = county?.toLowerCase().replace(/\s+/g, '_');
+  const normalizedState = state?.toLowerCase();
+  const countyId = `${normalizedCounty}_${normalizedState}`;
   
-  if (!appraiserInfo) {
-    // Fallback: return placeholder with note
+  // Call CountyScraperEngine - APPRAISER operation
+  const scraperUrl = `${Deno.env.get('BASE44_FUNCTION_URL') || ''}/invokeCountyScraper`;
+  
+  try {
+    const response = await fetch(scraperUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        countyId,
+        operation: 'APPRAISER',
+        input: { parcelNumber },
+      }),
+    });
+    
+    if (!response.ok) {
+      return {
+        status: 'error',
+        owner_name: null,
+        property_address: null,
+        mailing_address: null,
+        confidence: 'unknown',
+        note: `Failed to fetch appraiser data: ${response.status}`,
+        requires_manual_lookup: true,
+      };
+    }
+    
+    const result = await response.json();
+    
+    if (result.status === 'error') {
+      return {
+        status: 'not_implemented',
+        owner_name: null,
+        property_address: null,
+        mailing_address: null,
+        confidence: 'unknown',
+        note: result.errors?.join('; ') || 'County profile not configured',
+        requires_manual_lookup: true,
+      };
+    }
+    
+    // Map scraper result to expected format
     return {
-      status: 'api_not_configured',
+      status: result.status === 'ok' ? 'success' : 'partial',
+      owner_name: result.ownerName || null,
+      owner_normalized: normalizeOwnerName(result.ownerName),
+      property_address: result.propertyAddress || null,
+      mailing_address: result.mailingAddress || result.propertyAddress || null,
+      mailing_same_as_property: result.mailingAddress === result.propertyAddress,
+      homestead_status: result.homestead,
+      confidence: result.ownerName ? 'high' : 'unknown',
+      source: 'property_appraiser_scrape',
+      fetched_at: new Date().toISOString(),
+      warnings: result.errors || [],
+      note: result.errors?.length > 0 ? result.errors.join('; ') : null,
+    };
+  } catch (error) {
+    return {
+      status: 'error',
       owner_name: null,
       property_address: null,
       mailing_address: null,
-      homestead_status: null,
-      last_sale_date: null,
-      deed_type: null,
       confidence: 'unknown',
-      note: `Property appraiser API not configured for ${county} County`,
+      note: `Scraper error: ${error.message}`,
       requires_manual_lookup: true,
     };
   }
-  
-  // TODO: Implement actual API/scraping logic
-  // For now, return structured mock data showing what WILL be fetched
-  
-  // Real implementation would:
-  // 1. Query property appraiser by parcel
-  // 2. Parse HTML/JSON response
-  // 3. Extract all relevant fields
-  // 4. Normalize owner names
-  // 5. Validate data completeness
-  
-  const mockOwnerData = {
-    status: 'success',
-    
-    // ADDED: Owner information
-    owner_name: `SMITH, JOHN A`, // Raw from property appraiser
-    owner_normalized: normalizeOwnerName('SMITH, JOHN A'),
-    
-    // ADDED: Property details
-    property_address: `123 Main St, ${county}, ${state} 33301`,
-    property_type: 'Single Family',
-    
-    // ADDED: Mailing address (critical for contact)
-    mailing_address: `PO Box 456, ${county}, ${state} 33302`,
-    mailing_same_as_property: false,
-    
-    // ADDED: Homestead status (affects claim eligibility)
-    homestead_status: true,
-    homestead_exemption_amount: 50000,
-    
-    // ADDED: Deed history
-    last_sale_date: '2020-05-15',
-    last_sale_amount: 250000,
-    deed_type: 'Warranty Deed',
-    deed_book: '12345',
-    deed_page: '678',
-    
-    // ADDED: Ownership timeline (helps with verification)
-    ownership_changes: [
-      {
-        date: '2020-05-15',
-        type: 'Purchase',
-        from: 'Previous Owner',
-        to: 'SMITH, JOHN A',
-      },
-    ],
-    
-    // ADDED: Tax information
-    assessed_value: 300000,
-    tax_year: 2024,
-    
-    // ADDED: Confidence scoring
-    confidence: 'high', // Would be 'high' with real API data
-    data_completeness: 95, // Percentage of fields populated
-    
-    // ADDED: Source tracking
-    source: 'property_appraiser',
-    fetched_at: new Date().toISOString(),
-    
-    // ADDED: Warnings/notes
-    warnings: [],
-    note: 'Mock data - requires property appraiser API integration',
-  };
-  
-  return mockOwnerData;
 }
 
 Deno.serve(async (req) => {

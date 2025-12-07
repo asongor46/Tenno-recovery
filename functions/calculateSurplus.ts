@@ -37,39 +37,36 @@ const COUNTY_FEE_STRUCTURES = {
   },
 };
 
-// ADDED: Fetch detailed tax debt information
-async function fetchTaxDebt(taxDeedNumber, parcelNumber, county, state) {
-  // TODO: Implement actual tax collector API/scraping
-  // Real implementation would query:
-  // - Tax collector website
-  // - Outstanding balance
-  // - Interest accrued
-  // - Penalties
-  // - Certificate amounts
+// REMOVED MOCK DATA - Now delegates to CountyScraperEngine
+async function fetchSaleDetail(taxDeedNumber, parcelNumber, county, state) {
+  // Map county to profile ID
+  const normalizedCounty = county?.toLowerCase().replace(/\s+/g, '_');
+  const normalizedState = state?.toLowerCase();
+  const countyId = `${normalizedCounty}_${normalizedState}`;
   
-  // Mock data showing what WILL be fetched
-  return {
-    status: 'success',
+  // Call CountyScraperEngine - SALE_DETAIL operation
+  const scraperUrl = `${Deno.env.get('BASE44_FUNCTION_URL') || ''}/invokeCountyScraper`;
+  
+  try {
+    const response = await fetch(scraperUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        countyId,
+        operation: 'SALE_DETAIL',
+        input: { taxDeedNumber, parcelNumber },
+      }),
+    });
     
-    // ADDED: Tax debt breakdown
-    property_taxes_owed: 5000,
-    interest_accrued: 500,
-    penalties: 250,
-    certificate_amount: 5750,
+    if (!response.ok) {
+      return { status: 'error', errors: [`HTTP ${response.status}`] };
+    }
     
-    // ADDED: Tax years owed
-    tax_years: ['2020', '2021', '2022'],
-    
-    // ADDED: Total debt
-    total_debt: 5750,
-    
-    // ADDED: Confidence and source
-    confidence: 'high',
-    source: 'tax_collector_api',
-    fetched_at: new Date().toISOString(),
-    
-    note: 'Mock data - requires tax collector API integration',
-  };
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    return { status: 'error', errors: [error.message] };
+  }
 }
 
 // ADDED: Main surplus calculation function
@@ -100,68 +97,74 @@ async function calculateSurplusAmount(data) {
     };
   }
   
-  // ADDED: Get county fee structure
-  const feeStructure = COUNTY_FEE_STRUCTURES[county] || COUNTY_FEE_STRUCTURES['default'];
+  // REMOVED MOCK DATA - Now uses CountyScraperEngine for sale details
   
-  // ADDED: Fetch tax debt details
-  const taxDebt = await fetchTaxDebt(tax_deed_number, parcel_number, county, state);
+  // Fetch sale detail data from county scraper
+  const saleDetail = await fetchSaleDetail(tax_deed_number, parcel_number, county, state);
   
-  if (taxDebt.status !== 'success') {
-    // ADDED: Fallback to simplified calculation
-    const simplifiedSurplus = winning_bid - opening_bid;
-    return {
-      status: 'estimated',
-      surplus_amount: Math.max(0, simplifiedSurplus),
-      calculation_method: 'simplified_estimate',
-      confidence: 'low',
-      breakdown: {
-        winning_bid: winning_bid,
-        opening_bid: opening_bid,
-        estimated_surplus: simplifiedSurplus,
-      },
-      warning: 'Tax debt data unavailable - using simplified calculation',
-      note: 'This is an ESTIMATE. Verify with county records.',
-    };
+  if (saleDetail.status === 'error' || !saleDetail.surplusAmount) {
+    // If scraper doesn't have surplus, try to calculate from available data
+    const feeStructure = COUNTY_FEE_STRUCTURES[county] || COUNTY_FEE_STRUCTURES['default'];
+    
+    if (saleDetail.winningBid && saleDetail.taxesOwed && saleDetail.fees) {
+      // We have all components
+      const calculatedSurplus = saleDetail.winningBid - saleDetail.taxesOwed - saleDetail.fees;
+      
+      return {
+        status: 'calculated',
+        surplus_amount: Math.max(0, calculatedSurplus),
+        calculation_method: 'scraped_components',
+        confidence: 'high',
+        breakdown: {
+          winning_bid: saleDetail.winningBid,
+          taxes_owed: saleDetail.taxesOwed,
+          fees: saleDetail.fees,
+          surplus: calculatedSurplus,
+        },
+        note: 'Surplus calculated from scraped sale detail components',
+      };
+    } else if (winning_bid && opening_bid) {
+      // Fallback to simplified estimation
+      const simplifiedSurplus = winning_bid - opening_bid;
+      return {
+        status: 'estimated',
+        surplus_amount: Math.max(0, simplifiedSurplus),
+        calculation_method: 'simplified_estimate',
+        confidence: 'low',
+        breakdown: {
+          winning_bid: winning_bid,
+          opening_bid: opening_bid,
+          estimated_surplus: simplifiedSurplus,
+        },
+        warning: 'Sale detail data unavailable - using simplified calculation',
+        note: 'This is an ESTIMATE. Verify with county records.',
+      };
+    } else {
+      // No data available
+      return {
+        status: 'not_resolved',
+        surplus_amount: null,
+        calculation_method: 'none',
+        confidence: 'unknown',
+        note: 'Unable to calculate surplus - insufficient data. Manual lookup required.',
+      };
+    }
   }
   
-  // ADDED: Full calculation with all components
-  const totalOwed = taxDebt.total_debt + feeStructure.default_fees;
-  const calculatedSurplus = winning_bid - totalOwed;
-  
+  // Scraper returned surplus directly
   return {
     status: 'success',
-    surplus_amount: Math.max(0, calculatedSurplus),
-    calculation_method: 'full_calculation',
+    surplus_amount: saleDetail.surplusAmount,
+    calculation_method: 'scraped_surplus',
     confidence: 'high',
-    
-    // ADDED: Detailed breakdown for transparency
     breakdown: {
-      winning_bid: winning_bid,
-      
-      // Debt components
-      property_taxes: taxDebt.property_taxes_owed,
-      interest: taxDebt.interest_accrued,
-      penalties: taxDebt.penalties,
-      subtotal_debt: taxDebt.total_debt,
-      
-      // Fee components
-      clerk_fee: feeStructure.clerk_fee,
-      recording_fee: feeStructure.recording_fee,
-      publication_fee: feeStructure.publication_fee,
-      subtotal_fees: feeStructure.default_fees,
-      
-      // Final calculation
-      total_owed: totalOwed,
-      surplus: calculatedSurplus,
+      winning_bid: saleDetail.winningBid,
+      opening_bid: saleDetail.openingBid,
+      taxes_owed: saleDetail.taxesOwed,
+      fees: saleDetail.fees,
+      surplus: saleDetail.surplusAmount,
     },
-    
-    // ADDED: Additional metadata
-    tax_years_owed: taxDebt.tax_years,
-    county_fees_applied: feeStructure,
-    
-    note: calculatedSurplus > 0 
-      ? 'Surplus calculated using full debt + fees breakdown'
-      : 'No surplus available - winning bid did not exceed total owed',
+    note: 'Surplus obtained directly from county sale detail page',
   };
 }
 
