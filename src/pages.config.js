@@ -20,6 +20,9 @@ import CleanupTools from './pages/CleanupTools';
 import Settings from './pages/Settings';
 import Profile from './pages/Profile';
 import PeopleFinder from './pages/PeopleFinder';
+import PortalDashboard from './pages/PortalDashboard';
+import PortalIDUpload from './pages/PortalIDUpload';
+import PortalIntake from './pages/PortalIntake';
 import __Layout from './Layout.jsx';
 
 
@@ -46,6 +49,9 @@ export const PAGES = {
     "Settings": Settings,
     "Profile": Profile,
     "PeopleFinder": PeopleFinder,
+    "PortalDashboard": PortalDashboard,
+    "PortalIDUpload": PortalIDUpload,
+    "PortalIntake": PortalIntake,
 }
 
 export const pagesConfig = {
