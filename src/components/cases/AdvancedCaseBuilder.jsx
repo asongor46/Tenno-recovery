@@ -37,7 +37,7 @@ import {
   resolveOwner,
   calculateConfidence,
   COUNTY_PROFILES,
-} from "@/utils/countyMappingEngine";
+} from "./countyMappingEngine";
 
 // ADDED: Advanced Case Builder for Universal County Mapping
 export default function AdvancedCaseBuilder({ onSuccess, onCancel }) {
