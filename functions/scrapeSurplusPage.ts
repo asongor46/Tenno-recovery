@@ -11,25 +11,25 @@ Deno.serve(async (req) => {
     }
 
     // Get request payload
-    const { file_url, extraction_type } = await req.json();
+    const { url } = await req.json();
 
-    // TODO: Implement actual PDF extraction logic using OCR/LLM
-    // For now, return mock extracted cases
+    // TODO: Implement actual web scraping logic
+    // For now, return mock scraped cases
     const mockCases = [
       {
-        owner_name: "Sample Owner",
-        property_address: "123 Main St",
-        county: "Sample County",
-        case_number: "2024-12345",
-        surplus_amount: 50000,
-        sale_date: "2024-01-15",
+        owner_name: "Scraped Owner",
+        property_address: "456 Oak Ave",
+        county: "Web County",
+        case_number: "WEB-2024-001",
+        surplus_amount: 75000,
+        sale_date: "2024-02-20",
       }
     ];
 
     return Response.json({
       status: "success",
       cases: mockCases,
-      extraction_type,
+      source_url: url,
     });
 
   } catch (error) {
