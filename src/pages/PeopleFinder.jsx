@@ -433,35 +433,4 @@ export default function PeopleFinder() {
       </Dialog>
     </div>
   );
-
-  async function createPersonFromCandidate(candidate) {
-    const person = await base44.entities.Person.create({
-      full_name: candidate.candidate_name,
-      first_name: candidate.raw_source_data?.first_name,
-      last_name: candidate.raw_source_data?.last_name,
-    });
-
-    for (const phone of candidate.candidate_phones || []) {
-      await base44.entities.ContactPoint.create({
-        person_id: person.id,
-        type: "phone",
-        value: phone,
-        confidence: candidate.confidence_level,
-        source_type: "people_finder_internal",
-      });
-    }
-
-    for (const email of candidate.candidate_emails || []) {
-      await base44.entities.ContactPoint.create({
-        person_id: person.id,
-        type: "email",
-        value: email,
-        confidence: candidate.confidence_level,
-        source_type: "people_finder_internal",
-      });
-    }
-
-    alert(`Person created: ${person.full_name}`);
-    queryClient.invalidateQueries();
-  }
 }

@@ -9,11 +9,9 @@ import {
   Shield,
   DollarSign,
   FileCheck,
-  TrendingUp,
   Info,
-  RefreshCw, // ADDED
 } from "lucide-react";
-import RunVerificationButton from "./RunVerificationButton"; // ADDED
+import RunVerificationButton from "./RunVerificationButton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -53,7 +51,6 @@ export default function VerificationTab({ caseId, caseData }) {
     enabled: !!caseData?.county,
   });
 
-  // Calculate verification checks
   const checks = {
     integrity: calculateIntegrityCheck(caseData),
     owner: calculateOwnerCheck(caseData),
@@ -64,17 +61,14 @@ export default function VerificationTab({ caseId, caseData }) {
 
   const overallStatus = caseData?.verification_status || "pending";
   const complexityScore = caseData?.complexity_score || 0;
-
   const OverallIcon = verificationIcons[overallStatus];
 
   return (
     <div className="space-y-6">
-      {/* ADDED: Run Verification Button at top */}
       <div className="flex justify-end">
         <RunVerificationButton caseId={caseId} />
       </div>
 
-      {/* Overall Status */}
       <Card className={`border-2 ${
         overallStatus === "green" ? "border-emerald-500 bg-emerald-50" :
         overallStatus === "yellow" ? "border-amber-500 bg-amber-50" :
@@ -108,31 +102,13 @@ export default function VerificationTab({ caseId, caseData }) {
         </CardContent>
       </Card>
 
-      {/* Verification Checks Grid */}
       <div className="grid md:grid-cols-2 gap-4">
-        <VerificationCard
-          title="Case Integrity"
-          icon={Shield}
-          check={checks.integrity}
-        />
-        <VerificationCard
-          title="Owner Verification"
-          icon={Target}
-          check={checks.owner}
-        />
-        <VerificationCard
-          title="Surplus Status"
-          icon={DollarSign}
-          check={checks.surplus}
-        />
-        <VerificationCard
-          title="Filing Permissions"
-          icon={FileCheck}
-          check={checks.filing}
-        />
+        <VerificationCard title="Case Integrity" icon={Shield} check={checks.integrity} />
+        <VerificationCard title="Owner Verification" icon={Target} check={checks.owner} />
+        <VerificationCard title="Surplus Status" icon={DollarSign} check={checks.surplus} />
+        <VerificationCard title="Filing Permissions" icon={FileCheck} check={checks.filing} />
       </div>
 
-      {/* Detailed Breakdown */}
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Verification Details</CardTitle>
@@ -151,7 +127,6 @@ export default function VerificationTab({ caseId, caseData }) {
         </CardContent>
       </Card>
 
-      {/* Recommended Actions */}
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Recommended Next Actions</CardTitle>
@@ -209,12 +184,14 @@ function VerificationCard({ title, icon: Icon, check }) {
           <div className="flex-1">
             <p className="font-semibold text-sm mb-1">{title}</p>
             <div className="flex items-center gap-2 mb-2">
-              <StatusIcon className={`w-4 h-4 ${check.status === "pass" ? "text-emerald-600" : check.status === "warning" ? "text-amber-600" : check.status === "fail" ? "text-red-600" : "text-slate-500"}`} />
+              <StatusIcon className={`w-4 h-4 ${
+                check.status === "pass" ? "text-emerald-600" : 
+                check.status === "warning" ? "text-amber-600" : 
+                check.status === "fail" ? "text-red-600" : "text-slate-500"
+              }`} />
               <span className="text-sm font-medium capitalize">{check.status}</span>
             </div>
-            {check.notes && (
-              <p className="text-xs text-slate-600">{check.notes}</p>
-            )}
+            {check.notes && <p className="text-xs text-slate-600">{check.notes}</p>}
             {check.issues && check.issues.length > 0 && (
               <ul className="text-xs text-slate-500 mt-2 space-y-1">
                 {check.issues.map((issue, i) => (
@@ -229,23 +206,13 @@ function VerificationCard({ title, icon: Icon, check }) {
   );
 }
 
-// Helper functions for calculating checks
 function calculateIntegrityCheck(caseData) {
   const issues = [];
-  
-  if (!caseData.surplus_amount || caseData.surplus_amount <= 0) {
-    issues.push("No surplus amount recorded");
-  }
-  
-  if (caseData.sale_amount && caseData.judgment_amount && 
-      caseData.sale_amount <= caseData.judgment_amount) {
+  if (!caseData.surplus_amount || caseData.surplus_amount <= 0) issues.push("No surplus amount recorded");
+  if (caseData.sale_amount && caseData.judgment_amount && caseData.sale_amount <= caseData.judgment_amount) {
     issues.push("Sale amount does not exceed judgment");
   }
-
-  if (!caseData.sale_date) {
-    issues.push("Missing sale date");
-  }
-
+  if (!caseData.sale_date) issues.push("Missing sale date");
   return {
     status: issues.length === 0 ? "pass" : issues.length <= 1 ? "warning" : "fail",
     notes: issues.length === 0 ? "All basic data present" : null,
@@ -256,15 +223,8 @@ function calculateIntegrityCheck(caseData) {
 function calculateOwnerCheck(caseData) {
   const confidence = caseData.owner_confidence || "unknown";
   const issues = [];
-
-  if (confidence === "low" || confidence === "unknown") {
-    issues.push("Owner identity not verified");
-  }
-
-  if (!caseData.owner_phone && !caseData.owner_email) {
-    issues.push("No contact information");
-  }
-
+  if (confidence === "low" || confidence === "unknown") issues.push("Owner identity not verified");
+  if (!caseData.owner_phone && !caseData.owner_email) issues.push("No contact information");
   return {
     status: confidence === "high" ? "pass" : confidence === "medium" ? "warning" : "fail",
     notes: confidence === "high" ? "Owner identity confirmed" : null,
@@ -273,7 +233,6 @@ function calculateOwnerCheck(caseData) {
 }
 
 function calculateSurplusCheck(caseData) {
-  // Simple check for now
   return {
     status: caseData.surplus_amount > 0 ? "pass" : "unknown",
     notes: caseData.surplus_amount > 0 ? "Surplus amount recorded" : "Surplus status not verified",
@@ -283,23 +242,11 @@ function calculateSurplusCheck(caseData) {
 
 function calculateFilingCheck(caseData, county) {
   const issues = [];
-  
   if (!county) {
-    return {
-      status: "unknown",
-      notes: "County rules not loaded",
-      issues: ["County information missing"],
-    };
+    return { status: "unknown", notes: "County rules not loaded", issues: ["County information missing"] };
   }
-
-  if (!county.rep_allowed) {
-    issues.push("County does not allow representative filing");
-  }
-
-  if (county.assignment_required) {
-    issues.push("Assignment document required");
-  }
-
+  if (!county.rep_allowed) issues.push("County does not allow representative filing");
+  if (county.assignment_required) issues.push("Assignment document required");
   return {
     status: issues.length === 0 ? "pass" : "warning",
     notes: county.rep_allowed ? "Representative filing allowed" : null,
@@ -309,19 +256,10 @@ function calculateFilingCheck(caseData, county) {
 
 function calculateNotaryCheck(caseData, county) {
   if (!county?.notary_required) {
-    return {
-      status: "pass",
-      notes: "Notary not required",
-      issues: [],
-    };
+    return { status: "pass", notes: "Notary not required", issues: [] };
   }
-
   const issues = [];
-  
-  if (caseData.notary_status === "pending") {
-    issues.push("Notarization pending");
-  }
-
+  if (caseData.notary_status === "pending") issues.push("Notarization pending");
   return {
     status: caseData.notary_status === "approved" ? "pass" : 
             caseData.notary_status === "validated" ? "warning" : "unknown",
@@ -333,43 +271,20 @@ function calculateNotaryCheck(caseData, county) {
 
 function getRecommendedActions(caseData, checks) {
   const actions = [];
-
   if (checks.owner.status !== "pass") {
-    actions.push({
-      text: "Run People Finder to verify owner identity",
-      priority: "high",
-      actionButton: "Run Search",
-    });
+    actions.push({ text: "Run People Finder to verify owner identity", priority: "high", actionButton: "Run Search" });
   }
-
   if (!caseData.owner_phone && !caseData.owner_email) {
-    actions.push({
-      text: "Obtain contact information for owner",
-      priority: "high",
-    });
+    actions.push({ text: "Obtain contact information for owner", priority: "high" });
   }
-
   if (checks.notary.status === "unknown" && checks.notary.issues.length > 0) {
-    actions.push({
-      text: "Send portal link to homeowner for notarization",
-      priority: "medium",
-      actionButton: "Send Link",
-    });
+    actions.push({ text: "Send portal link to homeowner for notarization", priority: "medium", actionButton: "Send Link" });
   }
-
   if (checks.filing.status === "warning") {
-    actions.push({
-      text: "Review county filing requirements",
-      priority: "medium",
-    });
+    actions.push({ text: "Review county filing requirements", priority: "medium" });
   }
-
   if (actions.length === 0) {
-    actions.push({
-      text: "Case looks good - proceed with filing",
-      priority: "low",
-    });
+    actions.push({ text: "Case looks good - proceed with filing", priority: "low" });
   }
-
   return actions;
 }
