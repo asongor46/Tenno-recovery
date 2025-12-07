@@ -11,7 +11,9 @@ import {
   FileCheck,
   TrendingUp,
   Info,
+  RefreshCw, // ADDED
 } from "lucide-react";
+import RunVerificationButton from "./RunVerificationButton"; // ADDED
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -67,6 +69,11 @@ export default function VerificationTab({ caseId, caseData }) {
 
   return (
     <div className="space-y-6">
+      {/* ADDED: Run Verification Button at top */}
+      <div className="flex justify-end">
+        <RunVerificationButton caseId={caseId} />
+      </div>
+
       {/* Overall Status */}
       <Card className={`border-2 ${
         overallStatus === "green" ? "border-emerald-500 bg-emerald-50" :

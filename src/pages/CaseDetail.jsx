@@ -43,6 +43,7 @@ import {
 // ADDED: Import new tab components
 import PeopleFinderTab from "@/components/case/PeopleFinderTab";
 import VerificationTab from "@/components/case/VerificationTab";
+import RunVerificationButton from "@/components/case/RunVerificationButton"; // ADDED
 
 const stageConfig = {
   imported: { label: "Imported", color: "bg-slate-500" },
@@ -173,6 +174,8 @@ export default function CaseDetail() {
         </div>
 
         <div className="flex items-center gap-2">
+          {/* ADDED: Import RunVerificationButton component at top */}
+          <RunVerificationButton caseId={caseId} />
           <Button variant="outline">
             <Send className="w-4 h-4 mr-2" /> Send Portal Link
           </Button>
