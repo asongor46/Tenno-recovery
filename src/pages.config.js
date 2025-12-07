@@ -11,6 +11,12 @@ import PortalAgreement from './pages/PortalAgreement';
 import PortalInfo from './pages/PortalInfo';
 import PortalNotary from './pages/PortalNotary';
 import PortalComplete from './pages/PortalComplete';
+import PacketBuilder from './pages/PacketBuilder';
+import OCRExtractor from './pages/OCRExtractor';
+import NotaryValidator from './pages/NotaryValidator';
+import FileManager from './pages/FileManager';
+import AutomationLog from './pages/AutomationLog';
+import CleanupTools from './pages/CleanupTools';
 import __Layout from './Layout.jsx';
 
 
@@ -28,6 +34,12 @@ export const PAGES = {
     "PortalInfo": PortalInfo,
     "PortalNotary": PortalNotary,
     "PortalComplete": PortalComplete,
+    "PacketBuilder": PacketBuilder,
+    "OCRExtractor": OCRExtractor,
+    "NotaryValidator": NotaryValidator,
+    "FileManager": FileManager,
+    "AutomationLog": AutomationLog,
+    "CleanupTools": CleanupTools,
 }
 
 export const pagesConfig = {
