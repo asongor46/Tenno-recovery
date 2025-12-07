@@ -46,7 +46,12 @@ import { Badge } from "@/components/ui/badge";
 
 const navigation = [
   { name: "Dashboard", href: "Dashboard", icon: LayoutDashboard },
-  { name: "Cases", href: "Cases", icon: Briefcase },
+  { 
+    name: "Cases", 
+    href: "Cases", 
+    icon: Briefcase,
+    subtitle: "All imported, scanned, and manually entered cases" // ADDED: Subtitle for Cases
+  },
   { name: "Hot Cases", href: "HotCases", icon: Flame },
   { name: "County Directory", href: "Counties", icon: Building2 },
   {
@@ -181,24 +186,32 @@ export default function Layout({ children, currentPageName }) {
               ) : (
                 <Link
                   to={createPageUrl(item.href)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all group ${
+                  className={`flex flex-col px-4 py-3 rounded-xl transition-all group ${
                     currentPageName === item.href
                       ? "bg-emerald-500/10 text-emerald-400"
                       : "text-slate-300 hover:bg-slate-800/50"
                   }`}
                 >
-                  <item.icon
-                    className={`w-5 h-5 transition-colors ${
-                      currentPageName === item.href
-                        ? "text-emerald-400"
-                        : "text-slate-400 group-hover:text-emerald-400"
-                    }`}
-                  />
-                  <span className="font-medium">{item.name}</span>
-                  {item.name === "Hot Cases" && (
-                    <Badge className="ml-auto bg-orange-500/20 text-orange-400 border-0 text-xs">
-                      HOT
-                    </Badge>
+                  <div className="flex items-center gap-3">
+                    <item.icon
+                      className={`w-5 h-5 transition-colors ${
+                        currentPageName === item.href
+                          ? "text-emerald-400"
+                          : "text-slate-400 group-hover:text-emerald-400"
+                      }`}
+                    />
+                    <span className="font-medium">{item.name}</span>
+                    {item.name === "Hot Cases" && (
+                      <Badge className="ml-auto bg-orange-500/20 text-orange-400 border-0 text-xs">
+                        HOT
+                      </Badge>
+                    )}
+                  </div>
+                  {/* ADDED: Show subtitle if present */}
+                  {item.subtitle && (
+                    <span className="text-xs text-slate-500 ml-8 mt-0.5">
+                      {item.subtitle}
+                    </span>
                   )}
                 </Link>
               )}
