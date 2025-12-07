@@ -283,6 +283,7 @@ export default function Cases() {
                 <TableHead className="font-semibold text-right">Surplus</TableHead>
                 <TableHead className="font-semibold">Status</TableHead>
                 <TableHead className="font-semibold">Stage</TableHead>
+                <TableHead className="font-semibold">Verified</TableHead>{/* ADDED */}
                 <TableHead className="font-semibold">Updated</TableHead>
                 <TableHead className="font-semibold w-10"></TableHead>
                 <TableHead className="font-semibold w-20"></TableHead>
@@ -339,6 +340,18 @@ export default function Cases() {
                       <Badge className={`${stageColors[caseItem.stage]} border-0 font-medium`}>
                         {stageLabels[caseItem.stage]}
                       </Badge>
+                    </TableCell>
+                    {/* ADDED: Verification status column */}
+                    <TableCell>
+                      {caseItem.verification_status && caseItem.verification_status !== "pending" ? (
+                        <div className={`w-2 h-2 rounded-full ${
+                          caseItem.verification_status === "green" ? "bg-emerald-500" :
+                          caseItem.verification_status === "yellow" ? "bg-amber-500" :
+                          "bg-red-500"
+                        }`} />
+                      ) : (
+                        <div className="w-2 h-2 rounded-full bg-slate-300" />
+                      )}
                     </TableCell>
                     <TableCell className="text-slate-500 text-sm">
                       {caseItem.updated_date

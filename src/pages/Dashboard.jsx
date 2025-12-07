@@ -7,7 +7,9 @@ import {
   Clock,
   FileCheck,
   PackageCheck,
-  DollarSign
+  DollarSign,
+  Target, // ADDED for verification KPI
+  AlertTriangle // ADDED for identity issues KPI
 } from "lucide-react";
 import KPICard from "@/components/dashboard/KPICard";
 import CasesTable from "@/components/dashboard/CasesTable";
@@ -47,6 +49,12 @@ export default function Dashboard() {
     c.stage === "paid" && c.paid_at && new Date(c.paid_at) > thirtyDaysAgo
   ).length;
 
+  // ADDED: Verification stats
+  const verifiedCases = cases.filter(c => c.verification_status === "green").length;
+  const identityIssues = cases.filter(c => 
+    c.owner_confidence === "low" || c.owner_confidence === "unknown"
+  ).length;
+
   const recentCases = cases.slice(0, 10);
 
   return (
@@ -75,12 +83,13 @@ export default function Dashboard() {
           color="orange"
           delay={0.05}
         />
+        {/* ADDED: Verified Cases KPI */}
         <KPICard
-          title="Awaiting Owner"
-          value={awaitingHomeowner}
-          icon={Clock}
-          href="Cases?stage=imported"
-          color="blue"
+          title="Verified Cases"
+          value={verifiedCases}
+          icon={Target}
+          href="Cases"
+          color="purple"
           delay={0.1}
         />
         <KPICard
@@ -88,7 +97,7 @@ export default function Dashboard() {
           value={awaitingNotary}
           icon={FileCheck}
           href="Cases?notary_status=pending"
-          color="purple"
+          color="blue"
           delay={0.15}
         />
         <KPICard
@@ -99,11 +108,12 @@ export default function Dashboard() {
           color="amber"
           delay={0.2}
         />
+        {/* ADDED: Identity Issues KPI */}
         <KPICard
-          title="Paid (30 days)"
-          value={paidCases}
-          icon={DollarSign}
-          href="Cases?stage=paid"
+          title="Identity Issues"
+          value={identityIssues}
+          icon={AlertTriangle}
+          href="Cases"
           color="rose"
           delay={0.25}
         />

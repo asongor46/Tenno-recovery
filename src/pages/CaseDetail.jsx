@@ -143,6 +143,28 @@ export default function CaseDetail() {
                   <Flame className="w-3 h-3 mr-1" /> Hot Case
                 </Badge>
               )}
+              {/* ADDED: Verification status badge */}
+              {caseData.verification_status && caseData.verification_status !== "pending" && (
+                <Badge className={`border-0 ${
+                  caseData.verification_status === "green" ? "bg-emerald-100 text-emerald-700" :
+                  caseData.verification_status === "yellow" ? "bg-amber-100 text-amber-700" :
+                  "bg-red-100 text-red-700"
+                }`}>
+                  {caseData.verification_status === "green" ? "✓ Verified" :
+                   caseData.verification_status === "yellow" ? "⚠ Review" :
+                   "✗ Issues"}
+                </Badge>
+              )}
+              {/* ADDED: Owner confidence indicator */}
+              {caseData.owner_confidence && caseData.owner_confidence !== "unknown" && (
+                <Badge variant="outline" className={
+                  caseData.owner_confidence === "high" ? "border-emerald-500 text-emerald-700" :
+                  caseData.owner_confidence === "medium" ? "border-amber-500 text-amber-700" :
+                  "border-slate-400 text-slate-600"
+                }>
+                  Owner: {caseData.owner_confidence}
+                </Badge>
+              )}
             </div>
             <p className="text-slate-500 mt-1">
               {caseData.case_number} • {caseData.county}, {caseData.state}
