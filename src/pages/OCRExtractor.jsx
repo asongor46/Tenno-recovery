@@ -207,8 +207,28 @@ export default function OCRExtractor() {
                   <ExtractedField label="Court Info" value={extractedData.court_info} />
                 </div>
 
-                {/* Create Case Button */}
-                <Button className="w-full bg-emerald-600 hover:bg-emerald-700">
+                {/* MODIFIED: Create Case Button with handler */}
+                <Button 
+                  className="w-full bg-emerald-600 hover:bg-emerald-700"
+                  onClick={async () => {
+                    if (!extractedData) return;
+                    
+                    await base44.entities.Case.create({
+                      owner_name: extractedData.owner_name,
+                      case_number: extractedData.case_number,
+                      property_address: extractedData.property_address,
+                      surplus_amount: extractedData.surplus_amount,
+                      sale_date: extractedData.sale_date,
+                      sale_amount: extractedData.sale_amount,
+                      county: extractedData.county,
+                      source_type: "pdf_import",
+                      status: "active",
+                      stage: "imported",
+                    });
+                    
+                    alert("Case created successfully!");
+                  }}
+                >
                   <CheckCircle className="w-4 h-4 mr-2" />
                   Create Case from Extracted Data
                 </Button>

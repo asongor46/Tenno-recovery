@@ -36,6 +36,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import PDFIdentityPanel from "./PDFIdentityPanel"; // ADDED
 
 const confidenceColors = {
   high: "bg-emerald-100 text-emerald-700 border-emerald-300",
@@ -79,15 +80,8 @@ export default function PeopleFinderTab({ caseId, caseData }) {
     enabled: !!latestQuery?.id,
   });
 
-  // Load PDF-derived data
-  const { data: documents = [] } = useQuery({
-    queryKey: ["identity-docs", caseId],
-    queryFn: () => base44.entities.Document.filter({ 
-      case_id: caseId, 
-      usable_for_identity: true 
-    }),
-    enabled: !!caseId,
-  });
+  // REMOVED: PDF panel moved to separate component
+  // Will use PDFIdentityPanel component instead
 
   const runSearch = async (mode) => {
     setIsRunning(true);
@@ -257,53 +251,8 @@ export default function PeopleFinderTab({ caseId, caseData }) {
         </CardContent>
       </Card>
 
-      {/* PDF-Derived Identity Panel */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2">
-            <FileText className="w-4 h-4" />
-            From PDFs on This Case
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {documents.length === 0 ? (
-            <p className="text-sm text-slate-500 text-center py-4">
-              No identity-related documents uploaded yet
-            </p>
-          ) : (
-            <div className="space-y-3">
-              {documents.map((doc) => (
-                <div key={doc.id} className="p-3 bg-slate-50 rounded-lg">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <p className="font-medium text-sm">{doc.name}</p>
-                      <p className="text-xs text-slate-500 capitalize mt-1">
-                        {doc.category.replace(/_/g, " ")}
-                      </p>
-                      {doc.extracted_data && (
-                        <div className="mt-2 text-xs space-y-1">
-                          {doc.extracted_data.owner_name && (
-                            <p className="text-slate-600">Owner: {doc.extracted_data.owner_name}</p>
-                          )}
-                          {doc.extracted_data.mailing_address && (
-                            <p className="text-slate-600">Mailing: {doc.extracted_data.mailing_address}</p>
-                          )}
-                          {doc.extracted_data.phone && (
-                            <p className="text-slate-600">Phone: {doc.extracted_data.phone}</p>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                    <Button variant="ghost" size="sm">
-                      Use Data
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {/* MODIFIED: Use PDFIdentityPanel component */}
+      <PDFIdentityPanel caseId={caseId} />
 
       {/* Candidate List */}
       <Card>
