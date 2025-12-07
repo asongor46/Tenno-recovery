@@ -70,9 +70,8 @@ async function validateDocument(fileUrl, documentType, context) {
   const issues = [];
   const warnings = [];
   
-  // ADDED: Mock validation results (would be real checks)
-  
-  // Check file format
+  // REMOVED ALL MOCK VALIDATION - Now requires real implementation
+  // Basic file format check only
   const fileExt = fileUrl.split('.').pop().toLowerCase();
   if (rules.allowed_formats && !rules.allowed_formats.includes(fileExt)) {
     issues.push({
@@ -83,92 +82,13 @@ async function validateDocument(fileUrl, documentType, context) {
     });
   }
   
-  // ADDED: Document-specific validation
-  if (documentType === 'id_front' || documentType === 'id_back') {
-    // Check ID expiration
-    const mockExpirationDate = new Date('2026-12-31');
-    if (mockExpirationDate < new Date()) {
-      issues.push({
-        type: 'expired_id',
-        severity: 'error',
-        message: 'ID has expired. Please upload a valid ID.',
-        field: 'expiration_date',
-      });
-    }
-    
-    // Check image quality (mock)
-    const mockImageQuality = 85; // Would be calculated from actual image
-    if (mockImageQuality < 70) {
-      warnings.push({
-        type: 'low_quality',
-        severity: 'warning',
-        message: 'Image quality is low. Consider retaking photo in better lighting.',
-        field: 'image_quality',
-      });
-    }
-  }
-  
-  if (documentType === 'notary_page') {
-    // ADDED: Check for notary seal
-    const hasSeal = true; // Would be detected via image processing
-    if (!hasSeal) {
-      issues.push({
-        type: 'missing_seal',
-        severity: 'error',
-        message: 'Notary seal is missing or not visible.',
-        field: 'notary_seal',
-      });
-    }
-    
-    // ADDED: Check for "personally appeared" language
-    const hasPersonallyAppeared = true; // Would be detected via OCR
-    if (!hasPersonallyAppeared) {
-      issues.push({
-        type: 'missing_language',
-        severity: 'error',
-        message: 'Notary block must include "personally appeared before me" language.',
-        field: 'notary_language',
-      });
-    }
-    
-    // ADDED: Validate notary date
-    const notaryDate = new Date(); // Would be extracted from document
-    const daysOld = (new Date() - notaryDate) / (1000 * 60 * 60 * 24);
-    if (daysOld > 90) {
-      warnings.push({
-        type: 'old_notarization',
-        severity: 'warning',
-        message: 'Notarization is more than 90 days old. Some counties may require recent notarization.',
-        field: 'notary_date',
-      });
-    }
-  }
-  
-  if (documentType === 'signed_agreement') {
-    // ADDED: Check for signature
-    const hasSignature = true; // Would be detected
-    if (!hasSignature) {
-      issues.push({
-        type: 'missing_signature',
-        severity: 'error',
-        message: 'Signature is missing from the agreement.',
-        field: 'signature',
-      });
-    }
-    
-    // ADDED: Verify name matches
-    if (context?.expected_name) {
-      const extractedName = 'John Smith'; // Would be extracted via OCR
-      if (extractedName !== context.expected_name) {
-        warnings.push({
-          type: 'name_mismatch',
-          severity: 'warning',
-          message: `Signed name "${extractedName}" may not match expected name "${context.expected_name}".`,
-          field: 'signer_name',
-        });
-      }
-    }
-  }
+  // Add note that actual validation is not implemented yet
+  warnings.push({
+    type: 'validation_not_implemented',
+    severity: 'warning',
+    message: 'Full PDF/image validation not yet implemented. Manual review required.',
+    field: 'validation_system',
+  });
   
   // ADDED: Calculate overall status
   const hasErrors = issues.length > 0;

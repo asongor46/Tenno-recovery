@@ -13,23 +13,19 @@ Deno.serve(async (req) => {
     // Get request payload
     const { file_url, extraction_type } = await req.json();
 
-    // TODO: Implement actual PDF extraction logic using OCR/LLM
-    // For now, return mock extracted cases
-    const mockCases = [
-      {
-        owner_name: "Sample Owner",
-        property_address: "123 Main St",
-        county: "Sample County",
-        case_number: "2024-12345",
-        surplus_amount: 50000,
-        sale_date: "2024-01-15",
-      }
-    ];
-
+    // REMOVED MOCK DATA - PDF extraction not implemented
+    // Real implementation would:
+    // 1. Download PDF from file_url
+    // 2. Run OCR (Tesseract or similar free OCR)
+    // 3. Parse table structure
+    // 4. Extract case data
+    // 5. Return normalized results
+    
     return Response.json({
-      status: "success",
-      cases: mockCases,
+      status: "not_implemented",
+      cases: [],
       extraction_type,
+      note: "PDF extraction requires OCR integration - not yet implemented",
     });
 
   } catch (error) {
