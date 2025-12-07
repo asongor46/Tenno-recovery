@@ -25,6 +25,8 @@ import {
   Trash2,
   Eye,
   RefreshCw,
+  Users, // ADDED for People Finder tab
+  Target, // ADDED for Verification tab
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -38,6 +40,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+// ADDED: Import new tab components
+import PeopleFinderTab from "@/components/case/PeopleFinderTab";
+import VerificationTab from "@/components/case/VerificationTab";
 
 const stageConfig = {
   imported: { label: "Imported", color: "bg-slate-500" },
@@ -180,11 +185,19 @@ export default function CaseDetail() {
           <TabsTrigger value="homeowner" className="gap-2">
             <User className="w-4 h-4" /> Homeowner Info
           </TabsTrigger>
+          {/* ADDED People Finder tab */}
+          <TabsTrigger value="peoplefinder" className="gap-2">
+            <Users className="w-4 h-4" /> People Finder
+          </TabsTrigger>
           <TabsTrigger value="notary" className="gap-2">
             <Shield className="w-4 h-4" /> Notary
           </TabsTrigger>
           <TabsTrigger value="packet" className="gap-2">
             <Package className="w-4 h-4" /> Packet
+          </TabsTrigger>
+          {/* ADDED Verification tab */}
+          <TabsTrigger value="verification" className="gap-2">
+            <Target className="w-4 h-4" /> Verification
           </TabsTrigger>
           <TabsTrigger value="activity" className="gap-2">
             <Activity className="w-4 h-4" /> Activity Log
@@ -436,6 +449,11 @@ export default function CaseDetail() {
           </Card>
         </TabsContent>
 
+        {/* ADDED People Finder Tab */}
+        <TabsContent value="peoplefinder" className="space-y-4">
+          <PeopleFinderTab caseId={caseId} caseData={caseData} />
+        </TabsContent>
+
         {/* Notary Tab */}
         <TabsContent value="notary" className="space-y-4">
           <Card>
@@ -558,6 +576,11 @@ export default function CaseDetail() {
               )}
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* ADDED Verification Tab */}
+        <TabsContent value="verification" className="space-y-4">
+          <VerificationTab caseId={caseId} caseData={caseData} />
         </TabsContent>
 
         {/* Activity Log Tab */}
