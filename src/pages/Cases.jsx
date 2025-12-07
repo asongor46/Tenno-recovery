@@ -58,6 +58,7 @@ import { format } from "date-fns";
 import NewCaseForm from "@/components/cases/NewCaseForm";
 import PDFCaseBuilder from "@/components/cases/PDFCaseBuilder"; // ADDED
 import URLCaseBuilder from "@/components/cases/URLCaseBuilder"; // ADDED
+import AdvancedCaseBuilder from "@/components/cases/AdvancedCaseBuilder"; // ADDED: Universal County Mapping
 
 const stageColors = {
   imported: "bg-slate-100 text-slate-700",
@@ -185,7 +186,7 @@ export default function Cases() {
           <p className="text-slate-500 mt-1">{filteredCases.length} total cases</p>
         </div>
         
-        {/* MODIFIED: New Case Dropdown with 3 methods */}
+        {/* MODIFIED: New Case Dropdown with 4 methods (ADDED Advanced Import) */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button className="bg-emerald-600 hover:bg-emerald-700">
@@ -194,7 +195,7 @@ export default function Cases() {
               <ChevronDown className="w-4 h-4 ml-2" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
+          <DropdownMenuContent align="end" className="w-64">
             <DropdownMenuItem onClick={() => {
               setImportMethod("manual");
               setShowNewCaseDialog(true);
@@ -216,10 +217,24 @@ export default function Cases() {
               <Globe className="w-4 h-4 mr-2" />
               Import From URL (Web Crawler)
             </DropdownMenuItem>
+            {/* ADDED: Advanced Import option */}
+            <DropdownMenuItem 
+              onClick={() => {
+                setImportMethod("advanced");
+                setShowNewCaseDialog(true);
+              }}
+              className="border-t mt-1 pt-2"
+            >
+              <ChevronDown className="w-4 h-4 mr-2 text-purple-600" />
+              <div>
+                <div className="font-medium">Advanced Import</div>
+                <div className="text-xs text-slate-500">Universal County Mapping</div>
+              </div>
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* ADDED: Dialog for all import methods */}
+        {/* MODIFIED: Dialog for all import methods (ADDED Advanced) */}
         <Dialog open={showNewCaseDialog} onOpenChange={(open) => {
           setShowNewCaseDialog(open);
           if (!open) setImportMethod(null);
@@ -230,10 +245,11 @@ export default function Cases() {
                 {importMethod === "manual" && "Create New Case - Manual Entry"}
                 {importMethod === "pdf" && "Create Cases - Upload PDF"}
                 {importMethod === "url" && "Create Cases - Import From URL"}
+                {importMethod === "advanced" && "Advanced Import - Universal County Mapping"}
               </DialogTitle>
             </DialogHeader>
-            
-            {/* ADDED: Conditional render based on import method */}
+
+            {/* MODIFIED: Added advanced import option */}
             {importMethod === "manual" && (
               <NewCaseForm 
                 counties={counties} 
@@ -244,7 +260,7 @@ export default function Cases() {
                 }} 
               />
             )}
-            
+
             {importMethod === "pdf" && (
               <PDFCaseBuilder
                 onSuccess={() => {
@@ -258,9 +274,24 @@ export default function Cases() {
                 }}
               />
             )}
-            
+
             {importMethod === "url" && (
               <URLCaseBuilder
+                onSuccess={() => {
+                  setShowNewCaseDialog(false);
+                  setImportMethod(null);
+                  queryClient.invalidateQueries({ queryKey: ["cases"] });
+                }}
+                onCancel={() => {
+                  setShowNewCaseDialog(false);
+                  setImportMethod(null);
+                }}
+              />
+            )}
+
+            {/* ADDED: Advanced import component with UCM Engine */}
+            {importMethod === "advanced" && (
+              <AdvancedCaseBuilder
                 onSuccess={() => {
                   setShowNewCaseDialog(false);
                   setImportMethod(null);
