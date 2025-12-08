@@ -86,9 +86,10 @@ export default function VerificationTab({ caseId, caseData }) {
                 <p className="text-2xl font-bold text-slate-900">
                   {verificationLabels[overallStatus]}
                 </p>
-                {caseData?.verification_summary && (
-                  <p className="text-sm text-slate-600 mt-1">{caseData.verification_summary}</p>
-                )}
+                <p className="text-sm text-slate-600 mt-1">
+                  {caseData?.verification_summary || 
+                   (overallStatus === "pending" ? "Verification not run yet. Click 'Run Verification' to check case status." : "No summary available")}
+                </p>
               </div>
             </div>
             <div className="text-right">
@@ -208,14 +209,17 @@ function VerificationCard({ title, icon: Icon, check }) {
 
 function calculateIntegrityCheck(caseData) {
   const issues = [];
-  if (!caseData.surplus_amount || caseData.surplus_amount <= 0) issues.push("No surplus amount recorded");
+  if (!caseData.surplus_amount || caseData.surplus_amount <= 0) {
+    issues.push("Surplus amount not calculated yet");
+  }
   if (caseData.sale_amount && caseData.judgment_amount && caseData.sale_amount <= caseData.judgment_amount) {
     issues.push("Sale amount does not exceed judgment");
   }
   if (!caseData.sale_date) issues.push("Missing sale date");
+  
   return {
-    status: issues.length === 0 ? "pass" : issues.length <= 1 ? "warning" : "fail",
-    notes: issues.length === 0 ? "All basic data present" : null,
+    status: issues.length === 0 ? "pass" : issues.length <= 1 ? "warning" : "unknown",
+    notes: issues.length === 0 ? "All basic data present" : "Basic data incomplete or unverified",
     issues,
   };
 }
@@ -223,20 +227,39 @@ function calculateIntegrityCheck(caseData) {
 function calculateOwnerCheck(caseData) {
   const confidence = caseData.owner_confidence || "unknown";
   const issues = [];
-  if (confidence === "low" || confidence === "unknown") issues.push("Owner identity not verified");
-  if (!caseData.owner_phone && !caseData.owner_email) issues.push("No contact information");
+  
+  if (confidence === "unknown") {
+    issues.push("Owner not resolved yet - run owner resolver");
+  } else if (confidence === "low") {
+    issues.push("Owner identity uncertain - needs manual verification");
+  }
+  
+  if (!caseData.owner_phone && !caseData.owner_email) {
+    issues.push("No contact information available");
+  }
+  
   return {
-    status: confidence === "high" ? "pass" : confidence === "medium" ? "warning" : "fail",
-    notes: confidence === "high" ? "Owner identity confirmed" : null,
+    status: confidence === "high" ? "pass" : confidence === "medium" ? "warning" : "unknown",
+    notes: confidence === "high" ? "Owner identity confirmed" : 
+           confidence === "medium" ? "Owner partially verified" :
+           "Owner not resolved yet",
     issues,
   };
 }
 
 function calculateSurplusCheck(caseData) {
+  const issues = [];
+  
+  if (!caseData.surplus_amount || caseData.surplus_amount <= 0) {
+    issues.push("Surplus not calculated yet - run surplus calculator");
+  }
+  
   return {
     status: caseData.surplus_amount > 0 ? "pass" : "unknown",
-    notes: caseData.surplus_amount > 0 ? "Surplus amount recorded" : "Surplus status not verified",
-    issues: [],
+    notes: caseData.surplus_amount > 0 ? 
+           `Surplus confirmed: $${caseData.surplus_amount.toLocaleString()}` : 
+           "Surplus not calculated yet",
+    issues,
   };
 }
 
@@ -271,20 +294,63 @@ function calculateNotaryCheck(caseData, county) {
 
 function getRecommendedActions(caseData, checks) {
   const actions = [];
-  if (checks.owner.status !== "pass") {
-    actions.push({ text: "Run People Finder to verify owner identity", priority: "high", actionButton: "Run Search" });
+  
+  // Owner resolution check
+  if (checks.owner.status === "unknown") {
+    actions.push({ 
+      text: "Run owner resolver to identify property owner", 
+      priority: "high", 
+      actionButton: "Resolve Owner" 
+    });
+  } else if (checks.owner.status !== "pass") {
+    actions.push({ 
+      text: "Run People Finder to verify owner identity and find contact info", 
+      priority: "high", 
+      actionButton: "Run Search" 
+    });
   }
-  if (!caseData.owner_phone && !caseData.owner_email) {
-    actions.push({ text: "Obtain contact information for owner", priority: "high" });
+  
+  // Surplus calculation check
+  if (checks.surplus.status === "unknown") {
+    actions.push({ 
+      text: "Calculate surplus amount from county sale records", 
+      priority: "high", 
+      actionButton: "Calculate" 
+    });
   }
+  
+  // Contact info check
+  if (!caseData.owner_phone && !caseData.owner_email && checks.owner.status !== "unknown") {
+    actions.push({ 
+      text: "Obtain contact information for owner", 
+      priority: "high" 
+    });
+  }
+  
+  // Notary check
   if (checks.notary.status === "unknown" && checks.notary.issues.length > 0) {
-    actions.push({ text: "Send portal link to homeowner for notarization", priority: "medium", actionButton: "Send Link" });
+    actions.push({ 
+      text: "Send portal link to homeowner for notarization", 
+      priority: "medium", 
+      actionButton: "Send Link" 
+    });
   }
+  
+  // Filing requirements check
   if (checks.filing.status === "warning") {
-    actions.push({ text: "Review county filing requirements", priority: "medium" });
+    actions.push({ 
+      text: "Review county filing requirements", 
+      priority: "medium" 
+    });
   }
+  
+  // All good state
   if (actions.length === 0) {
-    actions.push({ text: "Case looks good - proceed with filing", priority: "low" });
+    actions.push({ 
+      text: "All verifications passed - ready to proceed with filing", 
+      priority: "low" 
+    });
   }
+  
   return actions;
 }
