@@ -22,6 +22,7 @@ import {
   UserPlus, // ADDED for add contact
   Home, // ADDED for address
   RefreshCw, // ADDED for replace
+  Briefcase, // ADDED PHASE 2 for internal connections
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -74,6 +75,32 @@ export default function PeopleFinderTab({ caseId, caseData }) {
     enabled: !!caseId,
   });
 
+  // PHASE 2: Load primary person details
+  const primaryPersonLink = personLinks.find(l => l.role === "primary_owner");
+  
+  const { data: primaryPerson } = useQuery({
+    queryKey: ["person", primaryPersonLink?.person_id],
+    queryFn: async () => {
+      const persons = await base44.entities.Person.filter({ id: primaryPersonLink.person_id });
+      return persons[0];
+    },
+    enabled: !!primaryPersonLink?.person_id,
+  });
+
+  // PHASE 2: Load primary person's contacts
+  const { data: primaryContacts = [] } = useQuery({
+    queryKey: ["contacts", primaryPersonLink?.person_id],
+    queryFn: () => base44.entities.ContactPoint.filter({ person_id: primaryPersonLink.person_id }),
+    enabled: !!primaryPersonLink?.person_id,
+  });
+
+  // PHASE 2: Load primary person's addresses
+  const { data: primaryAddresses = [] } = useQuery({
+    queryKey: ["addresses", primaryPersonLink?.person_id],
+    queryFn: () => base44.entities.Address.filter({ person_id: primaryPersonLink.person_id }),
+    enabled: !!primaryPersonLink?.person_id,
+  });
+
   // Load candidates from latest query
   const { data: queries = [] } = useQuery({
     queryKey: ["people-queries", caseId],
@@ -92,40 +119,64 @@ export default function PeopleFinderTab({ caseId, caseData }) {
   // REMOVED: PDF panel moved to separate component
   // Will use PDFIdentityPanel component instead
 
+  // PHASE 2: Enhanced runSearch to orchestrate identity resolution
   const runSearch = async (mode) => {
     setIsRunning(true);
 
-    // Create query record
-    const query = await base44.entities.PeopleFinderQuery.create({
-      case_id: caseId,
-      input_name: searchName,
-      input_address: searchAddress,
-      input_county: caseData.county,
-      run_type: mode,
-      status: "running",
-    });
+    try {
+      // Step 1: Resolve case owner identity first
+      const { data: identityResult } = await base44.functions.invoke("resolveCaseOwnerIdentity", {
+        case_id: caseId,
+      });
 
-    // Call backend function to run people finder
-    const { data } = await base44.functions.invoke("runPeopleFinder", {
-      query_id: query.id,
-      name: searchName,
-      address: searchAddress,
-      county: caseData.county,
-      state: caseData.state,
-      mode,
-    });
+      // Step 2: If person resolved, find existing data
+      if (identityResult.status === "success" && identityResult.person_id) {
+        await base44.functions.invoke("findExistingPersonData", {
+          person_id: identityResult.person_id,
+          city: caseData.city,
+          state: caseData.state,
+          zip: caseData.zip,
+        });
+      }
 
-    // Update query status
-    await base44.entities.PeopleFinderQuery.update(query.id, {
-      status: "completed",
-      completed_at: new Date().toISOString(),
-      candidates_found: data.candidates?.length || 0,
-      result_summary: data.summary,
-    });
+      // Step 3: Run people finder search (external if requested)
+      const query = await base44.entities.PeopleFinderQuery.create({
+        case_id: caseId,
+        input_name: searchName,
+        input_address: searchAddress,
+        input_county: caseData.county,
+        run_type: mode,
+        status: "running",
+      });
 
-    queryClient.invalidateQueries({ queryKey: ["people-queries", caseId] });
-    queryClient.invalidateQueries({ queryKey: ["match-candidates"] });
-    setIsRunning(false);
+      const { data } = await base44.functions.invoke("runPeopleFinder", {
+        query_id: query.id,
+        name: searchName,
+        address: searchAddress,
+        county: caseData.county,
+        state: caseData.state,
+        mode,
+      });
+
+      // Update query status
+      await base44.entities.PeopleFinderQuery.update(query.id, {
+        status: "completed",
+        completed_at: new Date().toISOString(),
+        candidates_found: data.candidates?.length || 0,
+        result_summary: data.summary,
+      });
+
+      // Refresh all related queries
+      queryClient.invalidateQueries({ queryKey: ["people-queries", caseId] });
+      queryClient.invalidateQueries({ queryKey: ["match-candidates"] });
+      queryClient.invalidateQueries({ queryKey: ["case-persons", caseId] });
+      queryClient.invalidateQueries({ queryKey: ["case", caseId] });
+      
+    } catch (error) {
+      alert(`Search failed: ${error.message}`);
+    } finally {
+      setIsRunning(false);
+    }
   };
 
   // ADDED: Set as primary owner action
@@ -327,10 +378,238 @@ export default function PeopleFinderTab({ caseId, caseData }) {
         </CardContent>
       </Card>
 
-      {/* SECTION B: Data Extracted from PDFs */}
+      {/* PHASE 2 - SECTION B: Core Identity (Primary Person) */}
+      {primaryPerson && (
+        <Card className="border-emerald-200 bg-emerald-50/20">
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <UserCheck className="w-4 h-4 text-emerald-600" />
+              Primary Owner Identity
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Name breakdown */}
+            <div className="grid md:grid-cols-4 gap-4">
+              <div>
+                <Label className="text-xs text-slate-600">FIRST NAME</Label>
+                <p className="font-semibold text-lg">{primaryPerson.first_name || "—"}</p>
+              </div>
+              <div>
+                <Label className="text-xs text-slate-600">MIDDLE</Label>
+                <p className="font-semibold text-lg">{primaryPerson.middle_name || "—"}</p>
+              </div>
+              <div>
+                <Label className="text-xs text-slate-600">LAST NAME</Label>
+                <p className="font-semibold text-lg">{primaryPerson.last_name || "—"}</p>
+              </div>
+              <div>
+                <Label className="text-xs text-slate-600">SUFFIX</Label>
+                <p className="font-semibold text-lg">{primaryPerson.suffix || "—"}</p>
+              </div>
+            </div>
+
+            {/* Full name display */}
+            <div className="pt-3 border-t">
+              <Label className="text-xs text-slate-600">FULL NAME (DISPLAY)</Label>
+              <p className="text-2xl font-bold text-emerald-900">{primaryPerson.full_name}</p>
+            </div>
+
+            {/* Aliases */}
+            {primaryPerson.aliases && primaryPerson.aliases.length > 0 && (
+              <div className="pt-3 border-t">
+                <Label className="text-xs text-slate-600 mb-2 block">ALTERNATE SPELLINGS / ALIASES</Label>
+                <div className="flex flex-wrap gap-2">
+                  {primaryPerson.aliases.map((alias, i) => (
+                    <Badge key={i} variant="outline" className="text-sm">
+                      {alias}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Consolidated contacts by confidence */}
+            <div className="pt-3 border-t">
+              <Label className="text-xs text-slate-600 mb-3 block">CONTACT INFORMATION</Label>
+              <div className="grid md:grid-cols-3 gap-4">
+                {/* High confidence */}
+                <div>
+                  <Badge className="bg-emerald-100 text-emerald-700 mb-2">HIGH CONFIDENCE</Badge>
+                  {primaryContacts.filter(c => c.confidence === "high").length > 0 ? (
+                    <div className="space-y-2">
+                      {primaryContacts.filter(c => c.confidence === "high").map(contact => (
+                        <div key={contact.id} className="flex items-center gap-2 text-sm">
+                          {contact.type === "phone" && <Phone className="w-3 h-3 text-slate-400" />}
+                          {contact.type === "email" && <Mail className="w-3 h-3 text-slate-400" />}
+                          <span className="font-mono text-xs">{contact.value}</span>
+                          {contact.verified && <CheckCircle className="w-3 h-3 text-emerald-600" />}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-slate-400">None</p>
+                  )}
+                </div>
+
+                {/* Medium confidence */}
+                <div>
+                  <Badge className="bg-amber-100 text-amber-700 mb-2">MEDIUM CONFIDENCE</Badge>
+                  {primaryContacts.filter(c => c.confidence === "medium").length > 0 ? (
+                    <div className="space-y-2">
+                      {primaryContacts.filter(c => c.confidence === "medium").map(contact => (
+                        <div key={contact.id} className="flex items-center gap-2 text-sm">
+                          {contact.type === "phone" && <Phone className="w-3 h-3 text-slate-400" />}
+                          {contact.type === "email" && <Mail className="w-3 h-3 text-slate-400" />}
+                          <span className="font-mono text-xs">{contact.value}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-slate-400">None</p>
+                  )}
+                </div>
+
+                {/* Low confidence */}
+                <div>
+                  <Badge className="bg-slate-100 text-slate-700 mb-2">LOW CONFIDENCE</Badge>
+                  {primaryContacts.filter(c => c.confidence === "low").length > 0 ? (
+                    <div className="space-y-2">
+                      {primaryContacts.filter(c => c.confidence === "low").map(contact => (
+                        <div key={contact.id} className="flex items-center gap-2 text-sm">
+                          {contact.type === "phone" && <Phone className="w-3 h-3 text-slate-400" />}
+                          {contact.type === "email" && <Mail className="w-3 h-3 text-slate-400" />}
+                          <span className="font-mono text-xs">{contact.value}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-slate-400">None</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* PHASE 2 - SECTION C: External Search Tools */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <ExternalLink className="w-4 h-4" />
+            External Search Tools
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-slate-600 mb-4">
+            Click to open pre-filled search in a new tab. Review results and manually add any contacts you find.
+          </p>
+          <div className="grid md:grid-cols-3 gap-3">
+            {/* TruePeopleSearch */}
+            <a
+              href={`https://www.truepeoplesearch.com/results?name=${encodeURIComponent(
+                `${primaryPerson?.first_name || caseData.owner_name?.split(' ')[0] || ''} ${primaryPerson?.last_name || caseData.owner_name?.split(' ').slice(-1)[0] || ''}`
+              )}&citystatezip=${encodeURIComponent(`${caseData.city || ''} ${caseData.state || ''}`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 p-4 border-2 border-blue-200 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
+            >
+              <ExternalLink className="w-5 h-5 text-blue-600" />
+              <div>
+                <p className="font-semibold text-sm text-blue-900">TruePeopleSearch</p>
+                <p className="text-xs text-blue-700">Free phone & address lookup</p>
+              </div>
+            </a>
+
+            {/* FastPeopleSearch */}
+            <a
+              href={`https://www.fastpeoplesearch.com/name/${encodeURIComponent(
+                `${primaryPerson?.first_name || ''}-${primaryPerson?.last_name || ''}`
+              )}_${encodeURIComponent(`${caseData.city || ''}-${caseData.state || ''}`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 p-4 border-2 border-purple-200 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors"
+            >
+              <ExternalLink className="w-5 h-5 text-purple-600" />
+              <div>
+                <p className="font-semibold text-sm text-purple-900">FastPeopleSearch</p>
+                <p className="text-xs text-purple-700">Alternative free search</p>
+              </div>
+            </a>
+
+            {/* Google Search */}
+            <a
+              href={`https://www.google.com/search?q=${encodeURIComponent(
+                `${primaryPerson?.full_name || caseData.owner_name} ${caseData.city || ''} ${caseData.state || ''}`
+              )}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 p-4 border-2 border-slate-200 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors"
+            >
+              <Search className="w-5 h-5 text-slate-600" />
+              <div>
+                <p className="font-semibold text-sm text-slate-900">Google Search</p>
+                <p className="text-xs text-slate-700">General web search</p>
+              </div>
+            </a>
+
+            {/* Facebook Search */}
+            <a
+              href={`https://www.facebook.com/search/top?q=${encodeURIComponent(
+                `${primaryPerson?.full_name || caseData.owner_name} ${caseData.city || ''} ${caseData.state || ''}`
+              )}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 p-4 border-2 border-blue-300 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
+            >
+              <ExternalLink className="w-5 h-5 text-blue-700" />
+              <div>
+                <p className="font-semibold text-sm text-blue-900">Facebook</p>
+                <p className="text-xs text-blue-700">Social media search</p>
+              </div>
+            </a>
+
+            {/* LinkedIn Search */}
+            <a
+              href={`https://www.linkedin.com/search/results/all/?keywords=${encodeURIComponent(
+                primaryPerson?.full_name || caseData.owner_name
+              )}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 p-4 border-2 border-blue-400 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
+            >
+              <ExternalLink className="w-5 h-5 text-blue-800" />
+              <div>
+                <p className="font-semibold text-sm text-blue-900">LinkedIn</p>
+                <p className="text-xs text-blue-700">Professional network</p>
+              </div>
+            </a>
+
+            {/* WhitePages Address Lookup */}
+            {caseData.property_address && (
+              <a
+                href={`https://www.whitepages.com/address/${encodeURIComponent(
+                  caseData.property_address
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 p-4 border-2 border-green-200 bg-green-50 hover:bg-green-100 rounded-lg transition-colors"
+              >
+                <Home className="w-5 h-5 text-green-600" />
+                <div>
+                  <p className="font-semibold text-sm text-green-900">WhitePages</p>
+                  <p className="text-xs text-green-700">Address-based search</p>
+                </div>
+              </a>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* SECTION D: Data Extracted from PDFs */}
       <PDFIdentityPanel caseId={caseId} />
 
-      {/* SECTION C: Candidate Matches - ENHANCED */}
+      {/* SECTION E: Candidate Matches - ENHANCED */}
       <Card>
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
@@ -515,7 +794,7 @@ export default function PeopleFinderTab({ caseId, caseData }) {
         </CardContent>
       </Card>
 
-      {/* SECTION D: Identity Reasoning & Warnings - NEW */}
+      {/* SECTION F: Identity Reasoning & Warnings - NEW */}
       {candidates.length > 0 && (
         <Card className="border-amber-200 bg-amber-50/20">
           <CardHeader>
@@ -589,6 +868,11 @@ export default function PeopleFinderTab({ caseId, caseData }) {
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* PHASE 2 - Internal Connections (Other Cases) */}
+      {primaryPersonLink?.person_id && (
+        <InternalConnectionsPanel personId={primaryPersonLink.person_id} currentCaseId={caseId} />
       )}
 
       {/* Linked Persons */}
@@ -722,6 +1006,67 @@ export default function PeopleFinderTab({ caseId, caseData }) {
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+// PHASE 2: Internal Connections Component
+function InternalConnectionsPanel({ personId, currentCaseId }) {
+  const { data: allCaseLinks = [] } = useQuery({
+    queryKey: ["person-cases", personId],
+    queryFn: () => base44.entities.CasePersonLink.filter({ person_id: personId }),
+    enabled: !!personId,
+  });
+
+  // Filter out current case
+  const otherCaseLinks = allCaseLinks.filter(link => link.case_id !== currentCaseId);
+
+  const { data: otherCases = [] } = useQuery({
+    queryKey: ["other-cases", personId],
+    queryFn: async () => {
+      const cases = [];
+      for (const link of otherCaseLinks) {
+        const caseRecords = await base44.entities.Case.filter({ id: link.case_id });
+        if (caseRecords[0]) {
+          cases.push(caseRecords[0]);
+        }
+      }
+      return cases;
+    },
+    enabled: otherCaseLinks.length > 0,
+  });
+
+  if (otherCases.length === 0) return null;
+
+  return (
+    <Card className="border-blue-200 bg-blue-50/20">
+      <CardHeader>
+        <CardTitle className="text-base flex items-center gap-2">
+          <Briefcase className="w-4 h-4 text-blue-600" />
+          Internal Connections
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p className="text-sm text-blue-900 mb-3">
+          This owner appears in <strong>{otherCases.length}</strong> other case(s) in your system:
+        </p>
+        <div className="space-y-2">
+          {otherCases.map(caseItem => (
+            <div key={caseItem.id} className="flex items-center justify-between p-3 bg-white border rounded-lg">
+              <div className="flex items-center gap-3">
+                <FileText className="w-4 h-4 text-slate-400" />
+                <div>
+                  <p className="font-semibold text-sm">{caseItem.case_number}</p>
+                  <p className="text-xs text-slate-500">
+                    {caseItem.county}, {caseItem.state} • ${caseItem.surplus_amount?.toLocaleString() || 'N/A'}
+                  </p>
+                </div>
+              </div>
+              <Badge variant="outline">{caseItem.status}</Badge>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
