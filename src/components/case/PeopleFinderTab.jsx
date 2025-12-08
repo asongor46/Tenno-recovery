@@ -77,6 +77,14 @@ export default function PeopleFinderTab({ caseId, caseData }) {
     notes: "",
   });
 
+  // PHASE 4: Email automation state
+  const [showEmailDialog, setShowEmailDialog] = useState(false);
+  const [emailData, setEmailData] = useState({
+    to: "",
+    subject: "",
+    body: "",
+  });
+
   const queryClient = useQueryClient();
 
   // Load linked persons
@@ -276,8 +284,16 @@ export default function PeopleFinderTab({ caseId, caseData }) {
       case_id: caseId,
     });
 
+    // PHASE 4: Trigger workflow automation
+    await base44.functions.invoke("automateWorkflowFromContact", {
+      case_id: caseId,
+      contact_result: contactLogData.result,
+    });
+
     queryClient.invalidateQueries({ queryKey: ["contact-attempts", caseId] });
     queryClient.invalidateQueries({ queryKey: ["case", caseId] });
+    queryClient.invalidateQueries({ queryKey: ["todos"] });
+    queryClient.invalidateQueries({ queryKey: ["alerts"] });
     
     setShowContactLog(false);
     setContactLogData({
@@ -288,7 +304,54 @@ export default function PeopleFinderTab({ caseId, caseData }) {
       notes: "",
     });
 
-    alert("Contact attempt logged");
+    alert("Contact attempt logged and workflow updated");
+  };
+
+  // PHASE 4: Send email to owner
+  const sendEmailToOwner = async () => {
+    if (!emailData.to || !emailData.subject || !emailData.body) {
+      alert("Please fill in all email fields");
+      return;
+    }
+
+    try {
+      // Send email via Core integration
+      await base44.integrations.Core.SendEmail({
+        to: emailData.to,
+        subject: emailData.subject,
+        body: emailData.body,
+        from_name: "TENNO Recovery",
+      });
+
+      // Log as contact attempt
+      await base44.entities.ContactAttempt.create({
+        case_id: caseId,
+        person_id: primaryPersonLink?.person_id,
+        contact_method: "email",
+        value_used: emailData.to,
+        attempt_type: "email",
+        result: "email_sent",
+        notes: `Subject: ${emailData.subject}`,
+        performed_by: (await base44.auth.me()).email,
+      });
+
+      // Log to activity
+      await base44.entities.ActivityLog.create({
+        case_id: caseId,
+        action: "email_sent",
+        description: `Email sent to ${emailData.to}: ${emailData.subject}`,
+        performed_by: (await base44.auth.me()).email,
+      });
+
+      queryClient.invalidateQueries({ queryKey: ["contact-attempts", caseId] });
+      
+      setShowEmailDialog(false);
+      setEmailData({ to: "", subject: "", body: "" });
+      
+      alert("Email sent successfully");
+    } catch (error) {
+      alert(`Failed to send email: ${error.message}`);
+    }
   };
 
   const attachPerson = async (candidate, role) => {
@@ -984,6 +1047,25 @@ export default function PeopleFinderTab({ caseId, caseData }) {
                   <Mail className="w-3 h-3 mr-1" />
                   Log Email Sent
                 </Button>
+                {/* PHASE 4: Send Email */}
+                <Button
+                  size="sm"
+                  className="bg-blue-600 hover:bg-blue-700"
+                  onClick={() => {
+                    const defaultEmail = primaryContacts.find(c => c.type === "email" && c.confidence === "high")?.value ||
+                                        primaryContacts.find(c => c.type === "email")?.value || "";
+                    setEmailData({
+                      to: defaultEmail,
+                      subject: `Regarding Your Surplus Funds - Case ${caseData.case_number}`,
+                      body: `Dear ${primaryPerson?.first_name || caseData.owner_name},\n\nI'm reaching out regarding surplus funds from the tax sale of your property at ${caseData.property_address}.\n\nWe've identified that you may be entitled to claim these funds. I'd like to discuss how we can help you recover this money.\n\nPlease let me know a good time to talk.\n\nBest regards,\nTENNO Recovery Team`,
+                    });
+                    setShowEmailDialog(true);
+                  }}
+                  disabled={!primaryContacts.some(c => c.type === "email")}
+                >
+                  <Mail className="w-3 h-3 mr-1" />
+                  Send Email
+                </Button>
               </div>
             </div>
 
@@ -1057,6 +1139,55 @@ export default function PeopleFinderTab({ caseId, caseData }) {
           </CardContent>
         </Card>
       )}
+
+      {/* PHASE 4 - Email Dialog */}
+      <Dialog open={showEmailDialog} onOpenChange={setShowEmailDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Send Email to Owner</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>To</Label>
+              <Input
+                type="email"
+                value={emailData.to}
+                onChange={(e) => setEmailData({ ...emailData, to: e.target.value })}
+                placeholder="owner@example.com"
+              />
+            </div>
+
+            <div>
+              <Label>Subject</Label>
+              <Input
+                value={emailData.subject}
+                onChange={(e) => setEmailData({ ...emailData, subject: e.target.value })}
+                placeholder="Email subject..."
+              />
+            </div>
+
+            <div>
+              <Label>Message</Label>
+              <textarea
+                className="w-full p-3 border rounded-lg min-h-[200px] font-sans text-sm"
+                value={emailData.body}
+                onChange={(e) => setEmailData({ ...emailData, body: e.target.value })}
+                placeholder="Email body..."
+              />
+            </div>
+
+            <div className="flex gap-2 pt-2">
+              <Button onClick={sendEmailToOwner} className="flex-1 bg-blue-600 hover:bg-blue-700">
+                <Mail className="w-4 h-4 mr-2" />
+                Send Email
+              </Button>
+              <Button variant="outline" onClick={() => setShowEmailDialog(false)}>
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* PHASE 3 - Contact Logging Dialog */}
       <Dialog open={showContactLog} onOpenChange={setShowContactLog}>
