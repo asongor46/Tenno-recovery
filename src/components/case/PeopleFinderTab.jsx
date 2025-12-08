@@ -23,6 +23,7 @@ import {
   Home, // ADDED for address
   RefreshCw, // ADDED for replace
   Briefcase, // ADDED PHASE 2 for internal connections
+  MessageSquare, // ADDED PHASE 3 for text/SMS
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -65,6 +66,16 @@ export default function PeopleFinderTab({ caseId, caseData }) {
   const [searchParcel, setSearchParcel] = useState(caseData?.parcel_number || ""); // ADDED
   const [isRunning, setIsRunning] = useState(false);
   const [selectedCandidate, setSelectedCandidate] = useState(null);
+  
+  // PHASE 3: Contact attempt logging state
+  const [showContactLog, setShowContactLog] = useState(false);
+  const [contactLogData, setContactLogData] = useState({
+    contact_method: "phone",
+    value_used: "",
+    attempt_type: "call",
+    result: "no_answer",
+    notes: "",
+  });
 
   const queryClient = useQueryClient();
 
@@ -99,6 +110,13 @@ export default function PeopleFinderTab({ caseId, caseData }) {
     queryKey: ["addresses", primaryPersonLink?.person_id],
     queryFn: () => base44.entities.Address.filter({ person_id: primaryPersonLink.person_id }),
     enabled: !!primaryPersonLink?.person_id,
+  });
+
+  // PHASE 3: Load contact attempts history
+  const { data: contactAttempts = [] } = useQuery({
+    queryKey: ["contact-attempts", caseId],
+    queryFn: () => base44.entities.ContactAttempt.filter({ case_id: caseId }, "-created_date"),
+    enabled: !!caseId,
   });
 
   // Load candidates from latest query
@@ -224,6 +242,53 @@ export default function PeopleFinderTab({ caseId, caseData }) {
       queryClient.invalidateQueries({ queryKey: ["case", caseId] });
       alert("Mailing address updated");
     }
+  };
+
+  // PHASE 3: Log contact attempt
+  const logContactAttempt = async () => {
+    if (!contactLogData.value_used) {
+      alert("Please select a phone/email to log");
+      return;
+    }
+
+    await base44.entities.ContactAttempt.create({
+      case_id: caseId,
+      person_id: primaryPersonLink?.person_id,
+      contact_method: contactLogData.contact_method,
+      value_used: contactLogData.value_used,
+      attempt_type: contactLogData.attempt_type,
+      result: contactLogData.result,
+      notes: contactLogData.notes,
+      performed_by: (await base44.auth.me()).email,
+    });
+
+    // Log to activity log
+    await base44.entities.ActivityLog.create({
+      case_id: caseId,
+      action: "contact_attempt",
+      description: `${contactLogData.attempt_type} - ${contactLogData.result}`,
+      performed_by: (await base44.auth.me()).email,
+      metadata: contactLogData,
+    });
+
+    // Recalculate confidence
+    await base44.functions.invoke("calculateContactConfidence", {
+      case_id: caseId,
+    });
+
+    queryClient.invalidateQueries({ queryKey: ["contact-attempts", caseId] });
+    queryClient.invalidateQueries({ queryKey: ["case", caseId] });
+    
+    setShowContactLog(false);
+    setContactLogData({
+      contact_method: "phone",
+      value_used: "",
+      attempt_type: "call",
+      result: "no_answer",
+      notes: "",
+    });
+
+    alert("Contact attempt logged");
   };
 
   const attachPerson = async (candidate, role) => {
@@ -875,6 +940,105 @@ export default function PeopleFinderTab({ caseId, caseData }) {
         <InternalConnectionsPanel personId={primaryPersonLink.person_id} currentCaseId={caseId} />
       )}
 
+      {/* PHASE 3 - Communication Panel */}
+      {primaryPersonLink?.person_id && (
+        <Card className="border-purple-200 bg-purple-50/20">
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <Phone className="w-4 h-4 text-purple-600" />
+              Communication Panel
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* One-click actions */}
+            <div>
+              <Label className="text-xs text-slate-600 mb-2 block">QUICK ACTIONS</Label>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  size="sm"
+                  onClick={() => setShowContactLog(true)}
+                  className="bg-purple-600 hover:bg-purple-700"
+                >
+                  <Phone className="w-3 h-3 mr-1" />
+                  Log Call Attempt
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    setContactLogData({ ...contactLogData, attempt_type: "text" });
+                    setShowContactLog(true);
+                  }}
+                >
+                  <MessageSquare className="w-3 h-3 mr-1" />
+                  Log Text Sent
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    setContactLogData({ ...contactLogData, contact_method: "email", attempt_type: "email" });
+                    setShowContactLog(true);
+                  }}
+                >
+                  <Mail className="w-3 h-3 mr-1" />
+                  Log Email Sent
+                </Button>
+              </div>
+            </div>
+
+            {/* Contact Timeline */}
+            <div className="pt-4 border-t">
+              <Label className="text-xs text-slate-600 mb-3 block">CONTACT TIMELINE</Label>
+              {contactAttempts.length === 0 ? (
+                <p className="text-sm text-slate-400 text-center py-4">
+                  No contact attempts logged yet
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {contactAttempts.slice(0, 10).map((attempt) => (
+                    <div key={attempt.id} className="flex items-start gap-3 p-3 bg-white border rounded-lg">
+                      <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
+                        {attempt.contact_method === "phone" && <Phone className="w-4 h-4 text-purple-600" />}
+                        {attempt.contact_method === "email" && <Mail className="w-4 h-4 text-purple-600" />}
+                        {attempt.contact_method === "text" && <MessageSquare className="w-4 h-4 text-purple-600" />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-1">
+                          <p className="text-sm font-semibold">
+                            {attempt.attempt_type.charAt(0).toUpperCase() + attempt.attempt_type.slice(1)} - {attempt.value_used}
+                          </p>
+                          <span className="text-xs text-slate-500">
+                            {new Date(attempt.created_date).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge
+                            variant="outline"
+                            className={
+                              attempt.result === "spoke_to_owner" || attempt.result === "owner_interested"
+                                ? "bg-emerald-50 text-emerald-700 border-emerald-300"
+                                : attempt.result === "wrong_number" || attempt.result === "disconnected"
+                                ? "bg-red-50 text-red-700 border-red-300"
+                                : "bg-slate-50 text-slate-700"
+                            }
+                          >
+                            {attempt.result.replace(/_/g, " ")}
+                          </Badge>
+                        </div>
+                        {attempt.notes && (
+                          <p className="text-xs text-slate-600 mt-1">{attempt.notes}</p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Linked Persons */}
       {personLinks.length > 0 && (
         <Card>
@@ -893,6 +1057,104 @@ export default function PeopleFinderTab({ caseId, caseData }) {
           </CardContent>
         </Card>
       )}
+
+      {/* PHASE 3 - Contact Logging Dialog */}
+      <Dialog open={showContactLog} onOpenChange={setShowContactLog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Log Contact Attempt</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>Contact Method</Label>
+              <select
+                className="w-full p-2 border rounded"
+                value={contactLogData.contact_method}
+                onChange={(e) => setContactLogData({ ...contactLogData, contact_method: e.target.value })}
+              >
+                <option value="phone">Phone</option>
+                <option value="email">Email</option>
+                <option value="text">Text/SMS</option>
+              </select>
+            </div>
+
+            <div>
+              <Label>Phone/Email Used</Label>
+              <select
+                className="w-full p-2 border rounded"
+                value={contactLogData.value_used}
+                onChange={(e) => setContactLogData({ ...contactLogData, value_used: e.target.value })}
+              >
+                <option value="">Select contact...</option>
+                {contactLogData.contact_method === "phone" && 
+                  primaryContacts.filter(c => c.type === "phone").map(c => (
+                    <option key={c.id} value={c.value}>{c.value}</option>
+                  ))
+                }
+                {contactLogData.contact_method === "email" && 
+                  primaryContacts.filter(c => c.type === "email").map(c => (
+                    <option key={c.id} value={c.value}>{c.value}</option>
+                  ))
+                }
+              </select>
+            </div>
+
+            <div>
+              <Label>Attempt Type</Label>
+              <select
+                className="w-full p-2 border rounded"
+                value={contactLogData.attempt_type}
+                onChange={(e) => setContactLogData({ ...contactLogData, attempt_type: e.target.value })}
+              >
+                <option value="call">Call</option>
+                <option value="text">Text</option>
+                <option value="email">Email</option>
+                <option value="voicemail">Voicemail</option>
+              </select>
+            </div>
+
+            <div>
+              <Label>Result</Label>
+              <select
+                className="w-full p-2 border rounded"
+                value={contactLogData.result}
+                onChange={(e) => setContactLogData({ ...contactLogData, result: e.target.value })}
+              >
+                <option value="no_answer">No Answer</option>
+                <option value="left_voicemail">Left Voicemail</option>
+                <option value="spoke_to_owner">Spoke to Owner</option>
+                <option value="spoke_to_relative">Spoke to Relative</option>
+                <option value="spoke_to_other">Spoke to Other Person</option>
+                <option value="wrong_number">Wrong Number</option>
+                <option value="disconnected">Disconnected</option>
+                <option value="email_sent">Email Sent</option>
+                <option value="email_bounced">Email Bounced</option>
+                <option value="owner_interested">Owner Interested</option>
+                <option value="owner_declined">Owner Declined</option>
+                <option value="callback_requested">Callback Requested</option>
+              </select>
+            </div>
+
+            <div>
+              <Label>Notes (optional)</Label>
+              <Input
+                placeholder="Additional details..."
+                value={contactLogData.notes}
+                onChange={(e) => setContactLogData({ ...contactLogData, notes: e.target.value })}
+              />
+            </div>
+
+            <div className="flex gap-2 pt-2">
+              <Button onClick={logContactAttempt} className="flex-1">
+                Save Attempt
+              </Button>
+              <Button variant="outline" onClick={() => setShowContactLog(false)}>
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Candidate Detail Dialog */}
       <Dialog open={!!selectedCandidate} onOpenChange={() => setSelectedCandidate(null)}>
