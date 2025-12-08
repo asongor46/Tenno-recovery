@@ -108,76 +108,130 @@ Deno.serve(async (req) => {
 
 /**
  * Stage 1: Case Integrity Check
+ * UPDATED: Distinguishes between missing data vs incomplete data
  */
 async function checkIntegrity(caseData) {
   const issues = [];
+  const warnings = [];
 
-  if (!caseData.surplus_amount || caseData.surplus_amount <= 0) {
-    issues.push('No surplus amount');
-  }
-
-  if (caseData.sale_amount && caseData.judgment_amount) {
-    if (caseData.sale_amount <= caseData.judgment_amount) {
-      issues.push('Sale amount does not exceed judgment');
-    }
-  }
-
-  if (!caseData.sale_date) {
-    issues.push('Missing sale date');
+  // Critical: Must have basic identifying information
+  if (!caseData.case_number && !caseData.parcel_number) {
+    issues.push('CRITICAL: No case number or parcel number');
   }
 
   if (!caseData.property_address) {
     issues.push('Missing property address');
   }
 
+  if (!caseData.county || !caseData.state) {
+    issues.push('Missing county/state information');
+  }
+
+  // Important: Financial data
+  if (!caseData.surplus_amount || caseData.surplus_amount <= 0) {
+    warnings.push('Surplus amount not calculated yet');
+  } else if (caseData.surplus_amount < 5000) {
+    warnings.push('Surplus below $5,000 - may not be worth pursuing');
+  }
+
+  if (caseData.sale_amount && caseData.judgment_amount) {
+    if (caseData.sale_amount <= caseData.judgment_amount) {
+      issues.push('Sale amount does not exceed judgment - no surplus possible');
+    }
+  }
+
+  // Timeline data
+  if (!caseData.sale_date) {
+    warnings.push('Missing sale date - cannot calculate claim deadline');
+  }
+
   return {
     status: issues.length === 0 ? 'PASS' : 'FAIL',
     issues,
+    warnings,
   };
 }
 
 /**
  * Stage 2: Owner Verification Check
+ * UPDATED: Reflects real resolution statuses from resolveParcelOwner
  */
 async function checkOwner(base44, caseData) {
-  // Check if we have linked persons
+  const issues = [];
+  const warnings = [];
+  
+  // Check owner confidence level
+  let confidence = caseData.owner_confidence || 'unknown';
+  
+  if (confidence === 'unknown') {
+    issues.push('OWNER_NOT_RESOLVED: Run owner resolver to identify property owner');
+  } else if (confidence === 'low') {
+    warnings.push('Owner identity uncertain - manual verification recommended');
+  }
+
+  // Check for linked persons
   const links = await base44.entities.CasePersonLink.filter({ case_id: caseData.id });
   
-  let confidence = caseData.owner_confidence || 'unknown';
-  const issues = [];
+  if (links.length === 0 && confidence !== 'unknown') {
+    warnings.push('No Person record linked - consider running People Finder');
+  }
+  
+  if (links.length > 1) {
+    warnings.push('Multiple owners detected - verify primary owner');
+  }
 
-  if (links.length === 0) {
-    issues.push('No verified person linked');
-    confidence = 'low';
-  } else {
-    const primaryOwner = links.find(l => l.role === 'primary_owner');
-    if (primaryOwner) {
-      confidence = primaryOwner.confidence;
+  // Check for contact information
+  if (!caseData.owner_phone && !caseData.owner_email) {
+    if (confidence === 'high' || confidence === 'medium') {
+      warnings.push('Owner identified but no contact info - run People Finder');
+    } else {
+      issues.push('No contact information available');
     }
   }
 
-  if (!caseData.owner_phone && !caseData.owner_email) {
-    issues.push('No contact information');
-  }
-
-  if (links.length > 1) {
-    issues.push('Multiple owners detected');
+  // Check for basic owner name
+  if (!caseData.owner_name || caseData.owner_name.length < 3) {
+    issues.push('No valid owner name recorded');
   }
 
   return {
     confidence,
     issues,
+    warnings,
   };
 }
 
 /**
  * Stage 3: Surplus Verification Check
+ * UPDATED: Reflects real calculation statuses from calculateSurplus
  */
 async function checkSurplus(caseData) {
-  // Simple check for now - would integrate with county lookups in production
+  const issues = [];
+  const warnings = [];
+  
+  if (!caseData.surplus_amount || caseData.surplus_amount <= 0) {
+    issues.push('SURPLUS_NOT_CALCULATED: Run surplus calculator');
+    return {
+      status: 'UNKNOWN',
+      issues,
+      warnings,
+    };
+  }
+  
+  // Surplus is known - validate it makes sense
+  if (caseData.surplus_amount < 1000) {
+    warnings.push('Surplus under $1,000 - may not cover costs');
+  }
+  
+  if (caseData.sale_amount && caseData.surplus_amount > caseData.sale_amount) {
+    issues.push('Surplus exceeds sale amount - data error');
+  }
+  
   return {
-    status: caseData.surplus_amount > 0 ? 'AVAILABLE' : 'UNKNOWN',
-    issues: [],
+    status: caseData.surplus_amount > 0 ? 'AVAILABLE' : 'NONE',
+    amount: caseData.surplus_amount,
+    issues,
+    warnings,
   };
 }
 
@@ -263,33 +317,77 @@ function calculateComplexity({ caseData, county, ownerCheck, filingCheck }) {
 
 /**
  * Determine overall verification status
+ * UPDATED: More nuanced status determination
  */
 function determineOverallStatus({ integrity, owner, surplus, filing }) {
+  // RED: Critical failures
   if (integrity.status === 'FAIL') return 'red';
-  if (owner.confidence === 'low') return 'yellow';
+  if (integrity.issues.some(i => i.includes('CRITICAL'))) return 'red';
+  
+  // RED: Owner completely unknown
+  if (owner.confidence === 'unknown') return 'red';
+  
+  // YELLOW: Data incomplete but recoverable
   if (surplus.status === 'UNKNOWN') return 'yellow';
-  if (filing.mode === 'unknown') return 'yellow';
-  if (owner.confidence === 'high' && integrity.status === 'PASS') return 'green';
+  if (owner.confidence === 'low') return 'yellow';
+  if (filing.mode === 'unknown' || filing.mode === 'homeowner_files') return 'yellow';
+  
+  // YELLOW: Has warnings
+  if ((integrity.warnings?.length || 0) > 0) return 'yellow';
+  if ((owner.warnings?.length || 0) > 0) return 'yellow';
+  if ((surplus.warnings?.length || 0) > 0) return 'yellow';
+  
+  // GREEN: All critical checks passed
+  if (owner.confidence === 'high' && integrity.status === 'PASS' && surplus.status === 'AVAILABLE') {
+    return 'green';
+  }
   
   return 'yellow';
 }
 
 /**
  * Generate human-readable summary
+ * UPDATED: Provides specific actionable guidance
  */
 function generateSummary(status, integrity, owner, surplus) {
   if (status === 'green') {
-    return 'Case verified - ready to proceed';
+    return `Case verified ✓ - Surplus: $${surplus.amount?.toLocaleString() || 'N/A'}, Owner: ${owner.confidence}`;
   }
   
-  const issues = [
-    ...integrity.issues,
-    ...owner.issues,
-    ...surplus.issues,
+  // Collect all issues and warnings
+  const allIssues = [
+    ...(integrity.issues || []),
+    ...(owner.issues || []),
+    ...(surplus.issues || []),
+  ];
+  
+  const allWarnings = [
+    ...(integrity.warnings || []),
+    ...(owner.warnings || []),
+    ...(surplus.warnings || []),
   ];
 
-  if (issues.length > 0) {
-    return `Issues found: ${issues.slice(0, 2).join(', ')}`;
+  if (status === 'red') {
+    const criticalIssues = allIssues.filter(i => 
+      i.includes('CRITICAL') || 
+      i.includes('OWNER_NOT_RESOLVED') || 
+      i.includes('SURPLUS_NOT_CALCULATED')
+    );
+    
+    if (criticalIssues.length > 0) {
+      return `Action required: ${criticalIssues[0]}`;
+    }
+    
+    return `Critical issues: ${allIssues.slice(0, 2).join('; ')}`;
+  }
+  
+  if (status === 'yellow') {
+    if (allIssues.length > 0) {
+      return `Needs attention: ${allIssues[0]}`;
+    }
+    if (allWarnings.length > 0) {
+      return `Review: ${allWarnings[0]}`;
+    }
   }
 
   return 'Review recommended before proceeding';
