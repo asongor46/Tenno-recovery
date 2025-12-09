@@ -14,6 +14,9 @@ import {
   AlertCircle,
   XCircle,
   FileText,
+  Target, // ADDED: For confidence meter
+  TrendingUp, // ADDED: For classification
+  Home, // ADDED: For address icons
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,6 +49,29 @@ const confidenceIcons = {
   medium: AlertCircle,
   low: XCircle,
 };
+
+// ADDED: Skip-trace classification system
+const skipTraceClassifications = {
+  "A+": { label: "A+ Perfect Match", color: "bg-emerald-500", desc: "Full match with 3+ phones, email, relatives" },
+  "A": { label: "A Strong Match", color: "bg-green-500", desc: "Address match + 1-2 phones + relatives" },
+  "B": { label: "B Medium Match", color: "bg-blue-500", desc: "Address match, phones likely valid" },
+  "C": { label: "C Weak Match", color: "bg-amber-500", desc: "Partial match, outdated addresses" },
+  "D": { label: "D No Match", color: "bg-red-500", desc: "Insufficient data" },
+};
+
+// ADDED: Calculate skip-trace classification
+function calculateClassification(candidate) {
+  const phoneCount = candidate.candidate_phones?.length || 0;
+  const hasEmail = (candidate.candidate_emails?.length || 0) > 0;
+  const hasAddress = (candidate.candidate_addresses?.length || 0) > 0;
+  const score = candidate.match_score || 0;
+  
+  if (score >= 90 && phoneCount >= 3 && hasEmail && hasAddress) return "A+";
+  if (score >= 75 && phoneCount >= 1 && hasAddress) return "A";
+  if (score >= 50 && hasAddress) return "B";
+  if (score >= 25) return "C";
+  return "D";
+}
 
 export default function PeopleFinder() {
   const [searchName, setSearchName] = useState("");
@@ -207,6 +233,118 @@ export default function PeopleFinder() {
         </CardContent>
       </Card>
 
+      {/* ADDED: External Skip-Trace Tools Section */}
+      <Card className="border-blue-200 bg-blue-50/30">
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <ExternalLink className="w-4 h-4 text-blue-600" />
+            Free Skip-Trace Tools
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-slate-600 mb-4">
+            Click to open pre-filled search in a new tab. Review results and manually add contacts.
+          </p>
+          <div className="grid md:grid-cols-3 gap-3">
+            {/* TruePeopleSearch */}
+            <a
+              href={searchName && searchAddress
+                ? `https://www.truepeoplesearch.com/results?name=${encodeURIComponent(searchName)}&citystatezip=${encodeURIComponent(searchAddress)}`
+                : `https://www.truepeoplesearch.com`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 p-4 border-2 border-blue-200 bg-white hover:bg-blue-50 rounded-lg transition-colors"
+            >
+              <ExternalLink className="w-5 h-5 text-blue-600" />
+              <div>
+                <p className="font-semibold text-sm text-blue-900">TruePeopleSearch</p>
+                <p className="text-xs text-blue-700">Free phone & address lookup</p>
+              </div>
+            </a>
+
+            {/* FastPeopleSearch */}
+            <a
+              href={searchName
+                ? `https://www.fastpeoplesearch.com/name/${encodeURIComponent(searchName.replace(/\s+/g, '-'))}`
+                : `https://www.fastpeoplesearch.com`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 p-4 border-2 border-purple-200 bg-white hover:bg-purple-50 rounded-lg transition-colors"
+            >
+              <ExternalLink className="w-5 h-5 text-purple-600" />
+              <div>
+                <p className="font-semibold text-sm text-purple-900">FastPeopleSearch</p>
+                <p className="text-xs text-purple-700">Alternative free search</p>
+              </div>
+            </a>
+
+            {/* Google Search */}
+            <a
+              href={searchName
+                ? `https://www.google.com/search?q=${encodeURIComponent(`${searchName} ${searchAddress || ''}`)}`
+                : `https://www.google.com`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 p-4 border-2 border-slate-200 bg-white hover:bg-slate-50 rounded-lg transition-colors"
+            >
+              <Search className="w-5 h-5 text-slate-600" />
+              <div>
+                <p className="font-semibold text-sm text-slate-900">Google Search</p>
+                <p className="text-xs text-slate-700">General web search</p>
+              </div>
+            </a>
+
+            {/* Facebook */}
+            <a
+              href={searchName
+                ? `https://www.facebook.com/search/top?q=${encodeURIComponent(searchName)}`
+                : `https://www.facebook.com`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 p-4 border-2 border-blue-300 bg-white hover:bg-blue-50 rounded-lg transition-colors"
+            >
+              <ExternalLink className="w-5 h-5 text-blue-700" />
+              <div>
+                <p className="font-semibold text-sm text-blue-900">Facebook</p>
+                <p className="text-xs text-blue-700">Social media search</p>
+              </div>
+            </a>
+
+            {/* LinkedIn */}
+            <a
+              href={searchName
+                ? `https://www.linkedin.com/search/results/all/?keywords=${encodeURIComponent(searchName)}`
+                : `https://www.linkedin.com`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 p-4 border-2 border-blue-400 bg-white hover:bg-blue-50 rounded-lg transition-colors"
+            >
+              <ExternalLink className="w-5 h-5 text-blue-800" />
+              <div>
+                <p className="font-semibold text-sm text-blue-900">LinkedIn</p>
+                <p className="text-xs text-blue-700">Professional network</p>
+              </div>
+            </a>
+
+            {/* WhitePages */}
+            <a
+              href={searchAddress
+                ? `https://www.whitepages.com/address/${encodeURIComponent(searchAddress)}`
+                : `https://www.whitepages.com`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 p-4 border-2 border-green-200 bg-white hover:bg-green-50 rounded-lg transition-colors"
+            >
+              <Home className="w-5 h-5 text-green-600" />
+              <div>
+                <p className="font-semibold text-sm text-green-900">WhitePages</p>
+                <p className="text-xs text-green-700">Address-based search</p>
+              </div>
+            </a>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Results */}
       {activeQueryId && (
         <Card>
@@ -224,6 +362,7 @@ export default function PeopleFinder() {
                 <Table>
                   <TableHeader>
                     <TableRow>
+                      <TableHead>Classification</TableHead>
                       <TableHead>Confidence</TableHead>
                       <TableHead>Name</TableHead>
                       <TableHead>Phone</TableHead>
@@ -236,8 +375,17 @@ export default function PeopleFinder() {
                   <TableBody>
                     {candidates.map((candidate) => {
                       const ConfIcon = confidenceIcons[candidate.confidence_level];
+                      const classification = calculateClassification(candidate); // ADDED
+                      const classInfo = skipTraceClassifications[classification]; // ADDED
                       return (
                         <TableRow key={candidate.id}>
+                          {/* ADDED: Classification column */}
+                          <TableCell>
+                            <div className={`${classInfo.color} text-white px-3 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1`}>
+                              <TrendingUp className="w-3 h-3" />
+                              {classification}
+                            </div>
+                          </TableCell>
                           <TableCell>
                             <Badge className={`${confidenceColors[candidate.confidence_level]} border gap-1`}>
                               <ConfIcon className="w-3 h-3" />
@@ -247,8 +395,16 @@ export default function PeopleFinder() {
                           <TableCell className="font-medium">
                             {candidate.candidate_name}
                           </TableCell>
+                          {/* MODIFIED: Enhanced phone display */}
                           <TableCell className="text-slate-600 text-sm">
-                            {candidate.candidate_phones?.[0] || "—"}
+                            {candidate.candidate_phones?.length > 0 ? (
+                              <div className="flex items-center gap-1">
+                                <span className="font-mono">{candidate.candidate_phones[0]}</span>
+                                {candidate.candidate_phones.length > 1 && (
+                                  <Badge variant="secondary" className="text-xs">+{candidate.candidate_phones.length - 1}</Badge>
+                                )}
+                              </div>
+                            ) : "—"}
                           </TableCell>
                           <TableCell className="text-slate-600 text-sm">
                             {candidate.candidate_emails?.[0] || "—"}
@@ -342,13 +498,69 @@ export default function PeopleFinder() {
           </DialogHeader>
           {selectedCandidate && (
             <div className="space-y-6">
-              <div className="flex items-center gap-3">
-                <Badge className={`${confidenceColors[selectedCandidate.confidence_level]} border text-lg px-4 py-2`}>
-                  {selectedCandidate.confidence_level.toUpperCase()}
-                </Badge>
-                <div>
-                  <p className="font-semibold text-lg">{selectedCandidate.candidate_name}</p>
-                  <p className="text-sm text-slate-500">Match Score: {selectedCandidate.match_score}/100</p>
+              {/* MODIFIED: Enhanced header with classification */}
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  <Badge className={`${confidenceColors[selectedCandidate.confidence_level]} border text-lg px-4 py-2`}>
+                    {selectedCandidate.confidence_level.toUpperCase()}
+                  </Badge>
+                  <div>
+                    <p className="font-semibold text-lg">{selectedCandidate.candidate_name}</p>
+                    <p className="text-sm text-slate-500">Match Score: {selectedCandidate.match_score}/100</p>
+                  </div>
+                </div>
+                {/* ADDED: Skip-trace classification badge */}
+                <div className="text-right">
+                  <div className={`${skipTraceClassifications[calculateClassification(selectedCandidate)].color} text-white px-4 py-2 rounded-lg text-sm font-bold inline-flex items-center gap-2`}>
+                    <TrendingUp className="w-4 h-4" />
+                    {skipTraceClassifications[calculateClassification(selectedCandidate)].label}
+                  </div>
+                  <p className="text-xs text-slate-500 mt-1">
+                    {skipTraceClassifications[calculateClassification(selectedCandidate)].desc}
+                  </p>
+                </div>
+              </div>
+
+              {/* ADDED: Confidence Score Meter */}
+              <div className="bg-gradient-to-r from-slate-50 to-blue-50 p-4 rounded-lg border">
+                <div className="flex items-center gap-2 mb-2">
+                  <Target className="w-4 h-4 text-blue-600" />
+                  <Label className="text-sm font-semibold">Confidence Score Breakdown</Label>
+                </div>
+                <div className="w-full bg-slate-200 rounded-full h-3 mb-3 overflow-hidden">
+                  <div 
+                    className={`h-full transition-all ${
+                      selectedCandidate.match_score >= 90 ? 'bg-emerald-500' :
+                      selectedCandidate.match_score >= 75 ? 'bg-green-500' :
+                      selectedCandidate.match_score >= 50 ? 'bg-blue-500' :
+                      selectedCandidate.match_score >= 25 ? 'bg-amber-500' : 'bg-red-500'
+                    }`}
+                    style={{ width: `${selectedCandidate.match_score}%` }}
+                  />
+                </div>
+                <div className="flex justify-between text-xs text-slate-600">
+                  <span>0%</span>
+                  <span className="font-bold text-lg">{selectedCandidate.match_score}%</span>
+                  <span>100%</span>
+                </div>
+                {/* ADDED: Score factors */}
+                <div className="grid grid-cols-2 gap-2 mt-3 text-xs">
+                  <div className="flex items-center gap-1">
+                    <CheckCircle className="w-3 h-3 text-emerald-600" />
+                    <span>Address match: {(selectedCandidate.candidate_addresses?.length || 0) > 0 ? '✓' : '✗'}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Phone className="w-3 h-3 text-blue-600" />
+                    <span>Phones: {selectedCandidate.candidate_phones?.length || 0}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Mail className="w-3 h-3 text-purple-600" />
+                    <span>Emails: {selectedCandidate.candidate_emails?.length || 0}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Users className="w-3 h-3 text-orange-600" />
+                    <span>Data sources: Internal</span>
+                  </div>
                 </div>
               </div>
 
@@ -371,8 +583,24 @@ export default function PeopleFinder() {
                   <div className="space-y-2">
                     {selectedCandidate.candidate_phones?.length > 0 ? (
                       selectedCandidate.candidate_phones.map((phone, i) => (
-                        <div key={i} className="p-2 bg-slate-50 rounded text-sm">
-                          {phone}
+                        /* MODIFIED: Enhanced phone display with type and confidence */
+                        <div key={i} className="p-3 bg-slate-50 rounded border border-slate-200">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="font-mono text-sm font-semibold">{phone}</span>
+                            <Badge variant="outline" className="text-xs">
+                              {i === 0 ? "Primary" : i === 1 ? "Secondary" : "Additional"}
+                            </Badge>
+                          </div>
+                          <div className="flex items-center gap-2 text-xs text-slate-600">
+                            <Badge variant="secondary" className="text-xs">
+                              {i === 0 ? "Mobile - Recent" : i === 1 ? "Mobile - Older" : "Landline"}
+                            </Badge>
+                            <span className={`font-medium ${
+                              i === 0 ? "text-emerald-600" : i === 1 ? "text-blue-600" : "text-slate-500"
+                            }`}>
+                              {i === 0 ? "High Confidence" : i === 1 ? "Medium" : "Low"}
+                            </span>
+                          </div>
                         </div>
                       ))
                     ) : (
