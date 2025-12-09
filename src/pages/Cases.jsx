@@ -60,6 +60,12 @@ import PDFCaseBuilder from "@/components/cases/PDFCaseBuilder"; // ADDED
 import URLCaseBuilder from "@/components/cases/URLCaseBuilder"; // ADDED
 import AdvancedCaseBuilder from "@/components/cases/AdvancedCaseBuilder"; // ADDED: Universal County Mapping
 
+// PHASE 4+ ENHANCEMENTS: Dashboard components
+import CasesKPICards from "@/components/dashboard/CasesKPICards";
+import TodayTasksPanel from "@/components/dashboard/TodayTasksPanel";
+import CasePipelineKanban from "@/components/dashboard/CasePipelineKanban";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 const stageColors = {
   imported: "bg-slate-100 text-slate-700",
   agreement_signed: "bg-blue-100 text-blue-700",
@@ -103,6 +109,9 @@ export default function Cases() {
   const [importMethod, setImportMethod] = useState(null); // ADDED: "manual" | "pdf" | "url"
   const [page, setPage] = useState(1);
   const pageSize = 20;
+  
+  // PHASE 4+ ENHANCEMENT: View mode toggle
+  const [viewMode, setViewMode] = useState("table"); // "pipeline" | "table"
 
   const queryClient = useQueryClient();
 
@@ -179,6 +188,23 @@ export default function Cases() {
 
   return (
     <div className="space-y-6">
+      {/* PHASE 4+ ENHANCEMENT: KPI Cards - Dashboard Overview */}
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <CasesKPICards cases={cases} />
+      </motion.div>
+
+      {/* PHASE 4+ ENHANCEMENT: Today's Tasks & Alerts */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+      >
+        <TodayTasksPanel />
+      </motion.div>
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -369,8 +395,28 @@ export default function Cases() {
         )}
       </motion.div>
 
-      {/* Table */}
-      <motion.div
+      {/* PHASE 4+ ENHANCEMENT: View Mode Tabs - Pipeline vs Table */}
+      <Tabs value={viewMode} onValueChange={setViewMode} className="w-full">
+        <TabsList className="grid w-full max-w-md grid-cols-2">
+          <TabsTrigger value="pipeline">Pipeline View</TabsTrigger>
+          <TabsTrigger value="table">Table View</TabsTrigger>
+        </TabsList>
+
+        {/* Pipeline/Kanban View */}
+        <TabsContent value="pipeline" className="mt-6">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-2xl border border-slate-100 p-6"
+          >
+            <CasePipelineKanban cases={filteredCases} />
+          </motion.div>
+        </TabsContent>
+
+        {/* Table View (existing) */}
+        <TabsContent value="table" className="mt-6">
+          {/* Table */}
+          <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
@@ -555,6 +601,8 @@ export default function Cases() {
           </div>
         )}
       </motion.div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
