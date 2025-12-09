@@ -77,6 +77,7 @@ export default function PeopleFinder() {
   const [searchName, setSearchName] = useState("");
   const [searchAddress, setSearchAddress] = useState("");
   const [searchCounty, setSearchCounty] = useState("");
+  const [searchState, setSearchState] = useState(""); // ADDED: State field
   const [isRunning, setIsRunning] = useState(false);
   const [selectedCandidate, setSelectedCandidate] = useState(null);
   const [activeQueryId, setActiveQueryId] = useState(null);
@@ -178,7 +179,7 @@ export default function PeopleFinder() {
           <CardTitle className="text-base">Search for Person</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid md:grid-cols-3 gap-4">
+          <div className="grid md:grid-cols-4 gap-4">
             <div>
               <Label>Full Name *</Label>
               <Input
@@ -192,7 +193,17 @@ export default function PeopleFinder() {
               <Input
                 value={searchAddress}
                 onChange={(e) => setSearchAddress(e.target.value)}
-                placeholder="123 Main St, City, State"
+                placeholder="123 Main St, City"
+              />
+            </div>
+            {/* ADDED: State field */}
+            <div>
+              <Label>State</Label>
+              <Input
+                value={searchState}
+                onChange={(e) => setSearchState(e.target.value)}
+                placeholder="PA"
+                maxLength={2}
               />
             </div>
             <div>
@@ -246,10 +257,10 @@ export default function PeopleFinder() {
             Click to open pre-filled search in a new tab. Review results and manually add contacts.
           </p>
           <div className="grid md:grid-cols-3 gap-3">
-            {/* TruePeopleSearch */}
+            {/* TruePeopleSearch - MODIFIED: Include state in city search */}
             <a
-              href={searchName && searchAddress
-                ? `https://www.truepeoplesearch.com/results?name=${encodeURIComponent(searchName)}&citystatezip=${encodeURIComponent(searchAddress)}`
+              href={searchName && searchAddress && searchState
+                ? `https://www.truepeoplesearch.com/results?name=${encodeURIComponent(searchName)}&citystatezip=${encodeURIComponent(`${searchAddress} ${searchState}`)}`
                 : `https://www.truepeoplesearch.com`}
               target="_blank"
               rel="noopener noreferrer"
@@ -291,22 +302,6 @@ export default function PeopleFinder() {
               <div>
                 <p className="font-semibold text-sm text-slate-900">Google Search</p>
                 <p className="text-xs text-slate-700">General web search</p>
-              </div>
-            </a>
-
-            {/* Facebook */}
-            <a
-              href={searchName
-                ? `https://www.facebook.com/search/top?q=${encodeURIComponent(searchName)}`
-                : `https://www.facebook.com`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-3 p-4 border-2 border-blue-300 bg-white hover:bg-blue-50 rounded-lg transition-colors"
-            >
-              <ExternalLink className="w-5 h-5 text-blue-700" />
-              <div>
-                <p className="font-semibold text-sm text-blue-900">Facebook</p>
-                <p className="text-xs text-blue-700">Social media search</p>
               </div>
             </a>
 
