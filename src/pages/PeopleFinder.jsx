@@ -17,6 +17,8 @@ import {
   Target, // ADDED: For confidence meter
   TrendingUp, // ADDED: For classification
   Home, // ADDED: For address icons
+  Sparkles, // ADDED: For AI auto-trace button
+  FileText as SummaryIcon, // ADDED: For summary notes icon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -128,6 +130,36 @@ export default function PeopleFinder() {
     setIsRunning(false);
   };
 
+  // ADDED: AI-powered auto skip trace function
+  const runAIAutoTrace = async () => {
+    if (!searchName) return;
+    
+    setIsRunning(true);
+    try {
+      const { data } = await base44.functions.invoke("autoSkipTrace", {
+        owner_name: searchName,
+        property_address: searchAddress,
+        county: searchCounty,
+        state: searchState,
+      });
+
+      if (data.status === 'success') {
+        setActiveQueryId(data.query_id);
+        queryClient.invalidateQueries({ queryKey: ["standalone-queries"] });
+        queryClient.invalidateQueries({ queryKey: ["standalone-candidates", data.query_id] });
+        
+        // Show success message with AI assessment
+        alert(`AI Skip Trace Complete!\n\nFound ${data.candidates_found} candidate(s)\n\n${data.overall_assessment || ''}\n\n${data.best_match ? `Best Match: ${data.best_match.name}\nScore: ${data.best_match.score}/100\nClassification: ${data.best_match.classification}\n\n${data.best_match.summary}` : ''}`);
+      } else {
+        alert(`AI Skip Trace failed: ${data.details || 'Unknown error'}`);
+      }
+    } catch (error) {
+      alert(`AI Skip Trace error: ${error.message}`);
+    } finally {
+      setIsRunning(false);
+    }
+  };
+
   const createPersonFromCandidate = async (candidate) => {
     const person = await base44.entities.Person.create({
       full_name: candidate.candidate_name,
@@ -215,6 +247,7 @@ export default function PeopleFinder() {
               />
             </div>
           </div>
+          {/* MODIFIED: Added AI Auto-Trace button to existing button group */}
           <div className="flex gap-3">
             <Button
               onClick={() => runSearch("internal_only")}
@@ -239,6 +272,19 @@ export default function PeopleFinder() {
                 <ExternalLink className="w-4 h-4 mr-2" />
               )}
               Internal + Public Search
+            </Button>
+            {/* ADDED: AI Auto-Trace button */}
+            <Button
+              onClick={runAIAutoTrace}
+              disabled={isRunning || !searchName}
+              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+            >
+              {isRunning ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Sparkles className="w-4 h-4 mr-2" />
+              )}
+              AI Auto-Trace
             </Button>
           </div>
         </CardContent>
@@ -387,8 +433,16 @@ export default function PeopleFinder() {
                               {candidate.confidence_level.toUpperCase()}
                             </Badge>
                           </TableCell>
-                          <TableCell className="font-medium">
-                            {candidate.candidate_name}
+                          <TableCell>
+                            <div>
+                              <p className="font-medium">{candidate.candidate_name}</p>
+                              {/* ADDED: AI summary notes display */}
+                              {candidate.raw_source_data?.ai_summary && (
+                                <p className="text-xs text-slate-500 mt-1 italic">
+                                  {candidate.raw_source_data.ai_summary}
+                                </p>
+                              )}
+                            </div>
                           </TableCell>
                           {/* MODIFIED: Enhanced phone display */}
                           <TableCell className="text-slate-600 text-sm">
@@ -516,6 +570,32 @@ export default function PeopleFinder() {
                 </div>
               </div>
 
+              {/* ADDED: AI Summary Notes Section */}
+              {selectedCandidate.raw_source_data?.ai_summary && (
+                <div className="bg-gradient-to-r from-purple-50 to-indigo-50 p-4 rounded-lg border border-purple-200">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Sparkles className="w-4 h-4 text-purple-600" />
+                    <Label className="text-sm font-semibold text-purple-900">AI Analysis Summary</Label>
+                  </div>
+                  <p className="text-sm text-slate-700">
+                    {selectedCandidate.raw_source_data.ai_summary}
+                  </p>
+                  {/* ADDED: Red flags display */}
+                  {selectedCandidate.raw_source_data?.red_flags?.length > 0 && (
+                    <div className="mt-3 pt-3 border-t border-purple-200">
+                      <Label className="text-xs text-red-700 font-semibold mb-1 block">⚠️ RED FLAGS:</Label>
+                      <div className="flex flex-wrap gap-1">
+                        {selectedCandidate.raw_source_data.red_flags.map(flag => (
+                          <Badge key={flag} className="bg-red-100 text-red-700 border-red-300 text-xs">
+                            {flag.replace(/_/g, ' ')}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* ADDED: Confidence Score Meter */}
               <div className="bg-gradient-to-r from-slate-50 to-blue-50 p-4 rounded-lg border">
                 <div className="flex items-center gap-2 mb-2">
@@ -577,29 +657,38 @@ export default function PeopleFinder() {
                   </Label>
                   <div className="space-y-2">
                     {selectedCandidate.candidate_phones?.length > 0 ? (
-                      selectedCandidate.candidate_phones.map((phone, i) => (
-                        /* MODIFIED: Enhanced phone display with type and confidence */
-                        <div key={i} className="p-3 bg-slate-50 rounded border border-slate-200">
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="font-mono text-sm font-semibold">{phone}</span>
-                            <Badge variant="outline" className="text-xs">
-                              {i === 0 ? "Primary" : i === 1 ? "Secondary" : "Additional"}
-                            </Badge>
-                          </div>
-                          <div className="flex items-center gap-2 text-xs text-slate-600">
-                            <Badge variant="secondary" className="text-xs">
-                              {i === 0 ? "Mobile - Recent" : i === 1 ? "Mobile - Older" : "Landline"}
-                            </Badge>
-                            <span className={`font-medium ${
-                              i === 0 ? "text-emerald-600" : i === 1 ? "text-blue-600" : "text-slate-500"
-                            }`}>
-                              {i === 0 ? "High Confidence" : i === 1 ? "Medium" : "Low"}
-                            </span>
-                          </div>
-                        </div>
-                      ))
+                     selectedCandidate.candidate_phones.map((phone, i) => {
+                       // ADDED: Get AI phone label if available
+                       const aiLabel = selectedCandidate.raw_source_data?.phone_labels?.[phone] || null;
+                       const displayLabel = aiLabel 
+                         ? aiLabel.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+                         : (i === 0 ? "Mobile - Recent" : i === 1 ? "Mobile - Older" : "Landline");
+
+                       return (
+                         <div key={i} className="p-3 bg-slate-50 rounded border border-slate-200">
+                           <div className="flex items-center justify-between mb-1">
+                             <span className="font-mono text-sm font-semibold">{phone}</span>
+                             <Badge variant="outline" className="text-xs">
+                               {i === 0 ? "Primary" : i === 1 ? "Secondary" : "Additional"}
+                             </Badge>
+                           </div>
+                           <div className="flex items-center gap-2 text-xs text-slate-600">
+                             {/* MODIFIED: Use AI-generated label if available */}
+                             <Badge variant="secondary" className="text-xs">
+                               {aiLabel && <Sparkles className="w-2 h-2 mr-1" />}
+                               {displayLabel}
+                             </Badge>
+                             <span className={`font-medium ${
+                               i === 0 ? "text-emerald-600" : i === 1 ? "text-blue-600" : "text-slate-500"
+                             }`}>
+                               {i === 0 ? "High Confidence" : i === 1 ? "Medium" : "Low"}
+                             </span>
+                           </div>
+                         </div>
+                       );
+                     })
                     ) : (
-                      <p className="text-sm text-slate-400">None found</p>
+                     <p className="text-sm text-slate-400">None found</p>
                     )}
                   </div>
                 </div>
