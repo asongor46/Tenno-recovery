@@ -46,20 +46,35 @@ export default function PDFCaseBuilder({ onSuccess, onCancel }) {
 
     setIsExtracting(true);
 
-    // Upload file first
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    try {
+      // Upload file first
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
 
-    // Call extraction function
-    const { data } = await base44.functions.invoke("extractPDFData", {
-      file_url,
-      extraction_type: "surplus_list", // surplus_list | case_details | deed | tax_bill
-    });
+      // Call extraction function
+      const { data } = await base44.functions.invoke("extractPDFData", {
+        file_url,
+        extraction_type: "surplus_list",
+        county: null, // Will be auto-detected from PDF
+        state: "PA", // Default to PA
+      });
 
-    if (data.status === "success") {
-      setExtractedCases(data.cases || []);
-      setSelectedRows(data.cases?.map((_, i) => i) || []); // Select all by default
-    } else {
-      alert("Extraction failed: " + data.details);
+      if (data.status === "success") {
+        setExtractedCases(data.cases || []);
+        setSelectedRows(data.cases?.map((_, i) => i) || []); // Select all by default
+        
+        // Show summary
+        if (data.filtered_out > 0) {
+          alert(
+            `Found ${data.total_found} total entries.\n` +
+            `${data.filtered_out} filtered out (corporate/LLC defendants or no surplus).\n` +
+            `${data.surplus_cases_found} valid surplus cases ready to import.`
+          );
+        }
+      } else {
+        alert("Extraction failed: " + (data.details || data.error || "Unknown error"));
+      }
+    } catch (error) {
+      alert("Extraction error: " + error.message);
     }
 
     setIsExtracting(false);
