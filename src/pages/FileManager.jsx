@@ -19,6 +19,8 @@ import {
   X, // ADDED: For tag removal
   Tag, // ADDED: For tag icon
   CheckSquare, // ADDED: For bulk selection
+  Sparkles, // ADDED: For AI analysis indicator
+  AlertCircle, // ADDED: For discrepancy warnings
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -143,7 +145,7 @@ export default function FileManager() {
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
-  // ADDED: Upload handler
+  // MODIFIED: Upload handler with AI analysis
   const handleUpload = async () => {
     if (!uploadFile || !uploadData.case_id) {
       alert("Please select a file and case");
@@ -154,20 +156,33 @@ export default function FileManager() {
     try {
       const { file_url } = await base44.integrations.Core.UploadFile({ file: uploadFile });
       
-      await base44.entities.Document.create({
+      const newDoc = await base44.entities.Document.create({
         ...uploadData,
         file_url,
         file_type: uploadFile.type,
         file_size: uploadFile.size,
         uploaded_by: (await base44.auth.me()).email,
+        extraction_status: "pending", // ADDED: Mark for AI analysis
       });
+
+      // ADDED: Trigger AI analysis in background
+      base44.functions.invoke("aiDocumentAnalysis", {
+        document_id: newDoc.id,
+        analysis_type: "full"
+      }).then(({ data }) => {
+        if (data.status === 'success') {
+          console.log("AI analysis complete:", data.analysis.summary);
+          queryClient.invalidateQueries({ queryKey: ["all-documents"] });
+          queryClient.invalidateQueries({ queryKey: ["case", uploadData.case_id] });
+        }
+      }).catch(err => console.error("AI analysis failed:", err));
 
       queryClient.invalidateQueries({ queryKey: ["all-documents"] });
       setShowUploadDialog(false);
       setUploadFile(null);
       setUploadData({ case_id: "", name: "", category: "other", tags: [] });
       setTagInput("");
-      alert("Document uploaded successfully");
+      alert("Document uploaded successfully! AI analysis running in background...");
     } catch (error) {
       alert(`Upload failed: ${error.message}`);
     } finally {
@@ -410,12 +425,32 @@ export default function FileManager() {
                         />
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center">
-                            <FileIcon className="w-5 h-5 text-slate-500" />
-                          </div>
-                          <span className="font-medium">{doc.name}</span>
-                        </div>
+                       <div className="flex items-center gap-3">
+                         <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center relative">
+                           <FileIcon className="w-5 h-5 text-slate-500" />
+                           {/* ADDED: AI analysis indicator */}
+                           {doc.extraction_status === "completed" && (
+                             <Sparkles className="w-3 h-3 text-purple-600 absolute -top-1 -right-1" />
+                           )}
+                           {doc.metadata?.ai_analysis?.discrepancies?.length > 0 && (
+                             <AlertCircle className="w-3 h-3 text-amber-600 absolute -bottom-1 -right-1" />
+                           )}
+                         </div>
+                         <div>
+                           <span className="font-medium">{doc.name}</span>
+                           {/* ADDED: AI analysis summary */}
+                           {doc.metadata?.ai_analysis?.confidence && (
+                             <p className="text-xs text-slate-500 mt-0.5">
+                               AI Confidence: {doc.metadata.ai_analysis.confidence}%
+                               {doc.metadata.ai_analysis.discrepancies?.length > 0 && (
+                                 <span className="text-amber-600 ml-2">
+                                   • {doc.metadata.ai_analysis.discrepancies.length} issue(s)
+                                 </span>
+                               )}
+                             </p>
+                           )}
+                         </div>
+                       </div>
                       </TableCell>
                       <TableCell className="text-slate-600">
                         {getCaseName(doc.case_id)}

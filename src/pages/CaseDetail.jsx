@@ -27,6 +27,9 @@ import {
   RefreshCw,
   Users, // ADDED for People Finder tab
   Target, // ADDED for Verification tab
+  Sparkles, // ADDED: For AI actions
+  Link as LinkIcon, // ADDED: For related cases
+  Lightbulb, // ADDED: For AI suggestions
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -176,6 +179,70 @@ export default function CaseDetail() {
         <div className="flex items-center gap-2">
           {/* ADDED: Import RunVerificationButton component at top */}
           <RunVerificationButton caseId={caseId} />
+          {/* ADDED: AI Actions Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="gap-2 bg-gradient-to-r from-purple-50 to-indigo-50 border-purple-200">
+                <Sparkles className="w-4 h-4 text-purple-600" />
+                AI Actions
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuItem 
+                onClick={async () => {
+                  const { data } = await base44.functions.invoke("aiCaseAutomation", {
+                    case_id: caseId,
+                    action_type: "link_related_cases"
+                  });
+                  alert(`Found ${data.result.related_cases?.length || 0} related case(s)`);
+                  queryClient.invalidateQueries({ queryKey: ["activities", caseId] });
+                }}
+              >
+                <LinkIcon className="w-4 h-4 mr-2" />
+                Find Related Cases
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={async () => {
+                  const { data } = await base44.functions.invoke("aiCaseAutomation", {
+                    case_id: caseId,
+                    action_type: "suggest_next_steps"
+                  });
+                  alert(`Generated ${data.result.next_steps?.length || 0} suggested action(s)`);
+                  queryClient.invalidateQueries({ queryKey: ["todos", caseId] });
+                  queryClient.invalidateQueries({ queryKey: ["activities", caseId] });
+                }}
+              >
+                <Lightbulb className="w-4 h-4 mr-2" />
+                Suggest Next Steps
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={async () => {
+                  const { data } = await base44.functions.invoke("aiCaseAutomation", {
+                    case_id: caseId,
+                    action_type: "generate_correspondence"
+                  });
+                  alert(`Generated correspondence:\n\nSubject: ${data.result.correspondence?.email_subject}\n\n${data.result.correspondence?.email_body?.substring(0, 200)}...`);
+                }}
+              >
+                <Send className="w-4 h-4 mr-2" />
+                Generate Correspondence
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem 
+                onClick={async () => {
+                  const { data } = await base44.functions.invoke("aiCaseAutomation", {
+                    case_id: caseId,
+                    action_type: "all"
+                  });
+                  alert(`AI Automation Complete!\n\n- Related Cases: ${data.result.related_cases?.length || 0}\n- Next Steps: ${data.result.next_steps?.length || 0}\n- Correspondence Generated: Yes`);
+                  queryClient.invalidateQueries();
+                }}
+              >
+                <Sparkles className="w-4 h-4 mr-2" />
+                Run All AI Automations
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <Button variant="outline">
             <Send className="w-4 h-4 mr-2" /> Send Portal Link
           </Button>
