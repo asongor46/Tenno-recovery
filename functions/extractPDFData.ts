@@ -85,9 +85,9 @@ Deno.serve(async (req) => {
         surplus_amount: c.surplus_amount,
         sale_amount: c.sale_amount,
         judgment_amount: c.judgment_amount,
-        sale_date: result.sale_date || null,
-        county: county || extractCountyFromAddress(c.property_address),
-        state: state || "PA",
+        sale_date: c.sale_date || result.sale_date || null,
+        county: c.county || county || extractCountyFromAddress(c.property_address),
+        state: c.state || state || "PA",
         source_type: "pdf_import",
         is_hot: c.surplus_amount >= 30000,
       }));
@@ -121,6 +121,9 @@ CRITICAL INSTRUCTIONS:
    - Defendant name (property owner - this is who we care about)
    - Plaintiff name (usually the bank/lender)
    - Property address (full street address)
+   - County name (extract from document header, title, or property address)
+   - State (extract from document or property address - use 2-letter abbreviation)
+   - Sale date (in YYYY-MM-DD format - look for sale date in header or each row)
    - Judgment Amount / Debt / Upset Price (what was owed)
    - Costs / Fees (sheriff fees, legal costs)
    - Sale Amount / Winning Bid / Amount Realized (what property sold for)
@@ -155,8 +158,14 @@ CRITICAL INSTRUCTIONS:
    - "upcoming_sale" = properties scheduled for future sale
    - "surplus_list" = explicit list of surplus funds available
 
-County: ${county || 'Unknown'}
-State: ${state || 'PA'}
+6. LOCATION & DATE EXTRACTION:
+   - Look for county name in document header/title (e.g., "Montgomery County Sheriff Sale")
+   - Extract county from property addresses if present
+   - Look for sale date in header, subtitle, or individual rows
+   - Use consistent date format: YYYY-MM-DD
+
+County: ${county || 'Look for county in document'}
+State: ${state || 'Look for state in document'}
 
 Extract every row with complete data. Be thorough - every case with positive surplus is valuable.`;
 }
