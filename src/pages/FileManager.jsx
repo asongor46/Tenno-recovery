@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
@@ -102,6 +102,8 @@ export default function FileManager() {
   const [selectedTags, setSelectedTags] = useState([]);
   // ADDED: State for bulk selection
   const [selectedDocs, setSelectedDocs] = useState([]);
+
+  const queryClient = useQueryClient();
 
   const { data: documents = [], isLoading } = useQuery({
     queryKey: ["all-documents"],
@@ -230,8 +232,6 @@ export default function FileManager() {
       alert(`Delete failed: ${error.message}`);
     }
   };
-
-  const queryClient = useQueryClient();
 
   return (
     <div className="space-y-6">
