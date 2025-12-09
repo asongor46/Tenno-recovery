@@ -63,6 +63,7 @@ export default function Templates() {
   const [activeCategory, setActiveCategory] = useState(initialCategory);
   const [showNewDialog, setShowNewDialog] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState(null);
+  const [viewingTemplate, setViewingTemplate] = useState(null);
 
   const queryClient = useQueryClient();
 
@@ -201,7 +202,10 @@ export default function Templates() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                   >
-                    <Card className="group hover:shadow-md transition-shadow">
+                    <Card 
+                      className="group hover:shadow-md transition-shadow cursor-pointer"
+                      onClick={() => setViewingTemplate(template)}
+                    >
                       <CardHeader className="pb-3">
                         <div className="flex items-start justify-between">
                           <div className="flex items-center gap-3">
@@ -223,21 +227,29 @@ export default function Templates() {
                                 variant="ghost" 
                                 size="icon" 
                                 className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                                onClick={(e) => e.stopPropagation()}
                               >
                                 <MoreHorizontal className="w-4 h-4" />
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => setEditingTemplate(template)}>
+                              <DropdownMenuItem onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingTemplate(template);
+                              }}>
                                 <Edit2 className="w-4 h-4 mr-2" /> Edit
                               </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => copyToClipboard(template.body)}>
+                              <DropdownMenuItem onClick={(e) => {
+                                e.stopPropagation();
+                                copyToClipboard(template.body);
+                              }}>
                                 <Copy className="w-4 h-4 mr-2" /> Copy Content
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
                               <DropdownMenuItem 
                                 className="text-red-600"
-                                onClick={() => {
+                                onClick={(e) => {
+                                  e.stopPropagation();
                                   if (window.confirm("Delete this template?")) {
                                     deleteMutation.mutate(template.id);
                                   }
@@ -267,6 +279,53 @@ export default function Templates() {
           )}
         </TabsContent>
       </Tabs>
+
+      {/* View Dialog */}
+      <Dialog open={!!viewingTemplate} onOpenChange={() => setViewingTemplate(null)}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{viewingTemplate?.name}</DialogTitle>
+          </DialogHeader>
+          {viewingTemplate && (
+            <div className="space-y-4">
+              {viewingTemplate.subject && (
+                <div>
+                  <label className="text-sm font-semibold text-slate-700">Subject:</label>
+                  <p className="text-sm text-slate-600 mt-1">{viewingTemplate.subject}</p>
+                </div>
+              )}
+              <div>
+                <label className="text-sm font-semibold text-slate-700">Content:</label>
+                <div className="mt-2 p-4 bg-slate-50 rounded-lg border">
+                  <p className="text-sm text-slate-700 whitespace-pre-line">{viewingTemplate.body}</p>
+                </div>
+              </div>
+              <div className="flex gap-3 pt-4 border-t">
+                <Button
+                  onClick={() => {
+                    copyToClipboard(viewingTemplate.body);
+                  }}
+                  variant="outline"
+                  className="flex-1"
+                >
+                  <Copy className="w-4 h-4 mr-2" />
+                  Copy to Clipboard
+                </Button>
+                <Button
+                  onClick={() => {
+                    setEditingTemplate(viewingTemplate);
+                    setViewingTemplate(null);
+                  }}
+                  className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+                >
+                  <Edit2 className="w-4 h-4 mr-2" />
+                  Edit Template
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Edit Dialog */}
       <Dialog open={!!editingTemplate} onOpenChange={() => setEditingTemplate(null)}>
