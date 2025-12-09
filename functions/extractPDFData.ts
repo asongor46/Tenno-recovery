@@ -95,6 +95,23 @@ Deno.serve(async (req) => {
         is_hot: c.surplus_amount >= 30000,
       }));
 
+    // Auto-add new counties to directory
+    const uniqueCounties = [...new Set(enrichedCases.map(c => c.county).filter(Boolean))];
+    for (const countyName of uniqueCounties) {
+      const existingCounties = await base44.asServiceRole.entities.County.filter({ 
+        name: countyName,
+        state: enrichedCases.find(c => c.county === countyName)?.state || state || "PA"
+      });
+      
+      if (existingCounties.length === 0) {
+        await base44.asServiceRole.entities.County.create({
+          name: countyName,
+          state: enrichedCases.find(c => c.county === countyName)?.state || state || "PA",
+          special_notes: "Auto-created from PDF import"
+        });
+      }
+    }
+
     return Response.json({
       status: 'success',
       document_type: result.document_type,
