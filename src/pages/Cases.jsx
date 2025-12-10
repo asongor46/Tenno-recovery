@@ -58,6 +58,8 @@ import { format } from "date-fns";
 import NewCaseForm from "@/components/cases/NewCaseForm";
 import PDFCaseBuilder from "@/components/cases/PDFCaseBuilder"; // ADDED
 import URLCaseBuilder from "@/components/cases/URLCaseBuilder"; // ADDED
+import ScreenshotCaseBuilder from "@/components/cases/ScreenshotCaseBuilder"; // ADDED
+import TextCaseBuilder from "@/components/cases/TextCaseBuilder"; // ADDED
 import AdvancedCaseBuilder from "@/components/cases/AdvancedCaseBuilder"; // ADDED: Universal County Mapping
 
 // PHASE 4+ ENHANCEMENTS: Dashboard components
@@ -212,7 +214,7 @@ export default function Cases() {
           <p className="text-slate-500 mt-1">{filteredCases.length} total cases</p>
         </div>
         
-        {/* MODIFIED: New Case Dropdown with 4 methods (ADDED Advanced Import) */}
+        {/* MODIFIED: New Case Dropdown with 6 methods - COMPLETE INGESTION ENGINE */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button className="bg-emerald-600 hover:bg-emerald-700">
@@ -235,6 +237,20 @@ export default function Cases() {
             }}>
               <FileUp className="w-4 h-4 mr-2" />
               Upload PDF (Auto Extract)
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => {
+              setImportMethod("screenshot");
+              setShowNewCaseDialog(true);
+            }}>
+              <FileUp className="w-4 h-4 mr-2 text-purple-600" />
+              Upload Screenshot (OCR)
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => {
+              setImportMethod("text");
+              setShowNewCaseDialog(true);
+            }}>
+              <FileText className="w-4 h-4 mr-2 text-blue-600" />
+              Paste Text (Parse)
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => {
               setImportMethod("url");
@@ -260,7 +276,7 @@ export default function Cases() {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* MODIFIED: Dialog for all import methods (ADDED Advanced) */}
+        {/* MODIFIED: Dialog for all 6 import methods - COMPLETE INGESTION ENGINE */}
         <Dialog open={showNewCaseDialog} onOpenChange={(open) => {
           setShowNewCaseDialog(open);
           if (!open) setImportMethod(null);
@@ -270,12 +286,13 @@ export default function Cases() {
               <DialogTitle>
                 {importMethod === "manual" && "Create New Case - Manual Entry"}
                 {importMethod === "pdf" && "Create Cases - Upload PDF"}
+                {importMethod === "screenshot" && "Create Cases - Upload Screenshot (OCR)"}
+                {importMethod === "text" && "Create Cases - Paste Text"}
                 {importMethod === "url" && "Create Cases - Import From URL"}
                 {importMethod === "advanced" && "Advanced Import - Universal County Mapping"}
               </DialogTitle>
             </DialogHeader>
 
-            {/* MODIFIED: Added advanced import option */}
             {importMethod === "manual" && (
               <NewCaseForm 
                 counties={counties} 
@@ -289,6 +306,34 @@ export default function Cases() {
 
             {importMethod === "pdf" && (
               <PDFCaseBuilder
+                onSuccess={() => {
+                  setShowNewCaseDialog(false);
+                  setImportMethod(null);
+                  queryClient.invalidateQueries({ queryKey: ["cases"] });
+                }}
+                onCancel={() => {
+                  setShowNewCaseDialog(false);
+                  setImportMethod(null);
+                }}
+              />
+            )}
+
+            {importMethod === "screenshot" && (
+              <ScreenshotCaseBuilder
+                onSuccess={() => {
+                  setShowNewCaseDialog(false);
+                  setImportMethod(null);
+                  queryClient.invalidateQueries({ queryKey: ["cases"] });
+                }}
+                onCancel={() => {
+                  setShowNewCaseDialog(false);
+                  setImportMethod(null);
+                }}
+              />
+            )}
+
+            {importMethod === "text" && (
+              <TextCaseBuilder
                 onSuccess={() => {
                   setShowNewCaseDialog(false);
                   setImportMethod(null);
@@ -315,7 +360,6 @@ export default function Cases() {
               />
             )}
 
-            {/* ADDED: Advanced import component with UCM Engine */}
             {importMethod === "advanced" && (
               <AdvancedCaseBuilder
                 onSuccess={() => {

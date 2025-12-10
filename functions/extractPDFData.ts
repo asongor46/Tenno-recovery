@@ -48,6 +48,7 @@ Deno.serve(async (req) => {
               properties: {
                 case_number: { type: "string" },
                 defendant_name: { type: "string" },
+                owner_address: { type: "string", description: "Owner's mailing address if different from property" },
                 property_address: { type: "string" },
                 county: { type: "string", description: "County name where property is located" },
                 state: { type: "string", description: "State abbreviation (e.g., PA, FL)" },
@@ -57,6 +58,11 @@ Deno.serve(async (req) => {
                 sale_amount: { type: "number" },
                 surplus_amount: { type: "number" },
                 plaintiff_name: { type: "string" },
+                interested_parties: { 
+                  type: "array", 
+                  items: { type: "string" },
+                  description: "Other interested parties (junior lienholders, heirs, etc.)"
+                },
                 is_corporate_defendant: { type: "boolean" },
                 parcel_number: { type: "string" }
               },
@@ -82,6 +88,7 @@ Deno.serve(async (req) => {
       })
       .map(c => ({
         owner_name: c.defendant_name,
+        owner_address: c.owner_address || c.property_address,
         property_address: c.property_address,
         case_number: c.case_number,
         parcel_number: c.parcel_number,
@@ -93,6 +100,7 @@ Deno.serve(async (req) => {
         state: c.state || state || "PA",
         source_type: "pdf_import",
         is_hot: c.surplus_amount >= 30000,
+        internal_notes: `Plaintiff: ${c.plaintiff_name || 'Unknown'}\nInterested Parties: ${c.interested_parties?.join(', ') || 'None'}`,
       }));
 
     // Auto-add new counties to directory
@@ -136,11 +144,11 @@ function buildExtractionPrompt(extraction_type, county, state) {
 
 CRITICAL INSTRUCTIONS:
 1. Extract ALL rows from the document that contain sale information
-2. For each case/property, extract:
+2. For each case/property, extract ALL 14 REQUIRED FIELDS:
    - Case number (docket number, file number)
    - Defendant name (property owner - this is who we care about)
-   - Plaintiff name (usually the bank/lender)
-   - Property address (full street address)
+   - Owner address (mailing address if different from property, often in parentheses)
+   - Property address (full street address where property is located)
    - County name (extract from document header, title, or property address)
    - State (extract from document or property address - use 2-letter abbreviation)
    - Sale date (in YYYY-MM-DD format - look for sale date in header or each row)
@@ -148,6 +156,8 @@ CRITICAL INSTRUCTIONS:
    - Costs / Fees (sheriff fees, legal costs)
    - Sale Amount / Winning Bid / Amount Realized (what property sold for)
    - Surplus / Overplus / Excess / Balance (if explicitly stated)
+   - Plaintiff name (usually the bank/lender)
+   - Interested parties (other lienholders, heirs, co-owners - extract all named)
    - Parcel number / Tax ID (if available)
 
 3. CORPORATE DEFENDANT DETECTION:
