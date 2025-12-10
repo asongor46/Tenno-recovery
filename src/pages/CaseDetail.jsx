@@ -31,6 +31,7 @@ import {
   Link as LinkIcon,
   Lightbulb,
   MapPin,
+  FileCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -51,6 +52,7 @@ import RunVerificationButton from "@/components/case/RunVerificationButton";
 import CountyProfileView from "@/components/county/CountyProfileView";
 import DocumentGeneratorPanel from "@/components/case/DocumentGeneratorPanel";
 import OutreachPanel from "@/components/case/OutreachPanel";
+import FilingWorkflowPanel from "@/components/case/FilingWorkflowPanel";
 
 const stageConfig = {
   imported: { label: "Imported", color: "bg-slate-500" },
@@ -315,6 +317,9 @@ export default function CaseDetail() {
           </TabsTrigger>
           <TabsTrigger value="packet" className="gap-2">
             <Package className="w-4 h-4" /> Packet
+          </TabsTrigger>
+          <TabsTrigger value="filing" className="gap-2">
+            <FileCheck className="w-4 h-4" /> Filing & Court
           </TabsTrigger>
           {/* ADDED Verification tab */}
           <TabsTrigger value="verification" className="gap-2">
@@ -670,6 +675,8 @@ export default function CaseDetail() {
 
         {/* Packet Tab */}
         <TabsContent value="packet" className="space-y-4">
+          <div className="grid lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Filing Packet</CardTitle>
@@ -707,6 +714,16 @@ export default function CaseDetail() {
               )}
             </CardContent>
           </Card>
+            </div>
+            <div>
+              <FilingWorkflowPanel caseId={caseId} caseData={caseData} />
+            </div>
+          </div>
+        </TabsContent>
+
+        {/* Filing & Court Tab */}
+        <TabsContent value="filing" className="space-y-4">
+          <FilingWorkflowPanel caseId={caseId} caseData={caseData} />
         </TabsContent>
 
         {/* ADDED Verification Tab */}
