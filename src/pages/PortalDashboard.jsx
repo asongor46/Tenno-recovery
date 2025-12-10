@@ -22,6 +22,11 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
+// ADDED: Import new portal components
+import DocumentsSection from "@/components/portal/DocumentsSection";
+import MessagingWidget from "@/components/portal/MessagingWidget";
+import FAQSection from "@/components/portal/FAQSection";
+import ActivityFeed from "@/components/portal/ActivityFeed";
 
 const stepIcons = {
   agreement: FileText,
@@ -211,6 +216,24 @@ export default function PortalDashboard() {
           </CardContent>
         </Card>
 
+        {/* ADDED: Documents & Invoices Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <DocumentsSection caseId={caseData.id} />
+        </motion.div>
+
+        {/* ADDED: Real-Time Activity Feed */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <ActivityFeed caseId={caseData.id} />
+        </motion.div>
+
         {/* Steps */}
         <div className="space-y-3">
           {steps.map((step, index) => {
@@ -283,7 +306,25 @@ export default function PortalDashboard() {
           })}
         </div>
 
-        {/* Help Section */}
+        {/* ADDED: Secure Messaging Widget */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          <MessagingWidget caseId={caseData.id} clientName={caseData.owner_name} />
+        </motion.div>
+
+        {/* ADDED: FAQ Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+        >
+          <FAQSection />
+        </motion.div>
+
+        {/* Help Section - KEPT AS IS */}
         <Card className="border-blue-200 bg-blue-50/30">
           <CardContent className="pt-6">
             <div className="flex items-start gap-3">
