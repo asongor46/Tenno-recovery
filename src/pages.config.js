@@ -23,6 +23,7 @@ import PeopleFinder from './pages/PeopleFinder';
 import PortalDashboard from './pages/PortalDashboard';
 import PortalIDUpload from './pages/PortalIDUpload';
 import PortalIntake from './pages/PortalIntake';
+import Invoices from './pages/Invoices';
 import __Layout from './Layout.jsx';
 
 
@@ -52,6 +53,7 @@ export const PAGES = {
     "PortalDashboard": PortalDashboard,
     "PortalIDUpload": PortalIDUpload,
     "PortalIntake": PortalIntake,
+    "Invoices": Invoices,
 }
 
 export const pagesConfig = {
