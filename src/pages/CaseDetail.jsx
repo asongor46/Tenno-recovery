@@ -50,6 +50,7 @@ import VerificationTab from "@/components/case/VerificationTab";
 import RunVerificationButton from "@/components/case/RunVerificationButton";
 import CountyProfileView from "@/components/county/CountyProfileView";
 import DocumentGeneratorPanel from "@/components/case/DocumentGeneratorPanel";
+import OutreachPanel from "@/components/case/OutreachPanel";
 
 const stageConfig = {
   imported: { label: "Imported", color: "bg-slate-500" },
@@ -259,7 +260,19 @@ export default function CaseDetail() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button variant="outline">
+          <Button 
+            variant="outline"
+            onClick={async () => {
+              const { data } = await base44.functions.invoke("generatePortalLink", {
+                case_id: caseId,
+                send_email: true
+              });
+              if (data.status === 'success') {
+                alert("Portal link sent!");
+                queryClient.invalidateQueries({ queryKey: ["activities", caseId] });
+              }
+            }}
+          >
             <Send className="w-4 h-4 mr-2" /> Send Portal Link
           </Button>
           <Button variant="outline">
@@ -485,7 +498,9 @@ export default function CaseDetail() {
 
         {/* Homeowner Info Tab */}
         <TabsContent value="homeowner" className="space-y-4">
-          <Card>
+          <div className="grid lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Homeowner Information</CardTitle>
               <Button variant="outline" size="sm">
