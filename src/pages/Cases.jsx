@@ -572,7 +572,14 @@ export default function Cases() {
                         : "—"}
                     </TableCell>
                     <TableCell>
-                      {caseItem.is_hot && <Flame className="w-5 h-5 text-orange-500" />}
+                      <div className="flex items-center gap-1">
+                        {caseItem.is_hot && <Flame className="w-5 h-5 text-orange-500" />}
+                        {caseItem.risk_flags?.length > 0 && (
+                          <Badge variant="outline" className="text-xs bg-amber-50 text-amber-700 border-amber-200">
+                            {caseItem.risk_flags.length} flags
+                          </Badge>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">

@@ -107,12 +107,15 @@ export default function URLCaseBuilder({ onSuccess, onCancel }) {
 
     // Create cases
     for (const caseData of casesToImport) {
-      await base44.entities.Case.create({
+      const newCase = await base44.entities.Case.create({
         ...caseData,
         source_type: "api", // Using "api" to indicate web import
         status: "active",
         stage: "imported",
       });
+      
+      // Auto-classify the case
+      await base44.functions.invoke("classifyCase", { case_id: newCase.id });
     }
 
     setIsImporting(false);
