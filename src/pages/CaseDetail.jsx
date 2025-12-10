@@ -573,6 +573,11 @@ export default function CaseDetail() {
               </div>
             </CardContent>
           </Card>
+            </div>
+            <div>
+              <OutreachPanel caseId={caseId} caseData={caseData} />
+            </div>
+          </div>
         </TabsContent>
 
         {/* ADDED People Finder Tab */}
