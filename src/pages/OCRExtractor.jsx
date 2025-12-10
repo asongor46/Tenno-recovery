@@ -45,26 +45,32 @@ export default function OCRExtractor() {
 
     setIsProcessing(true);
 
-    // Upload file first
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    try {
+      // Upload file first
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
 
-    // MODIFIED: Create document record and use PDF extraction function
-    const doc = await base44.entities.Document.create({
-      case_id: "system", // System-level extraction
-      name: file.name,
-      category: "other",
-      file_url,
-      extraction_status: "processing",
-    });
+      // Call extraction with correct parameters
+      const { data: result } = await base44.functions.invoke("extractPDFData", {
+        file_url,
+        extraction_type: "surplus_list",
+        county: null,
+        state: null
+      });
 
-    // Call PDF extraction function
-    const { data: result } = await base44.functions.invoke("extractPDFData", {
-      document_id: doc.id,
-    });
-
-    if (result.status === "success") {
-      setExtractedData(result.extracted_data);
-      setRawText(result.extracted_data?.raw_text || "");
+      if (result.status === "success") {
+        // Handle single case or multiple cases
+        if (result.cases && result.cases.length > 0) {
+          setExtractedData(result.cases[0]);
+          setRawText(JSON.stringify(result.cases, null, 2));
+        } else {
+          setExtractedData(result);
+          setRawText(result.raw_text || JSON.stringify(result, null, 2));
+        }
+      } else {
+        alert("Extraction failed: " + (result.details || "Unknown error"));
+      }
+    } catch (error) {
+      alert("Error: " + error.message);
     }
 
     setIsProcessing(false);
