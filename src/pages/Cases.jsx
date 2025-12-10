@@ -20,6 +20,7 @@ import {
   Globe, // ADDED for URL import
   Edit3, // ADDED for manual entry
   ChevronDown, // ADDED for dropdown
+  FileText, // ADDED for text import
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
