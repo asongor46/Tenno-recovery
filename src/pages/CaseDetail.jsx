@@ -25,11 +25,12 @@ import {
   Trash2,
   Eye,
   RefreshCw,
-  Users, // ADDED for People Finder tab
-  Target, // ADDED for Verification tab
-  Sparkles, // ADDED: For AI actions
-  Link as LinkIcon, // ADDED: For related cases
-  Lightbulb, // ADDED: For AI suggestions
+  Users,
+  Target,
+  Sparkles,
+  Link as LinkIcon,
+  Lightbulb,
+  MapPin,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -46,7 +47,9 @@ import {
 // ADDED: Import new tab components
 import PeopleFinderTab from "@/components/case/PeopleFinderTab";
 import VerificationTab from "@/components/case/VerificationTab";
-import RunVerificationButton from "@/components/case/RunVerificationButton"; // ADDED
+import RunVerificationButton from "@/components/case/RunVerificationButton";
+import CountyProfileView from "@/components/county/CountyProfileView";
+import DocumentGeneratorPanel from "@/components/case/DocumentGeneratorPanel";
 
 const stageConfig = {
   imported: { label: "Imported", color: "bg-slate-500" },
@@ -87,6 +90,19 @@ export default function CaseDetail() {
     queryKey: ["activities", caseId],
     queryFn: () => base44.entities.ActivityLog.filter({ case_id: caseId }, "-created_date"),
     enabled: !!caseId,
+  });
+
+  const { data: county } = useQuery({
+    queryKey: ["caseCounty", caseId],
+    queryFn: async () => {
+      if (!caseData?.county) return null;
+      const counties = await base44.entities.County.filter({ 
+        name: caseData.county,
+        state: caseData.state 
+      });
+      return counties[0];
+    },
+    enabled: !!caseData?.county,
   });
 
   const updateCase = useMutation({
@@ -290,6 +306,9 @@ export default function CaseDetail() {
           {/* ADDED Verification tab */}
           <TabsTrigger value="verification" className="gap-2">
             <Target className="w-4 h-4" /> Verification
+          </TabsTrigger>
+          <TabsTrigger value="county" className="gap-2">
+            <MapPin className="w-4 h-4" /> County Profile
           </TabsTrigger>
           <TabsTrigger value="activity" className="gap-2">
             <Activity className="w-4 h-4" /> Activity Log
@@ -673,6 +692,25 @@ export default function CaseDetail() {
         {/* ADDED Verification Tab */}
         <TabsContent value="verification" className="space-y-4">
           <VerificationTab caseId={caseId} caseData={caseData} />
+        </TabsContent>
+
+        {/* County Profile Tab */}
+        <TabsContent value="county" className="space-y-4">
+          <div className="grid lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle>County Filing Rules</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CountyProfileView county={county} />
+                </CardContent>
+              </Card>
+            </div>
+            <div className="space-y-6">
+              <DocumentGeneratorPanel caseId={caseId} />
+            </div>
+          </div>
         </TabsContent>
 
         {/* Activity Log Tab */}
