@@ -1,4 +1,5 @@
 import Home from './pages/Home';
+import AgreementTemplates from './pages/AgreementTemplates';
 import AutomationLog from './pages/AutomationLog';
 import CaseDetail from './pages/CaseDetail';
 import Cases from './pages/Cases';
@@ -7,6 +8,7 @@ import Counties from './pages/Counties';
 import CountyDetail from './pages/CountyDetail';
 import Dashboard from './pages/Dashboard';
 import FileManager from './pages/FileManager';
+import FormLibrary from './pages/FormLibrary';
 import HotCases from './pages/HotCases';
 import HowTo from './pages/HowTo';
 import Invoices from './pages/Invoices';
@@ -25,13 +27,12 @@ import PortalWelcome from './pages/PortalWelcome';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
 import Templates from './pages/Templates';
-import FormLibrary from './pages/FormLibrary';
-import AgreementTemplates from './pages/AgreementTemplates';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "Home": Home,
+    "AgreementTemplates": AgreementTemplates,
     "AutomationLog": AutomationLog,
     "CaseDetail": CaseDetail,
     "Cases": Cases,
@@ -40,6 +41,7 @@ export const PAGES = {
     "CountyDetail": CountyDetail,
     "Dashboard": Dashboard,
     "FileManager": FileManager,
+    "FormLibrary": FormLibrary,
     "HotCases": HotCases,
     "HowTo": HowTo,
     "Invoices": Invoices,
@@ -58,8 +60,6 @@ export const PAGES = {
     "Profile": Profile,
     "Settings": Settings,
     "Templates": Templates,
-    "FormLibrary": FormLibrary,
-    "AgreementTemplates": AgreementTemplates,
 }
 
 export const pagesConfig = {
