@@ -47,12 +47,6 @@ export default function AgentAssistPanel({ caseData }) {
     toast.success("Copied to clipboard");
   };
 
-  React.useEffect(() => {
-    if (caseData && !script) {
-      loadCallScript();
-    }
-  }, [caseData]);
-
   if (!script && !loadingScript) {
     return (
       <Card className="border-purple-200 bg-gradient-to-br from-purple-50 to-indigo-50">
