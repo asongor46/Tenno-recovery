@@ -241,16 +241,16 @@ export default function Cases() {
       </motion.div>
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Cases</h1>
-          <p className="text-slate-500 mt-1">{filteredCases.length} total cases</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">Cases</h1>
+          <p className="text-sm sm:text-base text-slate-500 mt-1">{filteredCases.length} total cases</p>
         </div>
-        
+
         {/* MODIFIED: New Case Dropdown with 6 methods - COMPLETE INGESTION ENGINE */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button className="bg-emerald-600 hover:bg-emerald-700">
+            <Button className="bg-emerald-600 hover:bg-emerald-700 w-full sm:w-auto">
               <Plus className="w-4 h-4 mr-2" />
               New Case
               <ChevronDown className="w-4 h-4 ml-2" />
@@ -420,9 +420,9 @@ export default function Cases() {
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-2xl border border-slate-100 p-4"
+        className="bg-white rounded-2xl border border-slate-100 p-3 sm:p-4"
       >
-        <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <Input
@@ -433,7 +433,7 @@ export default function Cases() {
             />
           </div>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-40">
+            <SelectTrigger className="w-full sm:w-40">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
@@ -448,7 +448,7 @@ export default function Cases() {
             </SelectContent>
           </Select>
           <Select value={stageFilter} onValueChange={setStageFilter}>
-            <SelectTrigger className="w-48">
+            <SelectTrigger className="w-full sm:w-48">
               <SelectValue placeholder="Stage" />
             </SelectTrigger>
             <SelectContent>
@@ -463,15 +463,15 @@ export default function Cases() {
 
         {/* Bulk Actions */}
         {selectedCases.length > 0 && (
-          <div className="flex items-center gap-3 mt-4 pt-4 border-t">
-            <span className="text-sm text-slate-600">{selectedCases.length} selected</span>
-            <Button variant="outline" size="sm" onClick={handleMarkHot}>
-              <Flame className="w-4 h-4 mr-1" /> Mark Hot
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-4 pt-4 border-t">
+            <span className="text-sm text-slate-600 w-full sm:w-auto">{selectedCases.length} selected</span>
+            <Button variant="outline" size="sm" onClick={handleMarkHot} className="flex-1 sm:flex-none">
+              <Flame className="w-4 h-4 mr-1" /> <span className="hidden sm:inline">Mark</span> Hot
             </Button>
-            <Button variant="outline" size="sm" onClick={handleBulkArchive}>
+            <Button variant="outline" size="sm" onClick={handleBulkArchive} className="flex-1 sm:flex-none">
               <Archive className="w-4 h-4 mr-1" /> Archive
             </Button>
-            <Button variant="outline" size="sm" className="text-red-600" onClick={handleBulkDelete}>
+            <Button variant="outline" size="sm" className="text-red-600 flex-1 sm:flex-none" onClick={handleBulkDelete}>
               <Trash2 className="w-4 h-4 mr-1" /> Delete
             </Button>
           </div>
@@ -480,9 +480,9 @@ export default function Cases() {
 
       {/* PHASE 4+ ENHANCEMENT: View Mode Tabs - Pipeline vs Table */}
       <Tabs value={viewMode} onValueChange={setViewMode} className="w-full">
-        <TabsList className="grid w-full max-w-md grid-cols-2">
-          <TabsTrigger value="pipeline">Pipeline View</TabsTrigger>
-          <TabsTrigger value="table">Table View</TabsTrigger>
+        <TabsList className="grid w-full max-w-md grid-cols-2 h-auto">
+          <TabsTrigger value="pipeline" className="text-xs sm:text-sm py-2">Pipeline View</TabsTrigger>
+          <TabsTrigger value="table" className="text-xs sm:text-sm py-2">Table View</TabsTrigger>
         </TabsList>
 
         {/* Pipeline/Kanban View */}

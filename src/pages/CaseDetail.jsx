@@ -163,15 +163,15 @@ export default function CaseDetail() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
-        <div className="flex items-start gap-4">
+        <div className="flex items-start gap-2 sm:gap-4">
           <Link to={createPageUrl("Cases")}>
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost" size="icon" className="h-9 w-9">
               <ArrowLeft className="w-5 h-5" />
             </Button>
           </Link>
           <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-slate-900">{caseData.owner_name}</h1>
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+              <h1 className="text-xl sm:text-2xl font-bold text-slate-900">{caseData.owner_name}</h1>
               {caseData.is_hot && (
                 <Badge className="bg-orange-100 text-orange-700 border-0">
                   <Flame className="w-3 h-3 mr-1" /> Hot Case
@@ -206,7 +206,7 @@ export default function CaseDetail() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {/* ADDED: Import RunVerificationButton component at top */}
           <RunVerificationButton caseId={caseId} />
           {/* ADDED: AI Actions Dropdown */}
@@ -309,9 +309,9 @@ export default function CaseDetail() {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="bg-white border">
-          <TabsTrigger value="overview" className="gap-2">
-            <User className="w-4 h-4" /> Overview
+        <TabsList className="bg-white border flex-wrap h-auto">
+          <TabsTrigger value="overview" className="gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-4">
+            <User className="w-3 h-3 sm:w-4 sm:h-4" /> <span className="hidden xs:inline">Overview</span>
           </TabsTrigger>
           <TabsTrigger value="documents" className="gap-2">
             <FileText className="w-4 h-4" /> Documents
