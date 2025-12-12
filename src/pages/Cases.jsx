@@ -64,6 +64,7 @@ import TextCaseBuilder from "@/components/cases/TextCaseBuilder"; // ADDED
 import AdvancedCaseBuilder from "@/components/cases/AdvancedCaseBuilder"; // ADDED: Universal County Mapping
 import AdvancedSearchPanel from "@/components/cases/AdvancedSearchPanel";
 import BulkActionsToolbar from "@/components/cases/BulkActionsToolbar";
+import { useStandardToast } from "@/components/shared/useStandardToast";
 
 // PHASE 4+ ENHANCEMENTS: Dashboard components
 import CasesKPICards from "@/components/dashboard/CasesKPICards";
@@ -120,6 +121,7 @@ export default function Cases() {
   const [advancedFilters, setAdvancedFilters] = useState(null);
 
   const queryClient = useQueryClient();
+  const toast = useStandardToast();
 
   const { data: cases = [], isLoading } = useQuery({
     queryKey: ["cases"],
@@ -133,18 +135,22 @@ export default function Cases() {
 
   const deleteMutation = useMutation({
     mutationFn: (ids) => Promise.all(ids.map(id => base44.entities.Case.delete(id))),
-    onSuccess: () => {
+    onSuccess: (_, ids) => {
       queryClient.invalidateQueries({ queryKey: ["cases"] });
       setSelectedCases([]);
+      toast.success(`Deleted ${ids.length} case(s)`);
     },
+    onError: () => toast.error("Failed to delete cases")
   });
 
   const updateMutation = useMutation({
     mutationFn: ({ ids, data }) => Promise.all(ids.map(id => base44.entities.Case.update(id, data))),
-    onSuccess: () => {
+    onSuccess: (_, { ids }) => {
       queryClient.invalidateQueries({ queryKey: ["cases"] });
       setSelectedCases([]);
+      toast.success(`Updated ${ids.length} case(s)`);
     },
+    onError: () => toast.error("Failed to update cases")
   });
 
   // Filter cases with advanced search support
@@ -200,9 +206,7 @@ export default function Cases() {
   };
 
   const handleBulkDelete = () => {
-    if (window.confirm(`Delete ${selectedCases.length} cases?`)) {
-      deleteMutation.mutate(selectedCases);
-    }
+    deleteMutation.mutate(selectedCases);
   };
 
   const handleBulkArchive = () => {
@@ -634,11 +638,7 @@ export default function Cases() {
                             <DropdownMenuSeparator />
                             <DropdownMenuItem 
                               className="text-red-600"
-                              onClick={() => {
-                                if (window.confirm("Delete this case?")) {
-                                  deleteMutation.mutate([caseItem.id]);
-                                }
-                              }}
+                              onClick={() => deleteMutation.mutate([caseItem.id])}
                             >
                               Delete
                             </DropdownMenuItem>

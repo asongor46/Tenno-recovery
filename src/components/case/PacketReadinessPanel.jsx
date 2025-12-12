@@ -30,6 +30,21 @@ export default function PacketReadinessPanel({ caseData, countyData }) {
     enabled: !!countyData?.id,
   });
 
+  const autoAssignForms = useMutation({
+    mutationFn: () => base44.functions.invoke("autoAssignCountyForms", {
+      case_id: caseData.id
+    }),
+    onSuccess: (response) => {
+      const result = response.data.result;
+      if (result.ready_for_packet) {
+        toast.success("All requirements met! Ready to generate packet");
+      } else {
+        toast.warning(`${result.checklist.filter(i => !i.complete).length} items still needed`);
+      }
+    },
+    onError: () => toast.error("Failed to check requirements")
+  });
+
   const generatePacket = useMutation({
     mutationFn: () => base44.functions.invoke("generateFilledPacket", {
       case_id: caseData.id
@@ -147,6 +162,24 @@ export default function PacketReadinessPanel({ caseData, countyData }) {
 
         {/* Actions */}
         <div className="space-y-2">
+          {!isReady && countyData && (
+            <Button
+              variant="outline"
+              onClick={() => autoAssignForms.mutate()}
+              disabled={autoAssignForms.isPending}
+              className="w-full gap-2 text-xs"
+            >
+              {autoAssignForms.isPending ? (
+                <>
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                  Checking...
+                </>
+              ) : (
+                "Check County Requirements"
+              )}
+            </Button>
+          )}
+
           {packetExists && (
             <a href={caseData.packet_url} target="_blank" rel="noopener noreferrer" className="block">
               <Button variant="outline" className="w-full gap-2">

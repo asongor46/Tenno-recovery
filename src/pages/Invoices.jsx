@@ -45,6 +45,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import InvoiceForm from "@/components/invoices/InvoiceForm";
+import { useStandardToast } from "@/components/shared/useStandardToast";
 
 const statusConfig = {
   draft: { label: "Draft", color: "bg-slate-100 text-slate-700", icon: FileText },
@@ -63,6 +64,7 @@ export default function Invoices() {
   const [editingInvoice, setEditingInvoice] = useState(null);
 
   const queryClient = useQueryClient();
+  const toast = useStandardToast();
 
   const { data: invoices = [], isLoading } = useQuery({
     queryKey: ["invoices"],
@@ -73,15 +75,42 @@ export default function Invoices() {
     mutationFn: (id) => base44.entities.Invoice.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["invoices"] });
+      toast.success("Invoice deleted");
     },
+    onError: () => toast.error("Failed to delete invoice")
   });
 
   const generatePDF = useMutation({
     mutationFn: (invoice_id) => base44.functions.invoke("generateInvoicePDF", { invoice_id }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["invoices"] });
-      alert("PDF generated successfully!");
+      toast.success("PDF generated successfully");
     },
+    onError: () => toast.error("Failed to generate PDF")
+  });
+
+  const sendInvoice = useMutation({
+    mutationFn: (invoice_id) => base44.functions.invoke("invoiceAutomation", {
+      action: "send_invoice",
+      invoice_id
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["invoices"] });
+      toast.success("Invoice sent to client");
+    },
+    onError: () => toast.error("Failed to send invoice")
+  });
+
+  const markPaid = useMutation({
+    mutationFn: (invoice_id) => base44.functions.invoke("invoiceAutomation", {
+      action: "mark_paid",
+      invoice_id
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["invoices"] });
+      toast.success("Invoice marked as paid");
+    },
+    onError: () => toast.error("Failed to mark paid")
   });
 
   const filteredInvoices = invoices.filter((inv) => {
@@ -251,7 +280,7 @@ export default function Invoices() {
                       <div className="flex items-center gap-1">
                         {invoice.pdf_url ? (
                           <a href={invoice.pdf_url} target="_blank" rel="noopener noreferrer">
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <Button variant="ghost" size="icon" className="h-8 w-8" title="Download PDF">
                               <Download className="w-4 h-4" />
                             </Button>
                           </a>
@@ -261,8 +290,34 @@ export default function Invoices() {
                             size="icon" 
                             className="h-8 w-8"
                             onClick={() => generatePDF.mutate(invoice.id)}
+                            disabled={generatePDF.isPending}
+                            title="Generate PDF"
                           >
                             <FileText className="w-4 h-4" />
+                          </Button>
+                        )}
+                        {invoice.status === "draft" && invoice.client_email && (
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-8 w-8 text-blue-600"
+                            onClick={() => sendInvoice.mutate(invoice.id)}
+                            disabled={sendInvoice.isPending}
+                            title="Send to Client"
+                          >
+                            <Send className="w-4 h-4" />
+                          </Button>
+                        )}
+                        {(invoice.status === "sent" || invoice.status === "overdue") && (
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-8 w-8 text-green-600"
+                            onClick={() => markPaid.mutate(invoice.id)}
+                            disabled={markPaid.isPending}
+                            title="Mark as Paid"
+                          >
+                            <CheckCircle2 className="w-4 h-4" />
                           </Button>
                         )}
                         <Button 
@@ -270,6 +325,7 @@ export default function Invoices() {
                           size="icon" 
                           className="h-8 w-8"
                           onClick={() => { setEditingInvoice(invoice); setShowForm(true); }}
+                          title="Edit"
                         >
                           <Edit2 className="w-4 h-4" />
                         </Button>
@@ -277,11 +333,9 @@ export default function Invoices() {
                           variant="ghost" 
                           size="icon" 
                           className="h-8 w-8 text-red-600"
-                          onClick={() => {
-                            if (window.confirm("Delete this invoice?")) {
-                              deleteInvoice.mutate(invoice.id);
-                            }
-                          }}
+                          onClick={() => deleteInvoice.mutate(invoice.id)}
+                          disabled={deleteInvoice.isPending}
+                          title="Delete"
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
