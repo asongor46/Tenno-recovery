@@ -79,43 +79,43 @@ Deno.serve(async (req) => {
       today_date: new Date().toLocaleDateString(),
     };
 
-    // Use LLM to fill each form
+    // Generate fillable forms using the new system
     const filledForms = [];
     for (const form of forms) {
-      const filledContent = await base44.integrations.Core.InvokeLLM({
-        prompt: `Fill this ${form.form_name} form with the provided case data.
-
-Form Type: ${form.form_type}
-Merge Fields: ${form.merge_fields.join(', ')}
-
-Case Data:
-${JSON.stringify(mergeData, null, 2)}
-
-Generate the filled form content as text. Include all filled fields clearly labeled.`,
-        add_context_from_internet: false
+      // Use the generateFillableForm function for each form
+      const { data: filledFormData } = await base44.functions.invoke('generateFillableForm', {
+        case_id,
+        county_form_template_id: form.id
       });
 
       filledForms.push({
         form_id: form.form_id,
         form_name: form.form_name,
         form_type: form.form_type,
-        filled_content: filledContent,
+        filled_pdf_url: filledFormData.filled_pdf_url,
+        original_template_url: filledFormData.original_template_url,
+        fields_completed: filledFormData.fields_completed,
+        fields_remaining: filledFormData.fields_remaining,
+        completion_percentage: filledFormData.completion_percentage,
         requires_notary: form.requires_notary,
         signature_locations: form.signature_locations,
         instructions: form.instructions
       });
 
-      // Create document record
-      await base44.entities.Document.create({
+      // Create document record for the filled form
+      await base44.asServiceRole.entities.Document.create({
         case_id,
-        name: form.form_name,
-        category: 'county_form',
-        tags: [form.form_type, 'auto_generated'],
-        file_url: form.file_url, // Original template
+        name: `${form.form_name} (Pre-filled)`,
+        category: form.form_type,
+        tags: ['auto_filled', 'county_form'],
+        file_url: filledFormData.filled_pdf_url,
+        order: form.order,
         metadata: {
           filled: true,
-          merge_data: mergeData,
-          form_id: form.form_id
+          template_id: form.id,
+          completion_percentage: filledFormData.completion_percentage,
+          fields_completed: filledFormData.fields_completed,
+          fields_remaining: filledFormData.fields_remaining
         }
       });
     }

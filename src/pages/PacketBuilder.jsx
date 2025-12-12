@@ -145,8 +145,24 @@ export default function PacketBuilder() {
             </CardTitle>
             {selectedCase && (
               <div className="flex gap-2">
-                <Button variant="outline" size="sm">
-                  <RefreshCw className="w-4 h-4 mr-2" /> Regenerate
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={async () => {
+                    try {
+                      const { data } = await base44.functions.invoke("generateFilledPacket", {
+                        case_id: selectedCase.id
+                      });
+                      if (data.status === 'success') {
+                        alert(`Generated ${data.forms_generated} forms for ${data.county}`);
+                        queryClient.invalidateQueries({ queryKey: ["documents", selectedCase.id] });
+                      }
+                    } catch (error) {
+                      alert("Error: " + error.message);
+                    }
+                  }}
+                >
+                  <RefreshCw className="w-4 h-4 mr-2" /> Generate Forms
                 </Button>
                 <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700">
                   <Download className="w-4 h-4 mr-2" /> Export PDF
