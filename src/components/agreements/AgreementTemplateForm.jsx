@@ -1,12 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Plus, X } from "lucide-react";
+import { Loader2, Type } from "lucide-react";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
+import { toast } from "sonner";
 
 const AVAILABLE_MERGE_FIELDS = [
   "OWNER_NAME",
@@ -34,6 +36,7 @@ export default function AgreementTemplateForm({ template, onSuccess }) {
     is_active: template?.is_active ?? true,
     version: template?.version || "1.0",
   });
+  const quillRef = useRef(null);
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -46,6 +49,19 @@ export default function AgreementTemplateForm({ template, onSuccess }) {
         ? prev.merge_fields.filter((f) => f !== field)
         : [...prev.merge_fields, field],
     }));
+  };
+
+  const insertMergeField = (field) => {
+    const quill = quillRef.current?.getEditor();
+    if (quill) {
+      const range = quill.getSelection();
+      const position = range ? range.index : quill.getLength();
+      quill.insertText(position, `{${field}}`);
+      quill.setSelection(position + field.length + 2);
+    }
+    if (!formData.merge_fields.includes(field)) {
+      toggleMergeField(field);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -61,9 +77,10 @@ export default function AgreementTemplateForm({ template, onSuccess }) {
           created_by: (await base44.auth.me()).email,
         });
       }
+      toast.success(template ? "Template updated successfully" : "Template created successfully");
       onSuccess();
     } catch (error) {
-      alert("Error: " + error.message);
+      toast.error("Error: " + error.message);
     }
 
     setIsSubmitting(false);
@@ -101,32 +118,42 @@ export default function AgreementTemplateForm({ template, onSuccess }) {
       </div>
 
       <div>
-        <Label>Agreement Body *</Label>
-        <Textarea
-          value={formData.template_body}
-          onChange={(e) => handleChange("template_body", e.target.value)}
-          required
-          rows={20}
-          placeholder="Enter agreement text with merge fields like {OWNER_NAME}, {PROPERTY_ADDRESS}, etc."
-          className="font-mono text-sm"
-        />
-      </div>
-
-      <div>
-        <Label className="mb-3 block">Available Merge Fields</Label>
-        <div className="flex flex-wrap gap-2">
-          {AVAILABLE_MERGE_FIELDS.map((field) => (
-            <Badge
-              key={field}
-              variant={formData.merge_fields.includes(field) ? "default" : "outline"}
-              className="cursor-pointer"
-              onClick={() => toggleMergeField(field)}
-            >
-              {formData.merge_fields.includes(field) && "✓ "}
-              {field}
-            </Badge>
-          ))}
+        <Label className="mb-2 block">Agreement Body *</Label>
+        <div className="mb-2">
+          <p className="text-xs text-slate-500 mb-2">Insert merge fields:</p>
+          <div className="flex flex-wrap gap-1">
+            {AVAILABLE_MERGE_FIELDS.map((field) => (
+              <Button
+                key={field}
+                type="button"
+                variant="outline"
+                size="sm"
+                className="text-xs h-7"
+                onClick={() => insertMergeField(field)}
+              >
+                <Type className="w-3 h-3 mr-1" />
+                {field}
+              </Button>
+            ))}
+          </div>
         </div>
+        <ReactQuill
+          ref={quillRef}
+          theme="snow"
+          value={formData.template_body}
+          onChange={(value) => handleChange("template_body", value)}
+          className="bg-white"
+          style={{ height: "400px", marginBottom: "50px" }}
+          modules={{
+            toolbar: [
+              [{ header: [1, 2, 3, false] }],
+              ["bold", "italic", "underline"],
+              [{ list: "ordered" }, { list: "bullet" }],
+              [{ indent: "-1" }, { indent: "+1" }],
+              ["clean"],
+            ],
+          }}
+        />
       </div>
 
       <div className="grid md:grid-cols-2 gap-4">

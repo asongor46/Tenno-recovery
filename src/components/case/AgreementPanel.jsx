@@ -29,6 +29,7 @@ import {
   Download,
 } from "lucide-react";
 import { format } from "date-fns";
+import { toast } from "sonner";
 
 export default function AgreementPanel({ caseId, caseData }) {
   const [showGenerateDialog, setShowGenerateDialog] = useState(false);
@@ -56,12 +57,16 @@ export default function AgreementPanel({ caseId, caseData }) {
       setGeneratedAgreement(data);
       setShowGenerateDialog(false);
       if (data.sent_email) {
+        toast.success("Agreement sent successfully!");
         setShowPreview(false);
       } else {
         setShowPreview(true);
       }
       queryClient.invalidateQueries({ queryKey: ["case", caseId] });
       queryClient.invalidateQueries({ queryKey: ["activities", caseId] });
+    },
+    onError: (error) => {
+      toast.error("Failed to generate agreement: " + error.message);
     },
   });
 
@@ -77,7 +82,10 @@ export default function AgreementPanel({ caseId, caseData }) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["case", caseId] });
       queryClient.invalidateQueries({ queryKey: ["activities", caseId] });
-      alert("Agreement resent!");
+      toast.success("Agreement resent!");
+    },
+    onError: (error) => {
+      toast.error("Failed to resend agreement: " + error.message);
     },
   });
 
@@ -287,10 +295,14 @@ export default function AgreementPanel({ caseId, caseData }) {
                 <span className="text-sm text-emerald-700">
                   Fee: {caseData.fee_percentage}% = ${generatedAgreement.fee_amount?.toLocaleString()}
                 </span>
-                <Button size="sm" variant="outline">
-                  <Download className="w-4 h-4 mr-2" />
-                  Download PDF
-                </Button>
+                {generatedAgreement.pdf_url && (
+                  <a href={generatedAgreement.pdf_url} target="_blank" rel="noopener noreferrer">
+                    <Button size="sm" variant="outline">
+                      <Download className="w-4 h-4 mr-2" />
+                      Download PDF
+                    </Button>
+                  </a>
+                )}
               </div>
             </div>
           )}

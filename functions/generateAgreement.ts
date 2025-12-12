@@ -1,8 +1,9 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.4';
+import { jsPDF } from 'npm:jspdf@2.5.1';
 
 /**
  * AGREEMENT GENERATOR
- * Generates remodeled agreement with case-specific merge fields
+ * Generates remodeled agreement with case-specific merge fields and PDF
  */
 
 Deno.serve(async (req) => {
@@ -119,6 +120,48 @@ TENNO Recovery Services: ______________________  Date: __________
       .replace(/{SURPLUS_AMOUNT}/g, (caseData.surplus_amount || 0).toLocaleString())
       .replace(/{SALE_DATE}/g, caseData.sale_date ? new Date(caseData.sale_date).toLocaleDateString() : '[SALE_DATE]');
 
+    // Generate PDF
+    const doc = new jsPDF();
+    
+    // Add content to PDF
+    doc.setFontSize(16);
+    doc.text('SURPLUS FUNDS RECOVERY AGREEMENT', 105, 20, { align: 'center' });
+    
+    doc.setFontSize(10);
+    const lines = filledAgreement.split('\n');
+    let y = 35;
+    const pageHeight = doc.internal.pageSize.height;
+    
+    for (const line of lines) {
+      if (y > pageHeight - 20) {
+        doc.addPage();
+        y = 20;
+      }
+      
+      const wrappedLines = doc.splitTextToSize(line || ' ', 170);
+      doc.text(wrappedLines, 20, y);
+      y += wrappedLines.length * 5;
+    }
+    
+    // Save PDF to temp file
+    const pdfBytes = doc.output('arraybuffer');
+    const pdfBlob = new Blob([pdfBytes], { type: 'application/pdf' });
+    const pdfFile = new File([pdfBlob], `agreement-${caseData.case_number}.pdf`, { type: 'application/pdf' });
+    
+    // Upload PDF
+    const { file_url: pdfUrl } = await base44.integrations.Core.UploadFile({ file: pdfFile });
+
+    // Create document record
+    await base44.entities.Document.create({
+      case_id,
+      name: `Agreement - ${caseData.case_number}`,
+      category: 'agreement',
+      file_url: pdfUrl,
+      file_type: 'application/pdf',
+      uploaded_by: 'system',
+      is_primary: true,
+    });
+
     // Update case status
     await base44.entities.Case.update(case_id, {
       agreement_status: send_email ? 'sent' : 'not_sent',
@@ -166,6 +209,7 @@ TENNO Recovery Services`
       fee_amount: feeAmount,
       sent_email: send_email,
       template_used: template?.name || 'Built-in Default',
+      pdf_url: pdfUrl,
     });
 
   } catch (error) {
