@@ -197,15 +197,15 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-slate-900">Dashboard</h1>
-        <p className="text-slate-500 mt-1">Welcome back. Here's your overview.</p>
+        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">Dashboard</h1>
+        <p className="text-sm sm:text-base text-slate-500 mt-1">Welcome back. Here's your overview.</p>
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
         <KPICard
           title="Active Cases"
           value={activeCases}
@@ -259,7 +259,7 @@ export default function Dashboard() {
       </div>
 
       {/* Charts Row */}
-      <div className="grid lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Pipeline Distribution */}
         <Card>
           <CardHeader>
@@ -308,14 +308,14 @@ export default function Dashboard() {
       </div>
 
       {/* Main Content Grid */}
-      <div className="grid lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Cases Table - Takes 2 columns */}
         <div className="lg:col-span-2">
           <CasesTable cases={recentCases} isLoading={casesLoading} />
         </div>
 
         {/* Side Panels */}
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {/* ADDED: AI Suggestions Panel */}
           <AISuggestionsPanel />
           <AlertsPanel alerts={alerts} isLoading={alertsLoading} />

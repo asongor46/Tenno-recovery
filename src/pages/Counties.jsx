@@ -83,18 +83,18 @@ export default function Counties() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
-            <Building2 className="w-6 h-6 text-white" />
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
+            <Building2 className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-slate-900">County Directory</h1>
-            <p className="text-slate-500">{filteredCounties.length} counties</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">County Directory</h1>
+            <p className="text-sm sm:text-base text-slate-500">{filteredCounties.length} counties</p>
           </div>
         </div>
         <Dialog open={showNewCountyDialog} onOpenChange={setShowNewCountyDialog}>
           <DialogTrigger asChild>
-            <Button className="bg-emerald-600 hover:bg-emerald-700">
+            <Button className="bg-emerald-600 hover:bg-emerald-700 w-full sm:w-auto">
               <Plus className="w-4 h-4 mr-2" />
               Add County
             </Button>
@@ -137,8 +137,8 @@ export default function Counties() {
         transition={{ delay: 0.1 }}
         className="bg-white rounded-2xl border border-slate-100 overflow-hidden"
       >
-        <div className="overflow-x-auto">
-          <Table>
+        <div className="overflow-x-auto -mx-3 sm:mx-0">
+          <Table className="min-w-[800px]">
             <TableHeader>
               <TableRow className="bg-slate-50/50">
                 <TableHead className="font-semibold">County</TableHead>

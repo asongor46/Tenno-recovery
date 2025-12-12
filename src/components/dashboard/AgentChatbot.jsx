@@ -240,30 +240,30 @@ EXAMPLES:
 
   return (
     <>
-      {/* Floating Button */}
+      {/* Floating Button - Mobile optimized */}
       {!isOpen && (
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
-          className="fixed bottom-6 right-24 z-40"
+          className="fixed bottom-4 right-16 sm:bottom-6 sm:right-24 z-40"
         >
           <Button
             onClick={() => setIsOpen(true)}
-            className="w-14 h-14 rounded-full shadow-lg bg-gradient-to-br from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
+            className="w-12 h-12 sm:w-14 sm:h-14 rounded-full shadow-lg bg-gradient-to-br from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
           >
-            <Sparkles className="w-5 h-5 text-white" />
+            <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
           </Button>
         </motion.div>
       )}
 
-      {/* Chat Window */}
+      {/* Chat Window - Mobile responsive */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="fixed bottom-6 right-24 w-[480px] max-w-[calc(100vw-3rem)] z-40"
+            className="fixed bottom-20 right-2 left-2 sm:bottom-6 sm:right-24 sm:left-auto sm:w-[480px] z-40"
           >
             <Card className="shadow-2xl border-indigo-200">
               {/* Header */}
@@ -288,7 +288,7 @@ EXAMPLES:
               </div>
 
               {/* Messages */}
-              <CardContent className="h-[500px] overflow-y-auto p-4 space-y-4">
+              <CardContent className="h-[400px] sm:h-[500px] overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4">
                 {messages.map((msg, i) => (
                   <div key={i} className={`flex gap-2 ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
                     {msg.role === "assistant" && (
@@ -328,9 +328,9 @@ EXAMPLES:
 
               {/* Quick Commands */}
               {messages.length === 1 && (
-                <div className="px-4 pb-2">
+                <div className="px-3 sm:px-4 pb-2">
                   <p className="text-xs text-slate-500 mb-2">Quick commands:</p>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-1.5 sm:gap-2">
                     {quickCommands.map((cmd, i) => (
                       <Badge
                         key={i}
@@ -346,7 +346,7 @@ EXAMPLES:
               )}
 
               {/* Input */}
-              <div className="p-4 border-t">
+              <div className="p-3 sm:p-4 border-t">
                 <div className="flex gap-2">
                   <Input
                     value={input}
