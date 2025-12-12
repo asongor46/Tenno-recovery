@@ -42,6 +42,8 @@ import {
 } from "@/components/ui/table";
 import FieldMappingReview from "@/components/formLibrary/FieldMappingReview";
 import FormPreviewDialog from "@/components/formLibrary/FormPreviewDialog";
+import PDFViewerDialog from "@/components/pdf/PDFViewerDialog";
+import VisualFieldMapper from "@/components/pdf/VisualFieldMapper";
 import { useStandardToast } from "@/components/shared/useStandardToast";
 
 export default function FormLibrary() {
@@ -55,6 +57,8 @@ export default function FormLibrary() {
   const [showMappingDialog, setShowMappingDialog] = useState(false);
   const [previewForm, setPreviewForm] = useState(null);
   const [showPreviewDialog, setShowPreviewDialog] = useState(false);
+  const [mappingForm, setMappingForm] = useState(null);
+  const [showVisualMapper, setShowVisualMapper] = useState(false);
 
   const queryClient = useQueryClient();
   const toast = useStandardToast();
@@ -271,6 +275,18 @@ export default function FormLibrary() {
                             variant="ghost"
                             size="icon"
                             onClick={() => {
+                              setMappingForm(form);
+                              setShowVisualMapper(true);
+                            }}
+                            title="Visual Field Mapper"
+                            className="text-purple-600"
+                          >
+                            <MapPin className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => {
                               setReviewingForm(form);
                               setShowMappingDialog(true);
                             }}
@@ -318,6 +334,41 @@ export default function FormLibrary() {
           setPreviewForm(null);
         }}
       />
+
+      {/* Visual Field Mapper Dialog */}
+      <Dialog open={showVisualMapper} onOpenChange={setShowVisualMapper}>
+        <DialogContent className="max-w-7xl max-h-[95vh] overflow-hidden">
+          <DialogHeader>
+            <DialogTitle>Visual Field Mapper - {mappingForm?.form_name}</DialogTitle>
+            <p className="text-sm text-slate-500 mt-1">
+              Click on the PDF to create field mappings. Each click places a marker that you can assign to a case field.
+            </p>
+          </DialogHeader>
+          {mappingForm && (
+            <VisualFieldMapper
+              pdfUrl={mappingForm.file_url}
+              initialMappings={mappingForm.field_mappings || {}}
+              onSave={async (mappingData) => {
+                try {
+                  await base44.entities.CountyFormTemplate.update(mappingForm.id, {
+                    field_mappings: mappingData.field_mappings,
+                    metadata: {
+                      ...mappingForm.metadata,
+                      field_locations: mappingData.field_locations,
+                    },
+                  });
+                  toast.success("Field mappings saved successfully!");
+                  queryClient.invalidateQueries({ queryKey: ["formTemplates"] });
+                  setShowVisualMapper(false);
+                  setMappingForm(null);
+                } catch (error) {
+                  toast.error("Failed to save mappings: " + error.message);
+                }
+              }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Field Mapping Review Dialog */}
       <Dialog open={showMappingDialog} onOpenChange={setShowMappingDialog}>

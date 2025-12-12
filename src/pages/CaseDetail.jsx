@@ -51,6 +51,7 @@ import VerificationTab from "@/components/case/VerificationTab";
 import RunVerificationButton from "@/components/case/RunVerificationButton";
 import CountyProfileView from "@/components/county/CountyProfileView";
 import DocumentGeneratorPanel from "@/components/case/DocumentGeneratorPanel";
+import PDFViewerDialog from "@/components/pdf/PDFViewerDialog";
 import OutreachPanel from "@/components/case/OutreachPanel";
 import FilingWorkflowPanel from "@/components/case/FilingWorkflowPanel";
 import OrderTreasurerPanel from "@/components/case/OrderTreasurerPanel";
@@ -77,6 +78,8 @@ export default function CaseDetail() {
   const caseId = urlParams.get("id");
   const [activeTab, setActiveTab] = useState("overview");
   const [notes, setNotes] = useState("");
+  const [viewingPdf, setViewingPdf] = useState(null);
+  const [showPdfViewer, setShowPdfViewer] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -492,13 +495,32 @@ export default function CaseDetail() {
                         {doc.is_primary && (
                           <Badge variant="secondary">Primary</Badge>
                         )}
-                        <Button variant="ghost" size="icon">
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          onClick={() => {
+                            setViewingPdf({ url: doc.file_url, title: doc.name });
+                            setShowPdfViewer(true);
+                          }}
+                        >
                           <Eye className="w-4 h-4" />
                         </Button>
-                        <Button variant="ghost" size="icon">
-                          <Download className="w-4 h-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="text-red-500">
+                        <a href={doc.file_url} download>
+                          <Button variant="ghost" size="icon">
+                            <Download className="w-4 h-4" />
+                          </Button>
+                        </a>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="text-red-500"
+                          onClick={async () => {
+                            if (window.confirm("Delete this document?")) {
+                              await base44.entities.Document.delete(doc.id);
+                              queryClient.invalidateQueries({ queryKey: ["documents", caseId] });
+                            }
+                          }}
+                        >
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
@@ -813,6 +835,17 @@ export default function CaseDetail() {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
-  );
-}
+
+      {/* PDF Viewer Dialog */}
+      <PDFViewerDialog
+        open={showPdfViewer}
+        onClose={() => {
+          setShowPdfViewer(false);
+          setViewingPdf(null);
+        }}
+        pdfUrl={viewingPdf?.url}
+        title={viewingPdf?.title || "Document Viewer"}
+      />
+      </div>
+      );
+      }
