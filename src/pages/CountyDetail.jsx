@@ -66,9 +66,13 @@ export default function CountyDetail() {
 
   const uploadMutation = useMutation({
     mutationFn: async (file) => {
+      // First upload the file to get a URL
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      
+      // Then process it
       const { data } = await base44.functions.invoke("uploadCountyPacket", {
         county_id: countyId,
-        file
+        file_url
       });
       return data;
     },
