@@ -27,6 +27,7 @@ import DocumentsSection from "@/components/portal/DocumentsSection";
 import MessagingWidget from "@/components/portal/MessagingWidget";
 import FAQSection from "@/components/portal/FAQSection";
 import ActivityFeed from "@/components/portal/ActivityFeed";
+import HomeownerChatbot from "@/components/portal/HomeownerChatbot";
 
 const stepIcons = {
   agreement: FileText,
