@@ -49,7 +49,7 @@ Deno.serve(async (req) => {
       opening: generateOpening(caseData),
       identity_questions: generateIdentityQuestions(caseData),
       pitch: generatePitch(caseData, countyInfo),
-      objection_responses: generateObjectionResponses(caseData),
+      objection_responses: generateObjectionResponses(caseData, countyInfo),
       closing: generateClosing(caseData),
       county_notes: countyInfo?.special_notes || null
     };
@@ -124,7 +124,7 @@ So if we recover the full $${caseData.surplus_amount?.toLocaleString() || '[SURP
 Would you like us to handle this for you?`;
 }
 
-function generateObjectionResponses(caseData) {
+function generateObjectionResponses(caseData, countyInfo) {
   return [
     {
       objection: "Is this legit? / Is this a scam?",

@@ -40,7 +40,7 @@ export default function AgentAssistPanel({ caseData }) {
         return;
       }
       
-      setScript(data);
+      setScript(data.script || data);
       toast.success("Call script loaded");
     } catch (error) {
       toast.error("Failed: " + (error.response?.data?.details || error.message || "Unknown error"));
