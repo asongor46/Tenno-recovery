@@ -13,13 +13,34 @@ import {
   Clock,
   Shield,
   Download,
+  Eye,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query"; // ADDED: For fetching templates
+import { base44 } from "@/api/base44Client"; // ADDED: For API access
 
 /**
  * County Profile View - Complete county rules and requirements display
  */
 export default function CountyProfileView({ county }) {
+  // ADDED: Fetch county form templates
+  const { data: countyForms = [] } = useQuery({
+    queryKey: ["countyFormTemplates", county?.id],
+    queryFn: async () => {
+      if (!county?.id) return [];
+      try {
+        return await base44.entities.CountyFormTemplate.filter({ 
+          county_id: county.id,
+          is_active: true 
+        }, 'order');
+      } catch (error) {
+        console.error('Error fetching county forms:', error);
+        return [];
+      }
+    },
+    enabled: !!county?.id,
+  });
+
   if (!county) {
     return (
       <div className="text-center py-12 text-slate-500">
@@ -207,6 +228,38 @@ export default function CountyProfileView({ county }) {
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
+            {/* ADDED: Show county form templates if available */}
+            {countyForms.length > 0 && (
+              <div className="mb-4 pb-4 border-b">
+                <p className="text-sm font-medium text-slate-600 mb-2">County Form Packet</p>
+                {countyForms.map((form) => (
+                  <div
+                    key={form.id}
+                    className="flex items-center justify-between p-3 border rounded-lg hover:bg-slate-50 mb-2"
+                  >
+                    <div className="flex items-center gap-3">
+                      <FileText className="w-4 h-4 text-emerald-500" />
+                      <div>
+                        <span className="font-medium text-sm">{form.form_name}</span>
+                        <p className="text-xs text-slate-500 capitalize">{form.form_type?.replace(/_/g, ' ')}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {form.requires_notary && (
+                        <Badge variant="outline" className="text-xs">Notary</Badge>
+                      )}
+                      <a href={form.file_url} target="_blank" rel="noopener noreferrer">
+                        <Button variant="ghost" size="sm">
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                      </a>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Original templates */}
             {county.claim_form_url && (
               <a
                 href={county.claim_form_url}
@@ -251,7 +304,7 @@ export default function CountyProfileView({ county }) {
                 <Download className="w-4 h-4 text-slate-400" />
               </a>
             )}
-            {!county.claim_form_url && !county.affidavit_url && !county.assignment_url && !county.instruction_url && (
+            {countyForms.length === 0 && !county.claim_form_url && !county.affidavit_url && !county.assignment_url && !county.instruction_url && (
               <p className="text-slate-500 text-center py-4">No templates available</p>
             )}
           </div>
