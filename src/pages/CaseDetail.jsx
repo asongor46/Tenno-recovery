@@ -54,7 +54,9 @@ import DocumentGeneratorPanel from "@/components/case/DocumentGeneratorPanel";
 import OutreachPanel from "@/components/case/OutreachPanel";
 import FilingWorkflowPanel from "@/components/case/FilingWorkflowPanel";
 import OrderTreasurerPanel from "@/components/case/OrderTreasurerPanel";
-import AgreementPanel from "@/components/case/AgreementPanel"; // ADDED
+import AgreementPanel from "@/components/case/AgreementPanel";
+import AgentAssistPanel from "@/components/case/AgentAssistPanel";
+import PacketReadinessPanel from "@/components/case/PacketReadinessPanel";
 
 const stageConfig = {
   imported: { label: "Imported", color: "bg-slate-500" },
@@ -338,6 +340,11 @@ export default function CaseDetail() {
         {/* Overview Tab */}
         <TabsContent value="overview" className="space-y-6">
           <div className="grid lg:grid-cols-3 gap-6">
+            {/* Agent Assist Panel - Prominent Position */}
+            <div className="lg:col-span-3">
+              <AgentAssistPanel caseData={caseData} />
+            </div>
+
             {/* Case Summary */}
             <Card className="lg:col-span-2">
               <CardHeader>
@@ -681,6 +688,9 @@ export default function CaseDetail() {
         {/* Packet Tab */}
         <TabsContent value="packet" className="space-y-4">
           <div className="grid lg:grid-cols-3 gap-6">
+            {/* Packet Readiness Panel */}
+            <PacketReadinessPanel caseData={caseData} countyData={county} />
+            
             <div className="lg:col-span-2">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
