@@ -34,9 +34,18 @@ export default function Settings() {
   });
 
   const [profile, setProfile] = useState({
-    full_name: user?.full_name || "",
-    email: user?.email || "",
+    full_name: "",
+    email: "",
   });
+
+  React.useEffect(() => {
+    if (user) {
+      setProfile({
+        full_name: user.full_name || "",
+        email: user.email || "",
+      });
+    }
+  }, [user]);
 
   const [notifications, setNotifications] = useState({
     emailAlerts: true,

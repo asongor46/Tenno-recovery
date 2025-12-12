@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useMutation } from "@tanstack/react-query";
+import RoleGuard from "@/components/rbac/RoleGuard";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -176,8 +177,9 @@ export default function CleanupTools() {
   };
 
   return (
-    <div className="space-y-8">
-      <div>
+    <RoleGuard allowedRoles={["admin"]}>
+      <div className="space-y-8">
+        <div>
         <h1 className="text-3xl font-bold text-slate-900">Cleanup & Maintenance Tools</h1>
         <p className="text-slate-500 mt-1">System maintenance, data quality, and cleanup operations</p>
       </div>
@@ -370,5 +372,6 @@ export default function CleanupTools() {
         })}
       </div>
     </div>
+    </RoleGuard>
   );
 }
