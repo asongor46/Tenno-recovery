@@ -44,6 +44,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { Toaster } from "@/components/ui/toaster";
+import AgentChatbot from "@/components/dashboard/AgentChatbot";
 
 const navigation = [
   { name: "Dashboard", href: "Dashboard", icon: LayoutDashboard },
@@ -334,6 +335,10 @@ export default function Layout({ children, currentPageName }) {
         {/* Page content */}
         <main className="p-4 lg:p-8">{children}</main>
         </div>
+
+        {/* Agent Chatbot - Available throughout the app */}
+        <AgentChatbot />
+
         <Toaster />
         </div>
         );

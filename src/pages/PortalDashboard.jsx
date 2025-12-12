@@ -341,6 +341,9 @@ export default function PortalDashboard() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Homeowner Chatbot */}
+      <HomeownerChatbot caseId={caseData.id} caseData={caseData} />
     </div>
   );
 }
