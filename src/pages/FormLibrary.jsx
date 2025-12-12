@@ -11,6 +11,8 @@ import {
   CheckCircle2,
   Edit2,
   AlertCircle,
+  Settings,
+  Play,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,6 +40,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import FieldMappingReview from "@/components/formLibrary/FieldMappingReview";
+import { useStandardToast } from "@/components/shared/useStandardToast";
 
 export default function FormLibrary() {
   const [selectedCounty, setSelectedCounty] = useState("");
@@ -46,8 +50,11 @@ export default function FormLibrary() {
   const [isUploading, setIsUploading] = useState(false);
   const [analysisResult, setAnalysisResult] = useState(null);
   const [showAnalysisDialog, setShowAnalysisDialog] = useState(false);
+  const [reviewingForm, setReviewingForm] = useState(null);
+  const [showMappingDialog, setShowMappingDialog] = useState(false);
 
   const queryClient = useQueryClient();
+  const toast = useStandardToast();
 
   const { data: counties = [] } = useQuery({
     queryKey: ["counties"],
@@ -83,7 +90,32 @@ export default function FormLibrary() {
 
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.CountyFormTemplate.delete(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["formTemplates"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["formTemplates"] });
+      toast.success("Form deleted");
+    },
+  });
+
+  const testGenerateMutation = useMutation({
+    mutationFn: async (template_id) => {
+      // Get first active case for testing
+      const cases = await base44.entities.Case.filter({ status: "active" }, "-created_date", 1);
+      if (!cases[0]) {
+        throw new Error("No active cases found for testing");
+      }
+      const { data } = await base44.functions.invoke("generateFillableForm", {
+        case_id: cases[0].id,
+        county_form_template_id: template_id
+      });
+      return data;
+    },
+    onSuccess: (data) => {
+      toast.success(`Generated fillable form (${data.completion_percentage}% complete)`);
+      if (data.filled_pdf_url) {
+        window.open(data.filled_pdf_url, '_blank');
+      }
+    },
+    onError: (err) => toast.error(`Test failed: ${err.message}`)
   });
 
   const handleFileSelect = async (e) => {
@@ -222,10 +254,30 @@ export default function FormLibrary() {
                       <TableCell>
                         <div className="flex items-center gap-1">
                           <a href={form.file_url} target="_blank" rel="noopener noreferrer">
-                            <Button variant="ghost" size="icon">
+                            <Button variant="ghost" size="icon" title="View PDF">
                               <Eye className="w-4 h-4" />
                             </Button>
                           </a>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => {
+                              setReviewingForm(form);
+                              setShowMappingDialog(true);
+                            }}
+                            title="Review Field Mappings"
+                          >
+                            <Settings className="w-4 h-4 text-blue-600" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => testGenerateMutation.mutate(form.id)}
+                            disabled={testGenerateMutation.isPending}
+                            title="Test Generate Fillable Form"
+                          >
+                            <Play className="w-4 h-4 text-emerald-600" />
+                          </Button>
                           <Button
                             variant="ghost"
                             size="icon"
@@ -247,6 +299,24 @@ export default function FormLibrary() {
           </CardContent>
         </Card>
       )}
+
+      {/* Field Mapping Review Dialog */}
+      <Dialog open={showMappingDialog} onOpenChange={setShowMappingDialog}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Review Field Mappings</DialogTitle>
+          </DialogHeader>
+          {reviewingForm && (
+            <FieldMappingReview 
+              formTemplate={reviewingForm} 
+              onClose={() => {
+                setShowMappingDialog(false);
+                setReviewingForm(null);
+              }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Analysis Result Dialog */}
       <Dialog open={showAnalysisDialog} onOpenChange={setShowAnalysisDialog}>
