@@ -33,10 +33,17 @@ export default function AgentAssistPanel({ caseData }) {
       const { data } = await base44.functions.invoke("generateCallScript", {
         case_id: caseData.id
       });
+      
+      if (data.status === 'error') {
+        toast.error("Failed: " + (data.details || "Unknown error"));
+        setLoadingScript(false);
+        return;
+      }
+      
       setScript(data);
       toast.success("Call script loaded");
     } catch (error) {
-      toast.error("Failed to generate script");
+      toast.error("Failed: " + (error.response?.data?.details || error.message || "Unknown error"));
     } finally {
       setLoadingScript(false);
     }
