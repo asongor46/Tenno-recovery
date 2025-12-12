@@ -65,7 +65,8 @@ Deno.serve(async (req) => {
         description: `Expected payment: $${(approved_amount || caseData.surplus_amount)?.toLocaleString()}${check_number ? ` (Check #${check_number})` : ''}`,
         priority: 'high',
         due_date: expected_payment_date || new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        auto_generated: true
+        auto_generated: true,
+        is_completed: false
       });
 
       // Notify homeowner
@@ -99,7 +100,8 @@ TENNO Recovery Team`
         description: decision_notes || 'Claim was denied - review reason and determine if appeal is warranted',
         priority: 'high',
         due_date: new Date().toISOString().split('T')[0],
-        auto_generated: true
+        auto_generated: true,
+        is_completed: false
       });
 
     } else if (decision_type === 'more_info_needed') {
@@ -112,7 +114,8 @@ TENNO Recovery Team`
         description: decision_notes || 'Court requested additional information',
         priority: 'urgent',
         due_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        auto_generated: true
+        auto_generated: true,
+        is_completed: false
       });
     }
 

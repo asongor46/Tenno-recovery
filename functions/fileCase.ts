@@ -88,7 +88,8 @@ Deno.serve(async (req) => {
       description: `Check with ${county?.clerk_name || 'county clerk'} on filing status`,
       priority: 'medium',
       due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 days
-      auto_generated: true
+      auto_generated: true,
+      is_completed: false
     });
 
     // Log activity

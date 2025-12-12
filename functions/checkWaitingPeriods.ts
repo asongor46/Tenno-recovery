@@ -59,8 +59,8 @@ Deno.serve(async (req) => {
         description: `Waiting period has ended. File proposed order with court.`,
         priority: 'high',
         due_date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 3 days
-        status: 'pending',
-        assigned_to: 'admin'
+        is_completed: false,
+        auto_generated: true
       });
 
       // Send alert

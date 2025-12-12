@@ -63,7 +63,8 @@ Deno.serve(async (req) => {
       description: `Send payment confirmation to ${caseData.owner_name}`,
       priority: 'high',
       due_date: new Date().toISOString().split('T')[0],
-      auto_generated: true
+      auto_generated: true,
+      is_completed: false
     });
 
     // Log activity
