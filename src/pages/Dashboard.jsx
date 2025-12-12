@@ -20,11 +20,13 @@ import TodoPanel from "@/components/dashboard/TodoPanel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
 export default function Dashboard() {
   const { data: cases = [], isLoading: casesLoading } = useQuery({
     queryKey: ["cases"],
     queryFn: () => base44.entities.Case.list("-updated_date", 100),
+    refetchInterval: 30000, // Auto-refresh every 30 seconds
   });
 
   const { data: alerts = [], isLoading: alertsLoading } = useQuery({
@@ -61,6 +63,42 @@ export default function Dashboard() {
   ).length;
 
   const recentCases = cases.slice(0, 10);
+
+  // Calculate chart data
+  const stageData = [
+    { name: 'Imported', value: cases.filter(c => c.stage === 'imported').length },
+    { name: 'Agreement', value: cases.filter(c => c.stage === 'agreement_signed').length },
+    { name: 'Info Complete', value: cases.filter(c => c.stage === 'info_completed').length },
+    { name: 'Notary', value: cases.filter(c => c.stage === 'notary_completed').length },
+    { name: 'Packet Ready', value: cases.filter(c => c.stage === 'packet_ready').length },
+    { name: 'Filed', value: cases.filter(c => c.stage === 'filed').length },
+    { name: 'Paid', value: cases.filter(c => c.stage === 'paid').length },
+  ].filter(s => s.value > 0);
+
+  const COLORS = ['#3b82f6', '#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#ec4899'];
+
+  // Revenue over time (last 30 days)
+  const last30Days = Array.from({ length: 30 }, (_, i) => {
+    const date = new Date();
+    date.setDate(date.getDate() - (29 - i));
+    return date;
+  });
+
+  const revenueData = last30Days.map(date => {
+    const dateStr = date.toISOString().split('T')[0];
+    const paidCases = cases.filter(c => 
+      c.stage === 'paid' && 
+      c.paid_at && 
+      c.paid_at.startsWith(dateStr)
+    );
+    const revenue = paidCases.reduce((sum, c) => 
+      sum + ((c.surplus_amount || 0) * ((c.fee_percentage || 20) / 100)), 0
+    );
+    return {
+      date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      revenue: Math.round(revenue)
+    };
+  }).filter((_, i) => i % 5 === 0); // Show every 5th day
 
   // ADDED: AI Suggestions Panel Component
   function AISuggestionsPanel() {
@@ -218,6 +256,55 @@ export default function Dashboard() {
           color="rose"
           delay={0.25}
         />
+      </div>
+
+      {/* Charts Row */}
+      <div className="grid lg:grid-cols-2 gap-6">
+        {/* Pipeline Distribution */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Pipeline Distribution</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={250}>
+              <PieChart>
+                <Pie
+                  data={stageData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {stageData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* Revenue Trend */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Revenue Trend (Last 30 Days)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={250}>
+              <LineChart data={revenueData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" />
+                <YAxis />
+                <Tooltip formatter={(value) => `$${value.toLocaleString()}`} />
+                <Line type="monotone" dataKey="revenue" stroke="#10b981" strokeWidth={2} />
+              </LineChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Main Content Grid */}
