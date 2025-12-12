@@ -62,6 +62,8 @@ import URLCaseBuilder from "@/components/cases/URLCaseBuilder"; // ADDED
 import ScreenshotCaseBuilder from "@/components/cases/ScreenshotCaseBuilder"; // ADDED
 import TextCaseBuilder from "@/components/cases/TextCaseBuilder"; // ADDED
 import AdvancedCaseBuilder from "@/components/cases/AdvancedCaseBuilder"; // ADDED: Universal County Mapping
+import AdvancedSearchPanel from "@/components/cases/AdvancedSearchPanel";
+import BulkActionsToolbar from "@/components/cases/BulkActionsToolbar";
 
 // PHASE 4+ ENHANCEMENTS: Dashboard components
 import CasesKPICards from "@/components/dashboard/CasesKPICards";
@@ -115,6 +117,7 @@ export default function Cases() {
   
   // PHASE 4+ ENHANCEMENT: View mode toggle
   const [viewMode, setViewMode] = useState("table"); // "pipeline" | "table"
+  const [advancedFilters, setAdvancedFilters] = useState(null);
 
   const queryClient = useQueryClient();
 
@@ -144,15 +147,36 @@ export default function Cases() {
     },
   });
 
-  // Filter cases
+  // Filter cases with advanced search support
   const filteredCases = cases.filter(c => {
+    // Basic filters
     const matchesSearch = 
       c.owner_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       c.case_number?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.county?.toLowerCase().includes(searchQuery.toLowerCase());
+      c.county?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.property_address?.toLowerCase().includes(searchQuery.toLowerCase());
     
     const matchesStatus = statusFilter === "all" || c.status === statusFilter;
     const matchesStage = stageFilter === "all" || c.stage === stageFilter;
+
+    // Advanced filters
+    if (advancedFilters) {
+      const af = advancedFilters;
+      
+      if (af.search && !matchesSearch) return false;
+      if (af.status && c.status !== af.status) return false;
+      if (af.stage && c.stage !== af.stage) return false;
+      if (af.county && !c.county?.toLowerCase().includes(af.county.toLowerCase())) return false;
+      if (af.notaryStatus && c.notary_status !== af.notaryStatus) return false;
+      if (af.isHot && af.isHot === "true" && !c.is_hot) return false;
+      if (af.isHot && af.isHot === "false" && c.is_hot) return false;
+      if (af.minAmount && (c.surplus_amount || 0) < parseFloat(af.minAmount)) return false;
+      if (af.maxAmount && (c.surplus_amount || 0) > parseFloat(af.maxAmount)) return false;
+      if (af.dateFrom && c.created_date < af.dateFrom) return false;
+      if (af.dateTo && c.created_date > af.dateTo) return false;
+      
+      return true;
+    }
 
     return matchesSearch && matchesStatus && matchesStage;
   });
@@ -377,6 +401,12 @@ export default function Cases() {
           </DialogContent>
         </Dialog>
       </div>
+
+      {/* Advanced Search Panel */}
+      <AdvancedSearchPanel 
+        onSearch={(filters) => setAdvancedFilters(filters)}
+        onClear={() => setAdvancedFilters(null)}
+      />
 
       {/* Filters */}
       <motion.div
@@ -655,6 +685,12 @@ export default function Cases() {
       </motion.div>
         </TabsContent>
       </Tabs>
+
+      {/* Bulk Actions Toolbar */}
+      <BulkActionsToolbar 
+        selectedCases={cases.filter(c => selectedCases.includes(c.id))}
+        onClearSelection={() => setSelectedCases([])}
+      />
     </div>
   );
 }
