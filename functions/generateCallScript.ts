@@ -71,7 +71,7 @@ Deno.serve(async (req) => {
 function generateOpening(caseData) {
   return `Hi, is this ${caseData.owner_name}? 
 
-My name is [YOUR NAME] and I'm calling from TENNO Recovery. 
+My name is [YOUR NAME] and I'm calling from TENNO RECOVERY. 
 
 I'm reaching out because we've identified that you may have surplus funds available from the ${caseData.county} County foreclosure sale of your property at ${caseData.property_address || 'your former property'}.
 

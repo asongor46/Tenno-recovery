@@ -141,8 +141,8 @@ export default function Layout({ children, currentPageName }) {
           <Link to={createPageUrl("Dashboard")} className="flex items-center gap-3">
             <div className="w-9 h-9 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-xl flex items-center justify-center">
               <span className="text-white font-bold text-lg">T</span>
-            </div>
-            <span className="text-white font-semibold text-xl tracking-tight">TENNO Recovery</span>
+              </div>
+              <span className="text-white font-semibold text-xl tracking-tight">TENNO RECOVERY</span>
           </Link>
           <button
             onClick={() => setSidebarOpen(false)}

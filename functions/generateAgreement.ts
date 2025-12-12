@@ -64,7 +64,7 @@ Address: {OWNER_ADDRESS}
 
 and
 
-TENNO RECOVERY SERVICES
+TENNO RECOVERY
 
 RE: Surplus Funds from Tax Sale
 Property: {PROPERTY_ADDRESS}
@@ -74,13 +74,13 @@ Surplus Amount: ${caseData.surplus_amount?.toLocaleString() || '0'}
 
 TERMS:
 
-1. SERVICES: TENNO Recovery Services agrees to prepare, file, and pursue the claim for surplus funds on behalf of the Property Owner.
+1. SERVICES: TENNO RECOVERY agrees to prepare, file, and pursue the claim for surplus funds on behalf of the Property Owner.
 
-2. COMPENSATION: Property Owner agrees to pay TENNO Recovery Services a finder's fee of {FINDER_FEE_PERCENT}% of the total surplus funds recovered.
+2. COMPENSATION: Property Owner agrees to pay TENNO RECOVERY a finder's fee of {FINDER_FEE_PERCENT}% of the total surplus funds recovered.
 
 3. PAYMENT: Fee shall be paid within 5 business days of Property Owner receiving surplus funds from the County Treasurer.
 
-4. AUTHORIZATION: Property Owner authorizes TENNO Recovery Services to:
+4. AUTHORIZATION: Property Owner authorizes TENNO RECOVERY to:
    - File all necessary documents with ${caseData.county} County Court
    - Communicate with court officials and county treasurer
    - Obtain certified copies of necessary documents
@@ -99,7 +99,7 @@ SIGNATURES:
 Property Owner: ______________________________  Date: __________
 Name: {OWNER_NAME}
 
-TENNO Recovery Services: ______________________  Date: __________
+TENNO RECOVERY: ______________________  Date: __________
 `;
     }
 
@@ -190,7 +190,7 @@ ${filledAgreement}
 If you have questions, please reply to this email.
 
 Best regards,
-TENNO Recovery Services`
+TENNO RECOVERY`
       });
     }
 
