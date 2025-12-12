@@ -1,21 +1,23 @@
 import React, { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { format } from "date-fns";
+import { useMutation } from "@tanstack/react-query";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Trash2,
   AlertTriangle,
+  Copy,
   Archive,
-  FileX,
-  Database,
   RefreshCw,
+  Database,
+  FileX,
+  UserX,
   Loader2,
-  CheckCircle,
+  CheckCircle2,
+  XCircle
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
+import { useStandardToast } from "@/components/shared/useStandardToast";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,248 +30,345 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
+/**
+ * CLEANUP TOOLS PAGE - Step 9
+ * Comprehensive maintenance and data quality system
+ */
+
 export default function CleanupTools() {
-  const [isDeleting, setIsDeleting] = useState(null);
-  const [deleteProgress, setDeleteProgress] = useState(0);
-  const queryClient = useQueryClient();
+  const [results, setResults] = useState({});
+  const toast = useStandardToast();
 
-  const { data: cases = [] } = useQuery({
-    queryKey: ["cases-cleanup"],
-    queryFn: () => base44.entities.Case.list(),
+  const detectDuplicates = useMutation({
+    mutationFn: () => base44.functions.invoke('dataCleanup', { action: 'detect_duplicates' }),
+    onSuccess: (response) => {
+      const { data } = response;
+      setResults(prev => ({ ...prev, duplicates: data.result }));
+      toast.success(`Found ${data.result.count} duplicate cases`);
+    },
+    onError: () => toast.error('Failed to detect duplicates')
   });
 
-  const { data: documents = [] } = useQuery({
-    queryKey: ["docs-cleanup"],
-    queryFn: () => base44.entities.Document.list(),
+  const archiveStaleCases = useMutation({
+    mutationFn: () => base44.functions.invoke('dataCleanup', { action: 'archive_stale' }),
+    onSuccess: (response) => {
+      const { data } = response;
+      setResults(prev => ({ ...prev, archived: data.result }));
+      toast.success(`Archived ${data.result.archived} stale cases`);
+    },
+    onError: () => toast.error('Failed to archive cases')
   });
 
-  const { data: activities = [] } = useQuery({
-    queryKey: ["activities-cleanup"],
-    queryFn: () => base44.entities.ActivityLog.list(),
+  const cleanOrphanedData = useMutation({
+    mutationFn: () => base44.functions.invoke('dataCleanup', { action: 'clean_orphans' }),
+    onSuccess: (response) => {
+      const { data } = response;
+      setResults(prev => ({ ...prev, orphans: data.result }));
+      toast.success(`Cleaned ${data.result.total_cleaned} orphaned records`);
+    },
+    onError: () => toast.error('Failed to clean orphans')
   });
 
-  // Calculate stats
-  const archivedCases = cases.filter(c => c.status === "archived");
-  const closedCases = cases.filter(c => c.status === "closed");
-  const oldCases = cases.filter(c => {
-    if (!c.updated_date) return false;
-    const sixMonthsAgo = new Date();
-    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-    return new Date(c.updated_date) < sixMonthsAgo && c.status !== "active";
+  const validateData = useMutation({
+    mutationFn: () => base44.functions.invoke('dataCleanup', { action: 'validate_integrity' }),
+    onSuccess: (response) => {
+      const { data } = response;
+      setResults(prev => ({ ...prev, validation: data.result }));
+      toast.success(`Validation complete: ${data.result.issues.length} issues found`);
+    },
+    onError: () => toast.error('Failed to validate data')
   });
 
-  // Test cases (case number contains "test" or owner name is "Test")
-  const testCases = cases.filter(c => 
-    c.case_number?.toLowerCase().includes("test") ||
-    c.owner_name?.toLowerCase().includes("test")
-  );
+  const fixMissingCounties = useMutation({
+    mutationFn: () => base44.functions.invoke('dataCleanup', { action: 'fix_missing_counties' }),
+    onSuccess: (response) => {
+      const { data } = response;
+      setResults(prev => ({ ...prev, counties: data.result }));
+      toast.success(`Fixed ${data.result.fixed} cases with missing county data`);
+    },
+    onError: () => toast.error('Failed to fix counties')
+  });
 
-  // Orphaned documents (no matching case)
-  const caseIds = new Set(cases.map(c => c.id));
-  const orphanedDocs = documents.filter(d => d.case_id && !caseIds.has(d.case_id));
+  const normalizePhones = useMutation({
+    mutationFn: () => base44.functions.invoke('dataCleanup', { action: 'normalize_phones' }),
+    onSuccess: (response) => {
+      const { data } = response;
+      setResults(prev => ({ ...prev, phones: data.result }));
+      toast.success(`Normalized ${data.result.normalized} phone numbers`);
+    },
+    onError: () => toast.error('Failed to normalize phones')
+  });
 
-  const handleBulkDelete = async (type, items) => {
-    setIsDeleting(type);
-    setDeleteProgress(0);
+  const runFullCleanup = useMutation({
+    mutationFn: () => base44.functions.invoke('dataCleanup', { action: 'run_full_cleanup' }),
+    onSuccess: (response) => {
+      const { data } = response;
+      setResults(prev => ({ ...prev, full: data.result }));
+      toast.success('Full cleanup complete!');
+    },
+    onError: () => toast.error('Full cleanup failed')
+  });
 
-    const total = items.length;
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-      if (type === "cases") {
-        await base44.entities.Case.delete(item.id);
-      } else if (type === "documents") {
-        await base44.entities.Document.delete(item.id);
-      } else if (type === "activities") {
-        await base44.entities.ActivityLog.delete(item.id);
-      }
-      setDeleteProgress(Math.round(((i + 1) / total) * 100));
+  const tools = [
+    {
+      id: 'duplicates',
+      title: 'Detect Duplicate Cases',
+      description: 'Find cases with identical owner names, addresses, or parcel numbers',
+      icon: Copy,
+      color: 'blue',
+      mutation: detectDuplicates,
+      dangerous: false
+    },
+    {
+      id: 'stale',
+      title: 'Archive Stale Cases',
+      description: 'Archive cases inactive for 180+ days with no activity',
+      icon: Archive,
+      color: 'amber',
+      mutation: archiveStaleCases,
+      dangerous: true
+    },
+    {
+      id: 'orphans',
+      title: 'Clean Orphaned Data',
+      description: 'Remove documents, steps, and logs for deleted cases',
+      icon: FileX,
+      color: 'red',
+      mutation: cleanOrphanedData,
+      dangerous: true
+    },
+    {
+      id: 'validation',
+      title: 'Validate Data Integrity',
+      description: 'Check for missing required fields, invalid statuses, broken references',
+      icon: Database,
+      color: 'purple',
+      mutation: validateData,
+      dangerous: false
+    },
+    {
+      id: 'counties',
+      title: 'Fix Missing County Data',
+      description: 'Attempt to populate missing county/state fields',
+      icon: RefreshCw,
+      color: 'green',
+      mutation: fixMissingCounties,
+      dangerous: false
+    },
+    {
+      id: 'phones',
+      title: 'Normalize Phone Numbers',
+      description: 'Standardize phone number formats across all cases',
+      icon: UserX,
+      color: 'indigo',
+      mutation: normalizePhones,
+      dangerous: false
     }
+  ];
 
-    queryClient.invalidateQueries();
-    setIsDeleting(null);
-    setDeleteProgress(0);
+  const colorClasses = {
+    blue: 'bg-blue-500',
+    amber: 'bg-amber-500',
+    red: 'bg-red-500',
+    purple: 'bg-purple-500',
+    green: 'bg-green-500',
+    indigo: 'bg-indigo-500'
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-3">
-        <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center">
-          <Trash2 className="w-6 h-6 text-white" />
-        </div>
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900">Cleanup Tools</h1>
-          <p className="text-slate-500">Remove old data and free up storage</p>
-        </div>
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-3xl font-bold text-slate-900">Cleanup & Maintenance Tools</h1>
+        <p className="text-slate-500 mt-1">System maintenance, data quality, and cleanup operations</p>
       </div>
 
-      {/* Warning Banner */}
-      <Card className="bg-amber-50 border-amber-200">
-        <CardContent className="pt-6">
-          <div className="flex items-start gap-3">
-            <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="font-medium text-amber-800">Caution: Destructive Actions</p>
-              <p className="text-sm text-amber-700 mt-1">
-                The actions on this page permanently delete data. Make sure you have backups 
-                before proceeding. Deleted data cannot be recovered.
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Progress Overlay */}
-      {isDeleting && (
-        <Card className="bg-slate-900 text-white">
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3 mb-4">
-              <Loader2 className="w-5 h-5 animate-spin" />
-              <p className="font-medium">Deleting {isDeleting}...</p>
-            </div>
-            <Progress value={deleteProgress} className="h-2" />
-            <p className="text-sm text-slate-400 mt-2">{deleteProgress}% complete</p>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Cleanup Options */}
-      <div className="grid md:grid-cols-2 gap-6">
-        {/* Archived Cases */}
-        <CleanupCard
-          title="Archived Cases"
-          description="Cases that have been marked as archived"
-          icon={Archive}
-          count={archivedCases.length}
-          color="slate"
-          onDelete={() => handleBulkDelete("cases", archivedCases)}
-          isDeleting={isDeleting === "cases"}
-        />
-
-        {/* Closed Cases (Old) */}
-        <CleanupCard
-          title="Old Closed Cases"
-          description="Closed cases not updated in 6+ months"
-          icon={FileX}
-          count={oldCases.length}
-          color="amber"
-          onDelete={() => handleBulkDelete("cases", oldCases)}
-          isDeleting={isDeleting === "cases"}
-        />
-
-        {/* Test Cases */}
-        <CleanupCard
-          title="Test Cases"
-          description="Cases with 'test' in name or case number"
-          icon={Database}
-          count={testCases.length}
-          color="purple"
-          onDelete={() => handleBulkDelete("cases", testCases)}
-          isDeleting={isDeleting === "cases"}
-        />
-
-        {/* Orphaned Documents */}
-        <CleanupCard
-          title="Orphaned Documents"
-          description="Documents without a matching case"
-          icon={FileX}
-          count={orphanedDocs.length}
-          color="red"
-          onDelete={() => handleBulkDelete("documents", orphanedDocs)}
-          isDeleting={isDeleting === "documents"}
-        />
-      </div>
-
-      {/* Storage Stats */}
-      <Card>
+      {/* Full Cleanup */}
+      <Card className="border-emerald-200 bg-emerald-50/30">
         <CardHeader>
-          <CardTitle className="text-base">Storage Overview</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <RefreshCw className="w-5 h-5 text-emerald-600" />
+            Run Full Cleanup
+          </CardTitle>
+          <CardDescription>
+            Execute all cleanup operations in sequence (duplicates → orphans → validation → normalization)
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <div>
-              <p className="text-sm text-slate-500">Total Cases</p>
-              <p className="text-2xl font-bold text-slate-900">{cases.length}</p>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button 
+                size="lg" 
+                className="bg-emerald-600 hover:bg-emerald-700"
+                disabled={runFullCleanup.isPending}
+              >
+                {runFullCleanup.isPending ? (
+                  <>
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    Running Full Cleanup...
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="w-5 h-5 mr-2" />
+                    Run Full Cleanup
+                  </>
+                )}
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Run Full System Cleanup?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will execute all cleanup operations. This may take several minutes and will modify data.
+                  It's recommended to run this during low-traffic hours.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={() => runFullCleanup.mutate()}>
+                  Proceed
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+
+          {results.full && (
+            <div className="mt-4 p-4 bg-white rounded-lg border">
+              <p className="font-semibold text-sm mb-2">Full Cleanup Results:</p>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div>Duplicates: {results.full.duplicates_found || 0}</div>
+                <div>Orphans Cleaned: {results.full.orphans_cleaned || 0}</div>
+                <div>Issues Found: {results.full.validation_issues || 0}</div>
+                <div>Phone Numbers Fixed: {results.full.phones_normalized || 0}</div>
+              </div>
             </div>
-            <div>
-              <p className="text-sm text-slate-500">Total Documents</p>
-              <p className="text-2xl font-bold text-slate-900">{documents.length}</p>
-            </div>
-            <div>
-              <p className="text-sm text-slate-500">Activity Logs</p>
-              <p className="text-2xl font-bold text-slate-900">{activities.length}</p>
-            </div>
-            <div>
-              <p className="text-sm text-slate-500">Cleanable Items</p>
-              <p className="text-2xl font-bold text-red-600">
-                {archivedCases.length + oldCases.length + testCases.length + orphanedDocs.length}
-              </p>
-            </div>
-          </div>
+          )}
         </CardContent>
       </Card>
+
+      {/* Individual Tools */}
+      <div className="grid md:grid-cols-2 gap-6">
+        {tools.map((tool) => {
+          const Icon = tool.icon;
+          const result = results[tool.id];
+
+          return (
+            <Card key={tool.id} className={tool.dangerous ? 'border-red-200' : ''}>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <div className={`w-10 h-10 rounded-lg ${colorClasses[tool.color]} flex items-center justify-center`}>
+                    <Icon className="w-5 h-5 text-white" />
+                  </div>
+                  {tool.title}
+                  {tool.dangerous && (
+                    <Badge variant="outline" className="ml-auto border-red-300 text-red-600">
+                      <AlertTriangle className="w-3 h-3 mr-1" />
+                      Destructive
+                    </Badge>
+                  )}
+                </CardTitle>
+                <CardDescription>{tool.description}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {tool.dangerous ? (
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button 
+                        variant="outline" 
+                        className="w-full"
+                        disabled={tool.mutation.isPending}
+                      >
+                        {tool.mutation.isPending ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Processing...
+                          </>
+                        ) : (
+                          <>
+                            <Icon className="w-4 h-4 mr-2" />
+                            Run {tool.title}
+                          </>
+                        )}
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle className="flex items-center gap-2">
+                          <AlertTriangle className="w-5 h-5 text-red-600" />
+                          Confirm Destructive Operation
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This operation will modify or delete data. Are you sure you want to proceed?
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => tool.mutation.mutate()} className="bg-red-600">
+                          Yes, Proceed
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                ) : (
+                  <Button 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => tool.mutation.mutate()}
+                    disabled={tool.mutation.isPending}
+                  >
+                    {tool.mutation.isPending ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Processing...
+                      </>
+                    ) : (
+                      <>
+                        <Icon className="w-4 h-4 mr-2" />
+                        Run {tool.title}
+                      </>
+                    )}
+                  </Button>
+                )}
+
+                {result && (
+                  <div className="mt-4 p-3 bg-slate-50 rounded-lg text-sm">
+                    {tool.id === 'duplicates' && (
+                      <>
+                        <p className="font-semibold mb-1">Found {result.count} duplicate sets</p>
+                        {result.examples?.slice(0, 3).map((dup, i) => (
+                          <p key={i} className="text-slate-600 text-xs">• {dup.owner_name} ({dup.count} matches)</p>
+                        ))}
+                      </>
+                    )}
+                    {tool.id === 'stale' && (
+                      <p>Archived {result.archived} cases older than 180 days</p>
+                    )}
+                    {tool.id === 'orphans' && (
+                      <>
+                        <p>Cleaned {result.total_cleaned} orphaned records:</p>
+                        <p className="text-xs text-slate-600">Documents: {result.documents}, Steps: {result.steps}, Logs: {result.logs}</p>
+                      </>
+                    )}
+                    {tool.id === 'validation' && (
+                      <>
+                        <p className="font-semibold mb-1">{result.issues.length} issues found</p>
+                        {result.issues.slice(0, 3).map((issue, i) => (
+                          <p key={i} className="text-xs text-red-600">• {issue}</p>
+                        ))}
+                      </>
+                    )}
+                    {tool.id === 'counties' && (
+                      <p>Fixed {result.fixed} cases with missing county data</p>
+                    )}
+                    {tool.id === 'phones' && (
+                      <p>Normalized {result.normalized} phone numbers</p>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
     </div>
-  );
-}
-
-function CleanupCard({ title, description, icon: Icon, count, color, onDelete, isDeleting }) {
-  const colorClasses = {
-    slate: "bg-slate-100 text-slate-600",
-    amber: "bg-amber-100 text-amber-600",
-    purple: "bg-purple-100 text-purple-600",
-    red: "bg-red-100 text-red-600",
-  };
-
-  return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${colorClasses[color]}`}>
-              <Icon className="w-5 h-5" />
-            </div>
-            <div>
-              <CardTitle className="text-base">{title}</CardTitle>
-              <CardDescription>{description}</CardDescription>
-            </div>
-          </div>
-          <Badge variant="secondary" className="text-lg px-3">
-            {count}
-          </Badge>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button 
-              variant="destructive" 
-              disabled={count === 0 || isDeleting}
-              className="w-full"
-            >
-              {isDeleting ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              ) : (
-                <Trash2 className="w-4 h-4 mr-2" />
-              )}
-              Delete {count} {count === 1 ? "item" : "items"}
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete {count} {title.toLowerCase()}.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={onDelete} className="bg-red-600 hover:bg-red-700">
-                Delete All
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      </CardContent>
-    </Card>
   );
 }

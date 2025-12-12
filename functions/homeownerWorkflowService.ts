@@ -1,305 +1,306 @@
-// =====================================================
-// HOMEOWNER WORKFLOW SERVICE
-// =====================================================
-// Manages the homeowner journey step-by-step
-// Initializes, advances, blocks, and tracks workflow progress
-
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.4';
 
-// ADDED: Workflow step definitions
-const WORKFLOW_STEPS = [
-  { key: 'agreement', label: 'Sign Agreement', order: 1, required: true },
-  { key: 'id_upload', label: 'Upload ID', order: 2, required: true },
-  { key: 'intake', label: 'Complete Intake', order: 3, required: true },
-  { key: 'notary', label: 'Notarization', order: 4, required: true },
-  { key: 'review', label: 'Review & Confirm', order: 5, required: true },
-  { key: 'packet_generated', label: 'Packet Generated', order: 6, required: false },
-  { key: 'filed', label: 'Filed with County', order: 7, required: false },
-  { key: 'decision', label: 'County Decision', order: 8, required: false },
-  { key: 'paid', label: 'Payment Received', order: 9, required: false },
-];
-
-// ADDED: Initialize workflow for a case
-async function initializeWorkflow(caseId, base44) {
-  const existingSteps = await base44.asServiceRole.entities.HomeownerStep.filter({
-    case_id: caseId,
-  });
-
-  // Don't re-initialize if steps already exist
-  if (existingSteps.length > 0) {
-    return { status: 'already_initialized', steps: existingSteps };
-  }
-
-  // Create all steps
-  const createdSteps = [];
-  for (const stepDef of WORKFLOW_STEPS) {
-    const step = await base44.asServiceRole.entities.HomeownerStep.create({
-      case_id: caseId,
-      step_key: stepDef.key,
-      status: 'not_started',
-      required: stepDef.required,
-      order: stepDef.order,
-    });
-    createdSteps.push(step);
-  }
-
-  // Log event
-  await base44.asServiceRole.entities.HomeownerTaskEvent.create({
-    case_id: caseId,
-    event_type: 'portal_invited',
-    details: { steps_initialized: WORKFLOW_STEPS.length },
-  });
-
-  return { status: 'initialized', steps: createdSteps };
-}
-
-// ADDED: Get current active step
-async function getCurrentStep(caseId, base44) {
-  const steps = await base44.asServiceRole.entities.HomeownerStep.filter(
-    { case_id: caseId },
-    'order'
-  );
-
-  // Find first incomplete step
-  const currentStep = steps.find(
-    (s) => s.status !== 'completed' && s.required
-  );
-
-  return currentStep || steps[steps.length - 1]; // Return last step if all complete
-}
-
-// ADDED: Advance to next step
-async function advanceStep(caseId, stepKey, completedBy, base44) {
-  const steps = await base44.asServiceRole.entities.HomeownerStep.filter({
-    case_id: caseId,
-    step_key: stepKey,
-  });
-
-  const step = steps[0];
-  if (!step) {
-    throw new Error(`Step ${stepKey} not found for case ${caseId}`);
-  }
-
-  // Mark as completed
-  await base44.asServiceRole.entities.HomeownerStep.update(step.id, {
-    status: 'completed',
-    completed_at: new Date().toISOString(),
-    completed_by: completedBy,
-  });
-
-  // Log event
-  await base44.asServiceRole.entities.HomeownerTaskEvent.create({
-    case_id: caseId,
-    event_type: 'step_completed',
-    step_key: stepKey,
-    performed_by: completedBy,
-    details: { completed_at: new Date().toISOString() },
-  });
-
-  // Check if we should advance case stage
-  await updateCaseStage(caseId, base44);
-
-  return { status: 'advanced', step_key: stepKey };
-}
-
-// ADDED: Block a step with reason
-async function blockStep(caseId, stepKey, reason, base44) {
-  const steps = await base44.asServiceRole.entities.HomeownerStep.filter({
-    case_id: caseId,
-    step_key: stepKey,
-  });
-
-  const step = steps[0];
-  if (!step) {
-    throw new Error(`Step ${stepKey} not found for case ${caseId}`);
-  }
-
-  // Mark as blocked
-  await base44.asServiceRole.entities.HomeownerStep.update(step.id, {
-    status: 'blocked',
-    blocking_reason: reason,
-  });
-
-  // Log event
-  await base44.asServiceRole.entities.HomeownerTaskEvent.create({
-    case_id: caseId,
-    event_type: 'step_blocked',
-    step_key: stepKey,
-    details: { reason },
-  });
-
-  return { status: 'blocked', step_key: stepKey, reason };
-}
-
-// ADDED: Unblock a step
-async function unblockStep(caseId, stepKey, base44) {
-  const steps = await base44.asServiceRole.entities.HomeownerStep.filter({
-    case_id: caseId,
-    step_key: stepKey,
-  });
-
-  const step = steps[0];
-  if (!step) {
-    throw new Error(`Step ${stepKey} not found for case ${caseId}`);
-  }
-
-  // Mark as in progress
-  await base44.asServiceRole.entities.HomeownerStep.update(step.id, {
-    status: 'in_progress',
-    blocking_reason: null,
-  });
-
-  return { status: 'unblocked', step_key: stepKey };
-}
-
-// ADDED: Update case stage based on workflow progress
-async function updateCaseStage(caseId, base44) {
-  const steps = await base44.asServiceRole.entities.HomeownerStep.filter({
-    case_id: caseId,
-  });
-
-  const completedSteps = steps.filter((s) => s.status === 'completed');
-
-  let newStage = 'imported';
-
-  if (completedSteps.some((s) => s.step_key === 'agreement')) {
-    newStage = 'agreement_signed';
-  }
-  if (completedSteps.some((s) => s.step_key === 'intake')) {
-    newStage = 'info_completed';
-  }
-  if (completedSteps.some((s) => s.step_key === 'notary')) {
-    newStage = 'notary_completed';
-  }
-  if (completedSteps.some((s) => s.step_key === 'review')) {
-    newStage = 'packet_ready';
-  }
-  if (completedSteps.some((s) => s.step_key === 'filed')) {
-    newStage = 'filed';
-  }
-  if (completedSteps.some((s) => s.step_key === 'decision')) {
-    newStage = 'approved';
-  }
-  if (completedSteps.some((s) => s.step_key === 'paid')) {
-    newStage = 'paid';
-  }
-
-  // Update case
-  await base44.asServiceRole.entities.Case.update(caseId, {
-    stage: newStage,
-  });
-
-  return newStage;
-}
-
-// ADDED: Get workflow progress summary
-async function getWorkflowProgress(caseId, base44) {
-  const steps = await base44.asServiceRole.entities.HomeownerStep.filter(
-    { case_id: caseId },
-    'order'
-  );
-
-  const total = steps.length;
-  const completed = steps.filter((s) => s.status === 'completed').length;
-  const blocked = steps.filter((s) => s.status === 'blocked').length;
-  const inProgress = steps.filter((s) => s.status === 'in_progress').length;
-
-  return {
-    total,
-    completed,
-    blocked,
-    in_progress: inProgress,
-    not_started: total - completed - blocked - inProgress,
-    percentage: Math.round((completed / total) * 100),
-    steps,
-  };
-}
+/**
+ * HOMEOWNER WORKFLOW SERVICE
+ * Step 7: Automated workflow management
+ * - Initialize steps for new cases
+ * - Check eligibility for next steps
+ * - Auto-advance when conditions met
+ * - Send reminders for pending actions
+ */
 
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-
-    // Verify authentication
+    
     const user = await base44.auth.me();
     if (!user) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { action, case_id, step_key, completed_by, reason } = await req.json();
+    const { action, case_id, step_key } = await req.json();
 
-    if (!case_id) {
-      return Response.json(
-        { error: 'Missing required field: case_id' },
-        { status: 400 }
-      );
+    if (!action || !case_id) {
+      return Response.json({ 
+        status: 'error',
+        details: 'action and case_id required' 
+      }, { status: 400 });
+    }
+
+    const cases = await base44.entities.Case.filter({ id: case_id });
+    const caseData = cases[0];
+    
+    if (!caseData) {
+      return Response.json({ 
+        status: 'error',
+        details: 'Case not found' 
+      }, { status: 404 });
     }
 
     let result;
-
+    
     switch (action) {
       case 'initialize':
-        result = await initializeWorkflow(case_id, base44);
+        result = await initializeWorkflow(base44, caseData);
         break;
-
-      case 'get_current':
-        result = await getCurrentStep(case_id, base44);
-        break;
-
-      case 'advance':
-        if (!step_key) {
-          return Response.json(
-            { error: 'Missing step_key for advance action' },
-            { status: 400 }
-          );
-        }
-        result = await advanceStep(case_id, step_key, completed_by || user.email, base44);
-        break;
-
-      case 'block':
-        if (!step_key || !reason) {
-          return Response.json(
-            { error: 'Missing step_key or reason for block action' },
-            { status: 400 }
-          );
-        }
-        result = await blockStep(case_id, step_key, reason, base44);
-        break;
-
-      case 'unblock':
-        if (!step_key) {
-          return Response.json(
-            { error: 'Missing step_key for unblock action' },
-            { status: 400 }
-          );
-        }
-        result = await unblockStep(case_id, step_key, base44);
-        break;
-
       case 'get_progress':
-        result = await getWorkflowProgress(case_id, base44);
+        result = await getProgress(base44, caseData);
         break;
-
+      case 'check_advancement':
+        result = await checkAdvancement(base44, caseData);
+        break;
+      case 'advance_step':
+        result = await advanceStep(base44, caseData, step_key);
+        break;
+      case 'send_reminders':
+        result = await sendReminders(base44, caseData);
+        break;
       default:
-        return Response.json(
-          { error: `Unknown action: ${action}` },
-          { status: 400 }
-        );
+        return Response.json({ 
+          status: 'error',
+          details: 'Invalid action' 
+        }, { status: 400 });
     }
 
     return Response.json({
       status: 'success',
-      action,
-      case_id,
-      result,
+      result
     });
+
   } catch (error) {
-    return Response.json(
-      {
-        status: 'error',
-        error: error.message,
-        stack: error.stack,
-      },
-      { status: 500 }
-    );
+    return Response.json({ 
+      status: 'error',
+      details: error.message,
+      stack: error.stack,
+    }, { status: 500 });
   }
 });
+
+async function initializeWorkflow(base44, caseData) {
+  // Define standard workflow steps
+  const standardSteps = [
+    { step_key: 'agreement', order: 1, required: true },
+    { step_key: 'id_upload', order: 2, required: true },
+    { step_key: 'intake', order: 3, required: true },
+    { step_key: 'notary', order: 4, required: true },
+    { step_key: 'review', order: 5, required: true },
+    { step_key: 'packet_generated', order: 6, required: true },
+    { step_key: 'filed', order: 7, required: true },
+    { step_key: 'decision', order: 8, required: true },
+    { step_key: 'paid', order: 9, required: true }
+  ];
+
+  // Check if already initialized
+  const existing = await base44.entities.HomeownerStep.filter({ case_id: caseData.id });
+  if (existing.length > 0) {
+    return { message: 'Already initialized', steps: existing.length };
+  }
+
+  // Create steps
+  for (const step of standardSteps) {
+    const status = determineInitialStatus(step.step_key, caseData);
+    
+    await base44.entities.HomeownerStep.create({
+      case_id: caseData.id,
+      step_key: step.step_key,
+      status,
+      required: step.required,
+      order: step.order
+    });
+  }
+
+  return { message: 'Workflow initialized', steps: standardSteps.length };
+}
+
+async function getProgress(base44, caseData) {
+  const steps = await base44.entities.HomeownerStep.filter({ case_id: caseData.id }, 'order');
+  
+  const total = steps.filter(s => s.required).length;
+  const completed = steps.filter(s => s.status === 'completed' && s.required).length;
+  const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+  return {
+    steps,
+    total,
+    completed,
+    percentage,
+    current_step: steps.find(s => s.status === 'in_progress' || (s.status === 'not_started' && s.required))
+  };
+}
+
+async function checkAdvancement(base44, caseData) {
+  const steps = await base44.entities.HomeownerStep.filter({ case_id: caseData.id }, 'order');
+  const advancements = [];
+
+  for (const step of steps) {
+    if (step.status === 'completed') continue;
+
+    const canAdvance = checkStepEligibility(step.step_key, caseData);
+    
+    if (canAdvance.ready && step.status !== 'completed') {
+      // Auto-advance
+      await base44.entities.HomeownerStep.update(step.id, {
+        status: 'completed',
+        completed_at: new Date().toISOString(),
+        completed_by: 'system'
+      });
+
+      await base44.entities.HomeownerTaskEvent.create({
+        case_id: caseData.id,
+        event_type: 'step_completed',
+        step_key: step.step_key,
+        performed_by: 'system'
+      });
+
+      advancements.push(step.step_key);
+    }
+  }
+
+  return {
+    advancements,
+    count: advancements.length
+  };
+}
+
+async function advanceStep(base44, caseData, step_key) {
+  const steps = await base44.entities.HomeownerStep.filter({ 
+    case_id: caseData.id, 
+    step_key 
+  });
+  
+  if (steps.length === 0) {
+    throw new Error('Step not found');
+  }
+
+  const step = steps[0];
+  
+  await base44.entities.HomeownerStep.update(step.id, {
+    status: 'completed',
+    completed_at: new Date().toISOString(),
+    completed_by: 'homeowner'
+  });
+
+  await base44.entities.HomeownerTaskEvent.create({
+    case_id: caseData.id,
+    event_type: 'step_completed',
+    step_key,
+    performed_by: 'homeowner'
+  });
+
+  return { message: 'Step advanced', step_key };
+}
+
+async function sendReminders(base44, caseData) {
+  const steps = await base44.entities.HomeownerStep.filter({ case_id: caseData.id }, 'order');
+  const pendingSteps = steps.filter(s => s.status === 'not_started' || s.status === 'in_progress');
+
+  if (pendingSteps.length === 0 || !caseData.owner_email) {
+    return { sent: false, reason: 'No pending steps or no email' };
+  }
+
+  const nextStep = pendingSteps[0];
+  const stepLabels = {
+    agreement: 'Sign Agreement',
+    id_upload: 'Upload ID',
+    intake: 'Complete Intake Form',
+    notary: 'Complete Notarization',
+    review: 'Review Documents'
+  };
+
+  await base44.integrations.Core.SendEmail({
+    to: caseData.owner_email,
+    subject: `Action Needed: ${stepLabels[nextStep.step_key]}`,
+    body: `Dear ${caseData.owner_name},
+
+Your surplus recovery case requires your attention.
+
+Next Step: ${stepLabels[nextStep.step_key]}
+
+Please log into your portal to complete this step:
+[Portal Link]
+
+Case Number: ${caseData.case_number}
+Surplus Amount: $${caseData.surplus_amount?.toLocaleString()}
+
+If you have questions, reply to this email or contact support.
+
+Best regards,
+TENNO RECOVERY`
+  });
+
+  await base44.entities.HomeownerTaskEvent.create({
+    case_id: caseData.id,
+    event_type: 'reminder_sent',
+    step_key: nextStep.step_key,
+    performed_by: 'system'
+  });
+
+  return { 
+    sent: true, 
+    step_key: nextStep.step_key,
+    email: caseData.owner_email
+  };
+}
+
+function determineInitialStatus(stepKey, caseData) {
+  switch (stepKey) {
+    case 'agreement':
+      return caseData.agreement_status === 'signed' ? 'completed' : 'not_started';
+    case 'id_upload':
+      return (caseData.id_front_url && caseData.id_back_url) ? 'completed' : 'not_started';
+    case 'intake':
+      return caseData.stage === 'info_completed' ? 'completed' : 'not_started';
+    case 'notary':
+      return caseData.notary_status === 'approved' ? 'completed' : 'not_started';
+    case 'packet_generated':
+      return caseData.stage === 'packet_ready' ? 'completed' : 'not_started';
+    case 'filed':
+      return caseData.stage === 'filed' ? 'completed' : 'not_started';
+    case 'paid':
+      return caseData.stage === 'paid' ? 'completed' : 'not_started';
+    default:
+      return 'not_started';
+  }
+}
+
+function checkStepEligibility(stepKey, caseData) {
+  switch (stepKey) {
+    case 'agreement':
+      return { 
+        ready: caseData.agreement_status === 'signed',
+        reason: caseData.agreement_status === 'signed' ? null : 'Agreement not signed'
+      };
+    case 'id_upload':
+      return { 
+        ready: !!(caseData.id_front_url && caseData.id_back_url),
+        reason: (caseData.id_front_url && caseData.id_back_url) ? null : 'ID documents missing'
+      };
+    case 'intake':
+      return { 
+        ready: !!(caseData.owner_email && caseData.owner_phone && caseData.owner_address),
+        reason: (caseData.owner_email && caseData.owner_phone) ? null : 'Contact info missing'
+      };
+    case 'notary':
+      return { 
+        ready: caseData.notary_status === 'approved' || caseData.notary_status === 'uploaded',
+        reason: caseData.notary_status === 'approved' ? null : 'Notary not completed'
+      };
+    case 'packet_generated':
+      return { 
+        ready: !!caseData.packet_url,
+        reason: caseData.packet_url ? null : 'Packet not generated'
+      };
+    case 'filed':
+      return { 
+        ready: caseData.filing_status === 'filed',
+        reason: caseData.filing_status === 'filed' ? null : 'Not yet filed'
+      };
+    case 'paid':
+      return { 
+        ready: caseData.stage === 'paid',
+        reason: caseData.stage === 'paid' ? null : 'Payment not received'
+      };
+    default:
+      return { ready: false, reason: 'Unknown step' };
+  }
+}
