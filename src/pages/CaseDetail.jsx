@@ -100,16 +100,16 @@ export default function CaseDetail() {
   });
 
   const { data: county } = useQuery({
-    queryKey: ["caseCounty", caseId],
+    queryKey: ["caseCounty", caseData?.county, caseData?.state],
     queryFn: async () => {
       if (!caseData?.county) return null;
       const counties = await base44.entities.County.filter({ 
         name: caseData.county,
         state: caseData.state 
       });
-      return counties[0];
+      return counties[0] || null;
     },
-    enabled: !!caseData?.county,
+    enabled: !!caseData?.county && !!caseData?.state,
   });
 
   const updateCase = useMutation({
