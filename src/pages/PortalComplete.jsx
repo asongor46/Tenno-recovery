@@ -41,9 +41,9 @@ export default function PortalComplete() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-xl flex items-center justify-center">
-                <span className="text-white font-bold text-lg">B</span>
+                <span className="text-white font-bold text-lg">T</span>
               </div>
-              <span className="font-semibold text-xl text-slate-900">Base44</span>
+              <span className="font-semibold text-xl text-slate-900">TENNO Recovery</span>
             </div>
             <div className="flex items-center gap-1">
               {[1, 2, 3].map((step) => (
@@ -206,7 +206,7 @@ export default function PortalComplete() {
                   </div>
                   <div className="flex items-center gap-2 text-slate-600">
                     <Mail className="w-4 h-4" />
-                    <span>support@base44.com</span>
+                    <span>support@tennorecovery.com</span>
                   </div>
                 </div>
               </CardContent>
@@ -218,7 +218,7 @@ export default function PortalComplete() {
       {/* Footer */}
       <footer className="bg-white border-t mt-12">
         <div className="max-w-3xl mx-auto px-4 py-6 text-center text-sm text-slate-500">
-          <p>Thank you for choosing Base44 • Reference: {caseData?.case_number}</p>
+          <p>Thank you for choosing TENNO Recovery • Reference: {caseData?.case_number}</p>
         </div>
       </footer>
     </div>

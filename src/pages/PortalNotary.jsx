@@ -93,9 +93,9 @@ export default function PortalNotary() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-xl flex items-center justify-center">
-                <span className="text-white font-bold text-lg">B</span>
+                <span className="text-white font-bold text-lg">T</span>
               </div>
-              <span className="font-semibold text-xl text-slate-900">Base44</span>
+              <span className="font-semibold text-xl text-slate-900">TENNO Recovery</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center">
