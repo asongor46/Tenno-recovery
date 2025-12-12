@@ -13,6 +13,7 @@ import {
   CheckCircle,
   AlertCircle,
   ChevronRight,
+  Layers,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,10 +27,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
+import BulkPacketGenerator from "@/components/packet/BulkPacketGenerator";
 
 export default function PacketBuilder() {
   const [selectedCaseId, setSelectedCaseId] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [bulkMode, setBulkMode] = useState(false);
+  const [bulkSelectedCases, setBulkSelectedCases] = useState([]);
+  const [showBulkDialog, setShowBulkDialog] = useState(false);
 
   const { data: cases = [], isLoading: casesLoading } = useQuery({
     queryKey: ["cases-for-packet"],
@@ -85,13 +92,36 @@ export default function PacketBuilder() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-3">
-        <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center">
-          <PackageOpen className="w-6 h-6 text-white" />
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center">
+            <PackageOpen className="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900">Packet Builder</h1>
+            <p className="text-slate-500">Generate and organize filing packets</p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900">Packet Builder</h1>
-          <p className="text-slate-500">Generate and organize filing packets</p>
+        
+        <div className="flex items-center gap-2">
+          <Button
+            variant={bulkMode ? "default" : "outline"}
+            onClick={() => {
+              setBulkMode(!bulkMode);
+              setBulkSelectedCases([]);
+            }}
+          >
+            <Layers className="w-4 h-4 mr-2" />
+            {bulkMode ? "Exit Bulk Mode" : "Bulk Mode"}
+          </Button>
+          {bulkMode && bulkSelectedCases.length > 0 && (
+            <Button
+              onClick={() => setShowBulkDialog(true)}
+              className="bg-emerald-600 hover:bg-emerald-700"
+            >
+              Generate {bulkSelectedCases.length} Packets
+            </Button>
+          )}
         </div>
       </div>
 
@@ -119,18 +149,34 @@ export default function PacketBuilder() {
                 <p className="text-center text-slate-500 py-4">No cases ready for packet</p>
               ) : (
                 filteredCases.map((c) => (
-                  <button
+                  <div
                     key={c.id}
-                    onClick={() => setSelectedCaseId(c.id)}
-                    className={`w-full text-left p-3 rounded-lg transition-colors ${
-                      selectedCaseId === c.id
+                    className={`flex items-center gap-3 p-3 rounded-lg transition-colors ${
+                      selectedCaseId === c.id && !bulkMode
                         ? "bg-emerald-50 border-emerald-500 border"
                         : "bg-slate-50 hover:bg-slate-100"
                     }`}
                   >
-                    <p className="font-medium text-slate-900">{c.owner_name}</p>
-                    <p className="text-sm text-slate-500">{c.case_number}</p>
-                  </button>
+                    {bulkMode && (
+                      <Checkbox
+                        checked={bulkSelectedCases.includes(c.id)}
+                        onCheckedChange={() => {
+                          setBulkSelectedCases(prev =>
+                            prev.includes(c.id)
+                              ? prev.filter(id => id !== c.id)
+                              : [...prev, c.id]
+                          );
+                        }}
+                      />
+                    )}
+                    <button
+                      onClick={() => !bulkMode && setSelectedCaseId(c.id)}
+                      className="flex-1 text-left"
+                    >
+                      <p className="font-medium text-slate-900">{c.owner_name}</p>
+                      <p className="text-sm text-slate-500">{c.case_number}</p>
+                    </button>
+                  </div>
                 ))
               )}
             </div>
@@ -260,6 +306,24 @@ export default function PacketBuilder() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Bulk Generator Dialog */}
+      <Dialog open={showBulkDialog} onOpenChange={setShowBulkDialog}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Bulk Packet Generation</DialogTitle>
+          </DialogHeader>
+          <BulkPacketGenerator
+            cases={cases.filter(c => bulkSelectedCases.includes(c.id))}
+            onClose={() => {
+              setShowBulkDialog(false);
+              setBulkSelectedCases([]);
+              setBulkMode(false);
+              queryClient.invalidateQueries({ queryKey: ["documents"] });
+            }}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

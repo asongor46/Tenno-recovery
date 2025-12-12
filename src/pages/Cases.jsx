@@ -126,11 +126,15 @@ export default function Cases() {
   const { data: cases = [], isLoading } = useQuery({
     queryKey: ["cases"],
     queryFn: () => base44.entities.Case.list("-updated_date", 500),
+    staleTime: 60000, // Cache for 1 minute
+    cacheTime: 300000, // Keep in cache for 5 minutes
   });
 
   const { data: counties = [] } = useQuery({
     queryKey: ["counties"],
     queryFn: () => base44.entities.County.list(),
+    staleTime: 300000, // Cache for 5 minutes (counties rarely change)
+    cacheTime: 600000, // Keep in cache for 10 minutes
   });
 
   const deleteMutation = useMutation({

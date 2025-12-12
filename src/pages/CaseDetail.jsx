@@ -88,6 +88,7 @@ export default function CaseDetail() {
     queryFn: () => base44.entities.Case.filter({ id: caseId }),
     enabled: !!caseId,
     select: (data) => data[0],
+    staleTime: 30000, // Cache for 30 seconds
   });
 
   const { data: documents = [] } = useQuery({
@@ -113,6 +114,8 @@ export default function CaseDetail() {
       return counties[0] || null;
     },
     enabled: !!caseData?.county && !!caseData?.state,
+    staleTime: 300000, // Cache county profiles for 5 minutes
+    cacheTime: 600000,
   });
 
   const updateCase = useMutation({
