@@ -19,6 +19,7 @@ import {
   XCircle,
   Edit2,
   ExternalLink,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -30,6 +31,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import CountyForm from "@/components/counties/CountyForm";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useStandardToast } from "@/components/shared/useStandardToast";
 
 const filingMethodColors = {
   mail: "bg-blue-100 text-blue-700",
@@ -47,8 +51,11 @@ export default function CountyDetail() {
   const urlParams = new URLSearchParams(window.location.search);
   const countyId = urlParams.get("id");
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showUploadDialog, setShowUploadDialog] = useState(false);
+  const [uploadFile, setUploadFile] = useState(null);
 
   const queryClient = useQueryClient();
+  const toast = useStandardToast();
 
   const { data: county, isLoading } = useQuery({
     queryKey: ["county", countyId],
@@ -56,6 +63,33 @@ export default function CountyDetail() {
     enabled: !!countyId,
     select: (data) => data[0],
   });
+
+  const uploadMutation = useMutation({
+    mutationFn: async (file) => {
+      const { data } = await base44.functions.invoke("uploadCountyPacket", {
+        county_id: countyId,
+        file
+      });
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["county", countyId] });
+      setShowUploadDialog(false);
+      setUploadFile(null);
+      toast.success(`${data.forms_created || 0} forms uploaded successfully`);
+    },
+    onError: (error) => {
+      toast.error("Upload failed: " + (error.response?.data?.details || error.message));
+    }
+  });
+
+  const handleUpload = () => {
+    if (!uploadFile) {
+      toast.warning("Please select a file");
+      return;
+    }
+    uploadMutation.mutate(uploadFile);
+  };
 
   if (isLoading) {
     return (
@@ -286,7 +320,11 @@ export default function CountyDetail() {
               />
               
               <div className="pt-4 border-t">
-                <Button variant="outline" className="w-full">
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => setShowUploadDialog(true)}
+                >
                   <Upload className="w-4 h-4 mr-2" /> Upload Form
                 </Button>
               </div>
@@ -308,6 +346,58 @@ export default function CountyDetail() {
               queryClient.invalidateQueries({ queryKey: ["county", countyId] });
             }} 
           />
+        </DialogContent>
+      </Dialog>
+
+      {/* Upload Dialog */}
+      <Dialog open={showUploadDialog} onOpenChange={setShowUploadDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Upload County Form Package</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="file">Select PDF or ZIP file</Label>
+              <Input
+                id="file"
+                type="file"
+                accept=".pdf,.zip"
+                onChange={(e) => setUploadFile(e.target.files[0])}
+                className="mt-2"
+              />
+              <p className="text-xs text-slate-500 mt-2">
+                Upload a single PDF or ZIP containing multiple county forms
+              </p>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setShowUploadDialog(false);
+                  setUploadFile(null);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleUpload}
+                disabled={!uploadFile || uploadMutation.isPending}
+                className="bg-emerald-600 hover:bg-emerald-700"
+              >
+                {uploadMutation.isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Uploading...
+                  </>
+                ) : (
+                  <>
+                    <Upload className="w-4 h-4 mr-2" />
+                    Upload
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
