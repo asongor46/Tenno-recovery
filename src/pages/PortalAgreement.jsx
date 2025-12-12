@@ -2,19 +2,20 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
+import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { ArrowLeft, ArrowRight, Check, PenTool } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, PenTool, FileText, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 
 export default function PortalAgreement() {
   const urlParams = new URLSearchParams(window.location.search);
   const token = urlParams.get("token");
-  const [caseData, setCaseData] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [hasRead, setHasRead] = useState(false);
   const [signatureType, setSignatureType] = useState("type"); // type or draw
   const [typedSignature, setTypedSignature] = useState("");
@@ -22,20 +23,28 @@ export default function PortalAgreement() {
   const canvasRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
 
-  useEffect(() => {
-    async function loadCase() {
-      if (!token) {
-        setIsLoading(false);
-        return;
-      }
+  const { data: caseData, isLoading } = useQuery({
+    queryKey: ["portalCase", token],
+    queryFn: async () => {
       const cases = await base44.entities.Case.filter({ portal_token: token });
-      if (cases.length > 0) {
-        setCaseData(cases[0]);
-      }
-      setIsLoading(false);
-    }
-    loadCase();
-  }, [token]);
+      return cases[0];
+    },
+    enabled: !!token,
+  });
+
+  // Fetch agreement document
+  const { data: agreementDoc } = useQuery({
+    queryKey: ["agreementDoc", caseData?.id],
+    queryFn: async () => {
+      const docs = await base44.entities.Document.filter({
+        case_id: caseData.id,
+        category: "agreement",
+        is_primary: true,
+      });
+      return docs[0];
+    },
+    enabled: !!caseData?.id,
+  });
 
   // Canvas drawing functions
   const startDrawing = (e) => {
@@ -84,20 +93,35 @@ export default function PortalAgreement() {
 
     setIsSubmitting(true);
 
-    await base44.entities.Case.update(caseData.id, {
-      agreement_signed_at: new Date().toISOString(),
-      agreement_signature: signature,
-      stage: "agreement_signed",
-    });
+    try {
+      await base44.entities.Case.update(caseData.id, {
+        agreement_signed_at: new Date().toISOString(),
+        agreement_signature: signature,
+        agreement_status: "signed",
+        stage: "agreement_signed",
+      });
 
-    await base44.entities.ActivityLog.create({
-      case_id: caseData.id,
-      action: "Agreement Signed",
-      description: "Homeowner signed the service agreement via portal",
-      performed_by: "Homeowner",
-    });
+      await base44.entities.HomeownerTaskEvent.create({
+        case_id: caseData.id,
+        event_type: "agreement_signed",
+        step_key: "agreement",
+        performed_by: caseData.owner_email || "Homeowner",
+        details: { signed_at: new Date().toISOString() }
+      });
 
-    window.location.href = createPageUrl(`PortalInfo?token=${token}`);
+      await base44.entities.ActivityLog.create({
+        case_id: caseData.id,
+        action: "Agreement Signed",
+        description: "Homeowner signed the service agreement via portal",
+        performed_by: "Homeowner",
+      });
+
+      toast.success("Agreement signed successfully!");
+      window.location.href = createPageUrl(`PortalInfo?token=${token}`);
+    } catch (error) {
+      toast.error("Failed to sign agreement: " + error.message);
+      setIsSubmitting(false);
+    }
   };
 
   if (isLoading) {
@@ -145,9 +169,49 @@ export default function PortalAgreement() {
           <h1 className="text-2xl font-bold text-slate-900 mb-2">Service Agreement</h1>
           <p className="text-slate-500 mb-6">Please review and sign the agreement below</p>
 
+          {/* Fee Display */}
+          <Card className="mb-6 bg-gradient-to-br from-emerald-50 to-emerald-100 border-emerald-200">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-emerald-700">Finder Fee</p>
+                  <p className="text-3xl font-bold text-emerald-900">
+                    {caseData?.fee_percentage || 20}%
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-emerald-700">Your Fee Amount</p>
+                  <p className="text-2xl font-bold text-emerald-900">
+                    ${(((caseData?.surplus_amount || 0) * (caseData?.fee_percentage || 20)) / 100).toLocaleString()}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-emerald-700">You Receive</p>
+                  <p className="text-2xl font-bold text-emerald-900">
+                    ${((caseData?.surplus_amount || 0) - ((caseData?.surplus_amount || 0) * (caseData?.fee_percentage || 20)) / 100).toLocaleString()}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Agreement Content */}
           <Card className="mb-6">
             <CardContent className="pt-6">
+              {agreementDoc && (
+                <div className="mb-4 flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <FileText className="w-5 h-5 text-blue-600" />
+                    <span className="text-sm text-blue-700">Official Agreement Document Available</span>
+                  </div>
+                  <a href={agreementDoc.file_url} target="_blank" rel="noopener noreferrer">
+                    <Button variant="outline" size="sm">
+                      <Download className="w-4 h-4 mr-2" />
+                      Download PDF
+                    </Button>
+                  </a>
+                </div>
+              )}
               <div className="h-80 overflow-y-auto border rounded-lg p-6 bg-slate-50 text-sm text-slate-700 leading-relaxed">
                 <h2 className="font-bold text-lg mb-4">SURPLUS RECOVERY SERVICE AGREEMENT</h2>
                 
