@@ -52,9 +52,11 @@ const navigation = [
     name: "Cases", 
     href: "Cases", 
     icon: Briefcase,
-    subtitle: "All imported, scanned, and manually entered cases" // ADDED: Subtitle for Cases
+    subtitle: "All imported, scanned, and manually entered cases"
   },
   { name: "Hot Cases", href: "HotCases", icon: Flame },
+  { name: "Reminders", href: "Reminders", icon: Bell },
+  { name: "Communications", href: "Communications", icon: Inbox },
   { name: "Invoices", href: "Invoices", icon: FileText },
   { name: "County Directory", href: "Counties", icon: Building2 },
   {

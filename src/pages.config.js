@@ -27,6 +27,8 @@ import PortalWelcome from './pages/PortalWelcome';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
 import Templates from './pages/Templates';
+import Communications from './pages/Communications';
+import Reminders from './pages/Reminders';
 import __Layout from './Layout.jsx';
 
 
@@ -60,6 +62,8 @@ export const PAGES = {
     "Profile": Profile,
     "Settings": Settings,
     "Templates": Templates,
+    "Communications": Communications,
+    "Reminders": Reminders,
 }
 
 export const pagesConfig = {

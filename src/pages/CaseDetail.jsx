@@ -52,6 +52,7 @@ import RunVerificationButton from "@/components/case/RunVerificationButton";
 import CountyProfileView from "@/components/county/CountyProfileView";
 import DocumentGeneratorPanel from "@/components/case/DocumentGeneratorPanel";
 import PDFViewerDialog from "@/components/pdf/PDFViewerDialog";
+import CaseTimeline from "@/components/case/CaseTimeline";
 import OutreachPanel from "@/components/case/OutreachPanel";
 import FilingWorkflowPanel from "@/components/case/FilingWorkflowPanel";
 import OrderTreasurerPanel from "@/components/case/OrderTreasurerPanel";
@@ -337,6 +338,9 @@ export default function CaseDetail() {
           </TabsTrigger>
           <TabsTrigger value="county" className="gap-2">
             <MapPin className="w-4 h-4" /> County Profile
+          </TabsTrigger>
+          <TabsTrigger value="timeline" className="gap-2">
+            <Activity className="w-4 h-4" /> Timeline
           </TabsTrigger>
           <TabsTrigger value="activity" className="gap-2">
             <Activity className="w-4 h-4" /> Activity Log
@@ -775,6 +779,18 @@ export default function CaseDetail() {
         {/* ADDED Verification Tab */}
         <TabsContent value="verification" className="space-y-4">
           <VerificationTab caseId={caseId} caseData={caseData} />
+        </TabsContent>
+
+        {/* Timeline Tab */}
+        <TabsContent value="timeline" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Case Timeline</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CaseTimeline caseId={caseId} />
+            </CardContent>
+          </Card>
         </TabsContent>
 
         {/* County Profile Tab */}
