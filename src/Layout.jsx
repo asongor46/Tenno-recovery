@@ -46,6 +46,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Toaster } from "@/components/ui/toaster";
 import AgentChatbot from "@/components/dashboard/AgentChatbot";
+import ErrorBoundary from "@/components/shared/ErrorBoundary";
 
 const navigation = [
   { name: "Dashboard", href: "Dashboard", icon: LayoutDashboard },
@@ -336,7 +337,11 @@ export default function Layout({ children, currentPageName }) {
         </header>
 
         {/* Page content */}
-        <main className="p-4 lg:p-8">{children}</main>
+        <main className="p-4 lg:p-8">
+          <ErrorBoundary>
+            {children}
+          </ErrorBoundary>
+        </main>
         </div>
 
         {/* Agent Chatbot - Available throughout the app */}
