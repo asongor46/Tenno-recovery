@@ -118,7 +118,147 @@ export default function OutreachPanel({ caseId, caseData }) {
           </TabsList>
 
           {/* Log Contact Tab */}
-          <TabsContent value="log" className="space-y-4">
+          <TabsContent value="script" className="space-y-4">
+          {!callScript ? (
+            <div className="text-center py-8">
+              <FileText className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+              <p className="text-slate-500 mb-4">Generate a personalized call script</p>
+              <Button onClick={loadCallScript} disabled={loadingScript}>
+                {loadingScript ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <FileText className="w-4 h-4 mr-2" />
+                    Generate Call Script
+                  </>
+                )}
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {/* Opening */}
+              <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-semibold text-emerald-900">Opening</h4>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => copyTemplate(callScript.opening)}
+                  >
+                    <Copy className="w-3 h-3 mr-1" />
+                    Copy
+                  </Button>
+                </div>
+                <p className="text-sm text-slate-700 whitespace-pre-line">{callScript.opening}</p>
+              </div>
+
+              {/* Identity Questions */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h4 className="font-semibold text-blue-900 mb-3">Identity Verification Questions</h4>
+                <div className="space-y-3">
+                  {callScript.identity_questions.map((q, i) => (
+                    <div key={i} className="bg-white p-3 rounded border border-blue-100">
+                      <div className="flex items-start gap-2">
+                        <Badge variant="outline" className="mt-0.5">{i + 1}</Badge>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-slate-900">{q.question}</p>
+                          <p className="text-xs text-slate-500 mt-1">Expected: {q.expected_answer}</p>
+                          <Badge variant="outline" className="text-xs mt-1">{q.purpose}</Badge>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Pitch */}
+              <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-semibold text-purple-900">The Pitch</h4>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => copyTemplate(callScript.pitch)}
+                  >
+                    <Copy className="w-3 h-3 mr-1" />
+                    Copy
+                  </Button>
+                </div>
+                <p className="text-sm text-slate-700 whitespace-pre-line">{callScript.pitch}</p>
+              </div>
+
+              {/* Objection Handling */}
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                <h4 className="font-semibold text-amber-900 mb-3 flex items-center gap-2">
+                  <HelpCircle className="w-4 h-4" />
+                  Objection Handling
+                </h4>
+                <Accordion type="single" collapsible>
+                  {callScript.objection_responses.map((obj, i) => (
+                    <AccordionItem key={i} value={`obj-${i}`}>
+                      <AccordionTrigger className="text-sm font-medium">
+                        "{obj.objection}"
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        <div className="bg-white p-3 rounded border">
+                          <p className="text-sm text-slate-700">{obj.response}</p>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="mt-2"
+                            onClick={() => copyTemplate(obj.response)}
+                          >
+                            <Copy className="w-3 h-3 mr-1" />
+                            Copy Response
+                          </Button>
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
+              </div>
+
+              {/* Closing */}
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-semibold text-green-900">Closing</h4>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => copyTemplate(callScript.closing)}
+                  >
+                    <Copy className="w-3 h-3 mr-1" />
+                    Copy
+                  </Button>
+                </div>
+                <p className="text-sm text-slate-700 whitespace-pre-line">{callScript.closing}</p>
+              </div>
+
+              {/* County Notes */}
+              {callScript.county_notes && (
+                <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
+                  <h4 className="font-semibold text-slate-900 mb-2">County-Specific Notes</h4>
+                  <p className="text-sm text-slate-700">{callScript.county_notes}</p>
+                </div>
+              )}
+
+              <Button 
+                variant="outline" 
+                className="w-full"
+                onClick={loadCallScript}
+                disabled={loadingScript}
+              >
+                <FileText className="w-4 h-4 mr-2" />
+                Regenerate Script
+              </Button>
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="log" className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label>Contact Method</Label>
