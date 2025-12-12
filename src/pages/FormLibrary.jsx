@@ -41,6 +41,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import FieldMappingReview from "@/components/formLibrary/FieldMappingReview";
+import FormPreviewDialog from "@/components/formLibrary/FormPreviewDialog";
 import { useStandardToast } from "@/components/shared/useStandardToast";
 
 export default function FormLibrary() {
@@ -52,6 +53,8 @@ export default function FormLibrary() {
   const [showAnalysisDialog, setShowAnalysisDialog] = useState(false);
   const [reviewingForm, setReviewingForm] = useState(null);
   const [showMappingDialog, setShowMappingDialog] = useState(false);
+  const [previewForm, setPreviewForm] = useState(null);
+  const [showPreviewDialog, setShowPreviewDialog] = useState(false);
 
   const queryClient = useQueryClient();
   const toast = useStandardToast();
@@ -253,11 +256,17 @@ export default function FormLibrary() {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1">
-                          <a href={form.file_url} target="_blank" rel="noopener noreferrer">
-                            <Button variant="ghost" size="icon" title="View PDF">
-                              <Eye className="w-4 h-4" />
-                            </Button>
-                          </a>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            title="View Details"
+                            onClick={() => {
+                              setPreviewForm(form);
+                              setShowPreviewDialog(true);
+                            }}
+                          >
+                            <Eye className="w-4 h-4" />
+                          </Button>
                           <Button
                             variant="ghost"
                             size="icon"
@@ -299,6 +308,16 @@ export default function FormLibrary() {
           </CardContent>
         </Card>
       )}
+
+      {/* Form Preview Dialog */}
+      <FormPreviewDialog
+        form={previewForm}
+        open={showPreviewDialog}
+        onClose={() => {
+          setShowPreviewDialog(false);
+          setPreviewForm(null);
+        }}
+      />
 
       {/* Field Mapping Review Dialog */}
       <Dialog open={showMappingDialog} onOpenChange={setShowMappingDialog}>

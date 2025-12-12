@@ -82,6 +82,44 @@ Deno.serve(async (req) => {
       result.correspondence = correspondence;
     }
 
+    // PHASE 3 ENHANCEMENT: Auto-generate forms if needed
+    let formsGenerated = null;
+    if (action_type === 'all' || action_type === 'generate_forms') {
+      if (caseData.county && caseData.state && caseData.stage === 'packet_ready') {
+        const counties = await base44.asServiceRole.entities.County.filter({
+          name: caseData.county,
+          state: caseData.state
+        });
+        
+        if (counties[0]) {
+          const formTemplates = await base44.asServiceRole.entities.CountyFormTemplate.filter({
+            county_id: counties[0].id,
+            is_active: true
+          });
+          
+          if (formTemplates.length > 0) {
+            try {
+              const { data: packetResult } = await base44.functions.invoke('generateFilledPacket', {
+                case_id: case_id
+              });
+              formsGenerated = packetResult;
+              
+              await base44.asServiceRole.entities.ActivityLog.create({
+                case_id,
+                action: 'AI Auto-Generated Forms',
+                description: `AI automation generated ${packetResult.forms_generated} county forms`,
+                performed_by: 'system'
+              });
+            } catch (err) {
+              console.error('Failed to auto-generate forms:', err);
+            }
+          }
+        }
+      }
+    }
+
+    result.forms_generated = formsGenerated;
+
     // Log overall automation activity
     await base44.asServiceRole.entities.ActivityLog.create({
       case_id,
