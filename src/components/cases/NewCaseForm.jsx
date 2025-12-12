@@ -63,9 +63,21 @@ export default function NewCaseForm({ counties, onSuccess }) {
       portal_token: crypto.randomUUID(),
     };
 
-    await base44.entities.Case.create(caseData);
+    try {
+      const newCase = await base44.entities.Case.create(caseData);
+      
+      // Auto-trigger classification
+      try {
+        await base44.functions.invoke("classifyCase", { case_id: newCase.id });
+      } catch (classifyError) {
+        console.warn("Classification failed:", classifyError);
+      }
+      
+      onSuccess();
+    } catch (error) {
+      alert("Error creating case: " + error.message);
+    }
     setIsSubmitting(false);
-    onSuccess();
   };
 
   return (
