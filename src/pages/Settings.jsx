@@ -11,7 +11,10 @@ import {
   Mail,
   Save,
   Loader2,
+  Workflow,
 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import CustomStageEditor from "@/components/workflow/CustomStageEditor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,6 +25,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function Settings() {
   const [isSaving, setIsSaving] = useState(false);
+  const [showWorkflowEditor, setShowWorkflowEditor] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: user } = useQuery({
@@ -68,6 +72,9 @@ export default function Settings() {
           </TabsTrigger>
           <TabsTrigger value="notifications" className="gap-2">
             <Bell className="w-4 h-4" /> Notifications
+          </TabsTrigger>
+          <TabsTrigger value="workflow" className="gap-2">
+            <Workflow className="w-4 h-4" /> Workflow
           </TabsTrigger>
           <TabsTrigger value="company" className="gap-2">
             <Building2 className="w-4 h-4" /> Company
@@ -166,6 +173,37 @@ export default function Settings() {
                   onCheckedChange={(v) => setNotifications({ ...notifications, weeklyDigest: v })}
                 />
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Workflow Tab */}
+        <TabsContent value="workflow" className="mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Custom Workflow Stages</CardTitle>
+              <CardDescription>Customize your case workflow stages to match your business process</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Dialog open={showWorkflowEditor} onOpenChange={setShowWorkflowEditor}>
+                <DialogTrigger asChild>
+                  <Button variant="outline">
+                    <Workflow className="w-4 h-4 mr-2" />
+                    Edit Workflow Stages
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl">
+                  <DialogHeader>
+                    <DialogTitle>Customize Workflow Stages</DialogTitle>
+                  </DialogHeader>
+                  <CustomStageEditor
+                    onSave={(stages) => {
+                      console.log("Saved stages:", stages);
+                      setShowWorkflowEditor(false);
+                    }}
+                  />
+                </DialogContent>
+              </Dialog>
             </CardContent>
           </Card>
         </TabsContent>

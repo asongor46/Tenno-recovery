@@ -28,10 +28,11 @@ import {
   PackageOpen,
   ScanText,
   CheckSquare,
-  Users, // ADDED for People Finder
+  Users,
   FolderOpen,
   Activity,
-  Trash2
+  Trash2,
+  Inbox
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
