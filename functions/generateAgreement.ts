@@ -14,7 +14,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { case_id, send_email } = await req.json();
+    const { case_id, template_id, send_email } = await req.json();
 
     if (!case_id) {
       return Response.json({ 
@@ -34,8 +34,26 @@ Deno.serve(async (req) => {
       }, { status: 404 });
     }
 
-    // Agreement Template with merge fields
-    const agreementTemplate = `
+    // Fetch template (use default if not specified)
+    let template;
+    if (template_id) {
+      const templates = await base44.entities.AgreementTemplate.filter({ id: template_id });
+      template = templates[0];
+    } else {
+      const templates = await base44.entities.AgreementTemplate.filter({ is_default: true, is_active: true });
+      template = templates[0];
+      if (!template) {
+        const allTemplates = await base44.entities.AgreementTemplate.filter({ is_active: true });
+        template = allTemplates[0];
+      }
+    }
+
+    // Fallback to built-in template if none found
+    let agreementTemplate;
+    if (template) {
+      agreementTemplate = template.template_body;
+    } else {
+      agreementTemplate = `
 SURPLUS FUNDS RECOVERY AGREEMENT
 
 This Agreement is made on {DATE} between:
@@ -82,6 +100,10 @@ Name: {OWNER_NAME}
 
 TENNO Recovery Services: ______________________  Date: __________
 `;
+    }
+
+    // Calculate fee amount
+    const feeAmount = (caseData.surplus_amount || 0) * ((caseData.fee_percentage || 20) / 100);
 
     // Fill merge fields
     const filledAgreement = agreementTemplate
@@ -92,7 +114,10 @@ TENNO Recovery Services: ______________________  Date: __________
       .replace(/{COUNTY}/g, caseData.county || '[COUNTY]')
       .replace(/{STATE}/g, caseData.state || '[STATE]')
       .replace(/{CASE_NUMBER}/g, caseData.case_number || '[CASE]')
-      .replace(/{FINDER_FEE_PERCENT}/g, (caseData.fee_percentage || 20).toString());
+      .replace(/{FINDER_FEE_PERCENT}/g, (caseData.fee_percentage || 20).toString())
+      .replace(/{FINDER_FEE_AMOUNT}/g, feeAmount.toLocaleString())
+      .replace(/{SURPLUS_AMOUNT}/g, (caseData.surplus_amount || 0).toLocaleString())
+      .replace(/{SALE_DATE}/g, caseData.sale_date ? new Date(caseData.sale_date).toLocaleDateString() : '[SALE_DATE]');
 
     // Update case status
     await base44.entities.Case.update(case_id, {
@@ -138,8 +163,9 @@ TENNO Recovery Services`
     return Response.json({
       status: 'success',
       agreement_text: filledAgreement,
-      fee_amount: (caseData.surplus_amount || 0) * ((caseData.fee_percentage || 20) / 100),
+      fee_amount: feeAmount,
       sent_email: send_email,
+      template_used: template?.name || 'Built-in Default',
     });
 
   } catch (error) {

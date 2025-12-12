@@ -53,7 +53,8 @@ import CountyProfileView from "@/components/county/CountyProfileView";
 import DocumentGeneratorPanel from "@/components/case/DocumentGeneratorPanel";
 import OutreachPanel from "@/components/case/OutreachPanel";
 import FilingWorkflowPanel from "@/components/case/FilingWorkflowPanel";
-import OrderTreasurerPanel from "@/components/case/OrderTreasurerPanel"; // ADDED
+import OrderTreasurerPanel from "@/components/case/OrderTreasurerPanel";
+import AgreementPanel from "@/components/case/AgreementPanel"; // ADDED
 
 const stageConfig = {
   imported: { label: "Imported", color: "bg-slate-500" },
@@ -505,7 +506,10 @@ export default function CaseDetail() {
         {/* Homeowner Info Tab */}
         <TabsContent value="homeowner" className="space-y-4">
           <div className="grid lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2">
+            <div className="lg:col-span-2 space-y-6">
+              {/* ADDED: Agreement Panel */}
+              <AgreementPanel caseId={caseId} caseData={caseData} />
+
               <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Homeowner Information</CardTitle>

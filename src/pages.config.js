@@ -26,6 +26,7 @@ import Profile from './pages/Profile';
 import Settings from './pages/Settings';
 import Templates from './pages/Templates';
 import FormLibrary from './pages/FormLibrary';
+import AgreementTemplates from './pages/AgreementTemplates';
 import __Layout from './Layout.jsx';
 
 
@@ -58,6 +59,7 @@ export const PAGES = {
     "Settings": Settings,
     "Templates": Templates,
     "FormLibrary": FormLibrary,
+    "AgreementTemplates": AgreementTemplates,
 }
 
 export const pagesConfig = {

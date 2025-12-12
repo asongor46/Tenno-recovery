@@ -59,6 +59,7 @@ const navigation = [
     name: "Templates",
     icon: FileText,
     children: [
+      { name: "Agreements", href: "AgreementTemplates", icon: FileText },
       { name: "Phone Scripts", href: "Templates?category=phone_script", icon: Phone },
       { name: "SMS", href: "Templates?category=sms", icon: MessageSquare },
       { name: "Emails", href: "Templates?category=email", icon: Mail },
