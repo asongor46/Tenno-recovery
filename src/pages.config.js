@@ -1,59 +1,63 @@
-import Dashboard from './pages/Dashboard';
-import Cases from './pages/Cases';
-import HotCases from './pages/HotCases';
+import Home from './pages/Home';
+import AutomationLog from './pages/AutomationLog';
 import CaseDetail from './pages/CaseDetail';
+import Cases from './pages/Cases';
+import CleanupTools from './pages/CleanupTools';
 import Counties from './pages/Counties';
 import CountyDetail from './pages/CountyDetail';
-import Templates from './pages/Templates';
-import HowTo from './pages/HowTo';
-import PortalWelcome from './pages/PortalWelcome';
-import PortalAgreement from './pages/PortalAgreement';
-import PortalInfo from './pages/PortalInfo';
-import PortalNotary from './pages/PortalNotary';
-import PortalComplete from './pages/PortalComplete';
-import PacketBuilder from './pages/PacketBuilder';
-import OCRExtractor from './pages/OCRExtractor';
-import NotaryValidator from './pages/NotaryValidator';
+import Dashboard from './pages/Dashboard';
 import FileManager from './pages/FileManager';
-import AutomationLog from './pages/AutomationLog';
-import CleanupTools from './pages/CleanupTools';
-import Settings from './pages/Settings';
-import Profile from './pages/Profile';
+import HotCases from './pages/HotCases';
+import HowTo from './pages/HowTo';
+import Invoices from './pages/Invoices';
+import NotaryValidator from './pages/NotaryValidator';
+import OCRExtractor from './pages/OCRExtractor';
+import PacketBuilder from './pages/PacketBuilder';
 import PeopleFinder from './pages/PeopleFinder';
+import PortalAgreement from './pages/PortalAgreement';
+import PortalComplete from './pages/PortalComplete';
 import PortalDashboard from './pages/PortalDashboard';
 import PortalIDUpload from './pages/PortalIDUpload';
+import PortalInfo from './pages/PortalInfo';
 import PortalIntake from './pages/PortalIntake';
-import Invoices from './pages/Invoices';
+import PortalNotary from './pages/PortalNotary';
+import PortalWelcome from './pages/PortalWelcome';
+import Profile from './pages/Profile';
+import Settings from './pages/Settings';
+import Templates from './pages/Templates';
+import FormLibrary from './pages/FormLibrary';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
-    "Dashboard": Dashboard,
-    "Cases": Cases,
-    "HotCases": HotCases,
+    "Home": Home,
+    "AutomationLog": AutomationLog,
     "CaseDetail": CaseDetail,
+    "Cases": Cases,
+    "CleanupTools": CleanupTools,
     "Counties": Counties,
     "CountyDetail": CountyDetail,
-    "Templates": Templates,
-    "HowTo": HowTo,
-    "PortalWelcome": PortalWelcome,
-    "PortalAgreement": PortalAgreement,
-    "PortalInfo": PortalInfo,
-    "PortalNotary": PortalNotary,
-    "PortalComplete": PortalComplete,
-    "PacketBuilder": PacketBuilder,
-    "OCRExtractor": OCRExtractor,
-    "NotaryValidator": NotaryValidator,
+    "Dashboard": Dashboard,
     "FileManager": FileManager,
-    "AutomationLog": AutomationLog,
-    "CleanupTools": CleanupTools,
-    "Settings": Settings,
-    "Profile": Profile,
+    "HotCases": HotCases,
+    "HowTo": HowTo,
+    "Invoices": Invoices,
+    "NotaryValidator": NotaryValidator,
+    "OCRExtractor": OCRExtractor,
+    "PacketBuilder": PacketBuilder,
     "PeopleFinder": PeopleFinder,
+    "PortalAgreement": PortalAgreement,
+    "PortalComplete": PortalComplete,
     "PortalDashboard": PortalDashboard,
     "PortalIDUpload": PortalIDUpload,
+    "PortalInfo": PortalInfo,
     "PortalIntake": PortalIntake,
-    "Invoices": Invoices,
+    "PortalNotary": PortalNotary,
+    "PortalWelcome": PortalWelcome,
+    "Profile": Profile,
+    "Settings": Settings,
+    "Templates": Templates,
+    "FormLibrary": FormLibrary,
 }
 
 export const pagesConfig = {

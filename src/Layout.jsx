@@ -72,9 +72,10 @@ const navigation = [
     icon: Wrench,
     children: [
       { name: "Packet Builder", href: "PacketBuilder", icon: PackageOpen },
+      { name: "Form Library", href: "FormLibrary", icon: FileCode }, // ADDED
       { name: "OCR Extractor", href: "OCRExtractor", icon: ScanText },
       { name: "Notary Validator", href: "NotaryValidator", icon: CheckSquare },
-      { name: "People Finder", href: "PeopleFinder", icon: Users }, // ADDED
+      { name: "People Finder", href: "PeopleFinder", icon: Users },
       { name: "File Manager", href: "FileManager", icon: FolderOpen },
       { name: "Automation Log", href: "AutomationLog", icon: Activity },
       { name: "Cleanup Tools", href: "CleanupTools", icon: Trash2 },

@@ -53,6 +53,7 @@ import CountyProfileView from "@/components/county/CountyProfileView";
 import DocumentGeneratorPanel from "@/components/case/DocumentGeneratorPanel";
 import OutreachPanel from "@/components/case/OutreachPanel";
 import FilingWorkflowPanel from "@/components/case/FilingWorkflowPanel";
+import OrderTreasurerPanel from "@/components/case/OrderTreasurerPanel"; // ADDED
 
 const stageConfig = {
   imported: { label: "Imported", color: "bg-slate-500" },
@@ -723,7 +724,13 @@ export default function CaseDetail() {
 
         {/* Filing & Court Tab */}
         <TabsContent value="filing" className="space-y-4">
-          <FilingWorkflowPanel caseId={caseId} caseData={caseData} />
+          <div className="grid lg:grid-cols-2 gap-6">
+            <FilingWorkflowPanel caseId={caseId} caseData={caseData} />
+            {/* ADDED: Order & Treasurer Panel */}
+            {caseData.filing_status === 'order_phase' || caseData.filing_status === 'treasurer_phase' || caseData.filing_status === 'completed' ? (
+              <OrderTreasurerPanel caseId={caseId} caseData={caseData} />
+            ) : null}
+          </div>
         </TabsContent>
 
         {/* ADDED Verification Tab */}
