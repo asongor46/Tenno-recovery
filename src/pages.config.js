@@ -29,6 +29,7 @@ import Settings from './pages/Settings';
 import Templates from './pages/Templates';
 import Communications from './pages/Communications';
 import Reminders from './pages/Reminders';
+import UserManagement from './pages/UserManagement';
 import __Layout from './Layout.jsx';
 
 
@@ -64,6 +65,7 @@ export const PAGES = {
     "Templates": Templates,
     "Communications": Communications,
     "Reminders": Reminders,
+    "UserManagement": UserManagement,
 }
 
 export const pagesConfig = {

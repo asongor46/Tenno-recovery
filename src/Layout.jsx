@@ -61,6 +61,7 @@ const navigation = [
   { name: "Communications", href: "Communications", icon: Inbox },
   { name: "Invoices", href: "Invoices", icon: FileText },
   { name: "County Directory", href: "Counties", icon: Building2 },
+  { name: "User Management", href: "UserManagement", icon: Users, adminOnly: true },
   {
     name: "Templates",
     icon: FileText,
@@ -99,6 +100,8 @@ export default function Layout({ children, currentPageName }) {
     queryKey: ["currentUser"],
     queryFn: () => base44.auth.me(),
   });
+
+  const userRole = user?.role || "user";
 
   const { data: alerts = [] } = useQuery({
     queryKey: ["unreadAlerts"],
@@ -159,7 +162,7 @@ export default function Layout({ children, currentPageName }) {
 
         {/* Navigation */}
         <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto h-[calc(100vh-64px)]">
-          {navigation.map((item) => (
+          {navigation.filter(item => !item.adminOnly || userRole === "admin").map((item) => (
             <div key={item.name}>
               {item.children ? (
                 <>
