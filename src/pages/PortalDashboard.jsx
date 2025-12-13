@@ -13,10 +13,7 @@ import {
   Shield,
   Home,
   DollarSign,
-  Phone,
   Mail,
-  Archive,
-  Download,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -131,7 +128,9 @@ export default function PortalDashboard() {
   const steps = workflowData?.steps || [];
   const currentStep = steps.find((s) => s.status !== "completed" && s.required) || steps[0];
   const progress = workflowData?.percentage || 0;
-  const isClosed = caseData.status === "closed" || caseData.stage === "closed";
+
+  // Check if case is closed (read-only mode)
+  const isClosed = caseData?.stage === "closed" || caseData?.status === "closed";
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
@@ -152,35 +151,37 @@ export default function PortalDashboard() {
       </div>
 
       <div className="max-w-4xl mx-auto p-6 space-y-6">
-        {/* Closed Case Banner */}
+        {/* Case Closed Notice */}
         {isClosed && (
-          <Card className="border-green-200 bg-green-50">
-            <CardContent className="pt-6">
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
-                  <CheckCircle2 className="w-5 h-5 text-white" />
-                </div>
-                <div className="flex-1">
-                  <p className="font-semibold text-slate-900">Your case is complete!</p>
-                  <p className="text-sm text-slate-600 mt-1">
-                    You may download records or archive when ready.
-                  </p>
-                  <div className="flex gap-2 mt-3">
-                    <Button variant="outline" size="sm">
-                      <Download className="w-4 h-4 mr-2" /> Download Records
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      <Mail className="w-4 h-4 mr-2" /> Request Invoice Copy
-                    </Button>
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <Card className="border-emerald-200 bg-emerald-50">
+              <CardContent className="pt-6">
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 className="w-6 h-6 text-emerald-600 flex-shrink-0" />
+                  <div className="flex-1">
+                    <p className="font-semibold text-emerald-900">Your case is complete!</p>
+                    <p className="text-sm text-emerald-700 mt-1">
+                      You may download records or archive when ready. This portal will remain accessible.
+                    </p>
+                    <div className="flex gap-2 mt-4">
+                      <Button variant="outline" size="sm" className="border-emerald-300">
+                        Download Records
+                      </Button>
+                      <Button variant="outline" size="sm" className="border-emerald-300">
+                        Request Invoice Copy
+                      </Button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </motion.div>
         )}
 
         {/* Progress Overview */}
-        {!isClosed && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -212,7 +213,6 @@ export default function PortalDashboard() {
             </CardContent>
           </Card>
         </motion.div>
-        )}
 
         {/* Case Summary */}
         <Card>
@@ -324,7 +324,7 @@ export default function PortalDashboard() {
                           )}
                         </div>
                       </div>
-                      {isActive && !isCompleted && !isBlocked && (
+                      {isActive && !isCompleted && !isBlocked && !isClosed && (
                         <Link to={createPageUrl(getStepPageUrl(step.step_key, token))}>
                           <Button className="bg-emerald-600 hover:bg-emerald-700">
                             Continue <ChevronRight className="w-4 h-4 ml-1" />
@@ -339,14 +339,16 @@ export default function PortalDashboard() {
           })}
         </div>
 
-        {/* ADDED: Secure Messaging Widget */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-        >
-          <MessagingWidget caseId={caseData.id} clientName={caseData.owner_name} />
-        </motion.div>
+        {/* ADDED: Secure Messaging Widget - Disabled if closed */}
+        {!isClosed && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+          >
+            <MessagingWidget caseId={caseData.id} clientName={caseData.owner_name} />
+          </motion.div>
+        )}
 
         {/* ADDED: FAQ Section */}
         <motion.div

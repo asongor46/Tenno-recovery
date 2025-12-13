@@ -30,7 +30,7 @@ import Templates from './pages/Templates';
 import Communications from './pages/Communications';
 import Reminders from './pages/Reminders';
 import UserManagement from './pages/UserManagement';
-import PortalLostLink from './pages/PortalLostLink';
+import PortalLinkRecovery from './pages/PortalLinkRecovery';
 import __Layout from './Layout.jsx';
 
 
@@ -67,7 +67,7 @@ export const PAGES = {
     "Communications": Communications,
     "Reminders": Reminders,
     "UserManagement": UserManagement,
-    "PortalLostLink": PortalLostLink,
+    "PortalLinkRecovery": PortalLinkRecovery,
 }
 
 export const pagesConfig = {
