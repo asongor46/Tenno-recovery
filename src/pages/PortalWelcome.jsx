@@ -70,11 +70,12 @@ export default function PortalWelcome() {
       {/* Header */}
       <header className="bg-white border-b">
         <div className="max-w-3xl mx-auto px-4 py-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-xl flex items-center justify-center">
-              <span className="text-white font-bold text-lg">T</span>
-            </div>
-            <span className="font-semibold text-xl text-slate-900">TENNO RECOVERY</span>
+          <div className="flex justify-center">
+            <img 
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6935380f41db07237f45b1db/11ed7b05d_Screenshot_20251213_181447_Chrome.jpg" 
+              alt="TENNO RECOVERY" 
+              className="h-12 w-auto"
+            />
           </div>
         </div>
       </header>
@@ -160,7 +161,7 @@ export default function PortalWelcome() {
       {/* Footer */}
       <footer className="bg-white border-t mt-12">
         <div className="max-w-3xl mx-auto px-4 py-6 text-center text-sm text-slate-500">
-          <p>Questions? Contact us at support@tennorecovery.com</p>
+          <p>Questions? Contact us at tennoassetrecovery@gmail.com</p>
         </div>
       </footer>
     </div>
