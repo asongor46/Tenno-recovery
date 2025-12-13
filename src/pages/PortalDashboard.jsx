@@ -15,6 +15,8 @@ import {
   DollarSign,
   Phone,
   Mail,
+  Archive,
+  Download,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -129,6 +131,7 @@ export default function PortalDashboard() {
   const steps = workflowData?.steps || [];
   const currentStep = steps.find((s) => s.status !== "completed" && s.required) || steps[0];
   const progress = workflowData?.percentage || 0;
+  const isClosed = caseData.status === "closed" || caseData.stage === "closed";
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
@@ -149,7 +152,35 @@ export default function PortalDashboard() {
       </div>
 
       <div className="max-w-4xl mx-auto p-6 space-y-6">
+        {/* Closed Case Banner */}
+        {isClosed && (
+          <Card className="border-green-200 bg-green-50">
+            <CardContent className="pt-6">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+                  <CheckCircle2 className="w-5 h-5 text-white" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-semibold text-slate-900">Your case is complete!</p>
+                  <p className="text-sm text-slate-600 mt-1">
+                    You may download records or archive when ready.
+                  </p>
+                  <div className="flex gap-2 mt-3">
+                    <Button variant="outline" size="sm">
+                      <Download className="w-4 h-4 mr-2" /> Download Records
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      <Mail className="w-4 h-4 mr-2" /> Request Invoice Copy
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Progress Overview */}
+        {!isClosed && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -181,6 +212,7 @@ export default function PortalDashboard() {
             </CardContent>
           </Card>
         </motion.div>
+        )}
 
         {/* Case Summary */}
         <Card>
@@ -207,10 +239,10 @@ export default function PortalDashboard() {
                 </p>
               </div>
               <div>
-                <p className="text-sm text-slate-500">Your Phone</p>
+                <p className="text-sm text-slate-500">Contact</p>
                 <p className="font-semibold flex items-center gap-2">
-                  <Phone className="w-4 h-4" />
-                  {caseData.owner_phone || "Not provided"}
+                  <Mail className="w-4 h-4" />
+                  tennoassetrecovery@gmail.com
                 </p>
               </div>
             </div>

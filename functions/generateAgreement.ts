@@ -76,7 +76,7 @@ TERMS:
 
 1. SERVICES: TENNO RECOVERY agrees to prepare, file, and pursue the claim for surplus funds on behalf of the Property Owner.
 
-2. COMPENSATION: Property Owner agrees to pay TENNO RECOVERY a finder's fee of {FINDER_FEE_PERCENT}% of the total surplus funds recovered.
+2. COMPENSATION: Property Owner agrees to pay TENNO RECOVERY a finder's fee of {FINDER_FEE_PERCENT}% of the total surplus funds recovered. This fee is locked upon signature of this agreement.
 
 3. PAYMENT: Fee shall be paid within 5 business days of Property Owner receiving surplus funds from the County Treasurer.
 
@@ -89,10 +89,11 @@ TERMS:
 5. PROPERTY OWNER RESPONSIBILITIES:
    - Provide valid identification
    - Sign all required documents
-   - Cooperate with notarization requirements
    - Respond to requests within 48 hours
 
 6. REPRESENTATIONS: Property Owner represents that they are the rightful owner or authorized representative for these surplus funds.
+
+7. NO NOTARIZATION REQUIRED: This agreement does NOT require notarization. Electronic signature is valid and binding.
 
 SIGNATURES:
 
@@ -100,6 +101,8 @@ Property Owner: ______________________________  Date: __________
 Name: {OWNER_NAME}
 
 TENNO RECOVERY: ______________________  Date: __________
+
+Contact: tennoassetrecovery@gmail.com
 `;
     }
 
@@ -162,10 +165,11 @@ TENNO RECOVERY: ______________________  Date: __________
       is_primary: true,
     });
 
-    // Update case status
+    // Update case status (fee NOT locked until signed)
     await base44.entities.Case.update(case_id, {
       agreement_status: send_email ? 'sent' : 'not_sent',
       agreement_sent_at: send_email ? new Date().toISOString() : null,
+      fee_locked: false,
     });
 
     // Send email if requested
