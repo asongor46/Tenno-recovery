@@ -103,11 +103,8 @@ TENNO RECOVERY: ______________________  Date: __________
 `;
     }
 
-    // Calculate fee amount and net
-    const feePercent = caseData.fee_percent || 20;
-    const surplusAmount = caseData.surplus_amount || 0;
-    const feeAmount = surplusAmount * (feePercent / 100);
-    const homeownerNet = surplusAmount - feeAmount;
+    // Calculate fee amount
+    const feeAmount = (caseData.surplus_amount || 0) * ((caseData.fee_percentage || 20) / 100);
 
     // Fill merge fields
     const filledAgreement = agreementTemplate
@@ -118,10 +115,9 @@ TENNO RECOVERY: ______________________  Date: __________
       .replace(/{COUNTY}/g, caseData.county || '[COUNTY]')
       .replace(/{STATE}/g, caseData.state || '[STATE]')
       .replace(/{CASE_NUMBER}/g, caseData.case_number || '[CASE]')
-      .replace(/{FINDER_FEE_PERCENT}/g, feePercent.toString())
-      .replace(/{FINDER_FEE_AMOUNT}/g, '$' + feeAmount.toLocaleString())
-      .replace(/{SURPLUS_AMOUNT}/g, '$' + surplusAmount.toLocaleString())
-      .replace(/{HOMEOWNER_NET}/g, '$' + homeownerNet.toLocaleString())
+      .replace(/{FINDER_FEE_PERCENT}/g, (caseData.fee_percentage || 20).toString())
+      .replace(/{FINDER_FEE_AMOUNT}/g, feeAmount.toLocaleString())
+      .replace(/{SURPLUS_AMOUNT}/g, (caseData.surplus_amount || 0).toLocaleString())
       .replace(/{SALE_DATE}/g, caseData.sale_date ? new Date(caseData.sale_date).toLocaleDateString() : '[SALE_DATE]');
 
     // Generate PDF
@@ -166,13 +162,11 @@ TENNO RECOVERY: ______________________  Date: __________
       is_primary: true,
     });
 
-    // Update agreement status and calculate amounts (fee locks on signature, not generation)
+    // Lock fee after agreement is generated (agent must override before this if needed)
     await base44.entities.Case.update(case_id, {
       agreement_status: send_email ? 'sent' : 'not_sent',
       agreement_sent_at: send_email ? new Date().toISOString() : null,
-      fee_amount: feeAmount,
-      homeowner_net: homeownerNet,
-      fee_locked: false, // Will lock when homeowner signs
+      fee_locked: false, // Will lock when signed
     });
 
     // Send email if requested
@@ -205,13 +199,9 @@ TENNO RECOVERY`
     await base44.entities.ActivityLog.create({
       case_id,
       action: send_email ? 'agreement_sent' : 'agreement_generated',
-      description: `Agreement generated with ${feePercent}% fee (locks on signature)`,
+      description: `Agreement generated with ${caseData.fee_percentage}% fee`,
       performed_by: user.email,
-      metadata: { 
-        fee_percent: feePercent,
-        fee_amount: feeAmount,
-        homeowner_net: homeownerNet
-      }
+      metadata: { fee_percentage: caseData.fee_percentage }
     });
 
     return Response.json({

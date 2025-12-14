@@ -22,8 +22,6 @@ import { useStandardToast } from "@/components/shared/useStandardToast";
 
 export default function FeeEditor({ caseData }) {
   const [selectedFee, setSelectedFee] = useState(caseData.fee_percent || 20);
-  const [isCustom, setIsCustom] = useState(false);
-  const [customFee, setCustomFee] = useState(caseData.fee_percent || 20);
   const queryClient = useQueryClient();
   const toast = useStandardToast();
 
@@ -97,49 +95,18 @@ export default function FeeEditor({ caseData }) {
         {!isLocked && (
           <>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Override Fee Percentage (10-30%)</label>
-              {!isCustom ? (
-                <Select value={selectedFee.toString()} onValueChange={(val) => {
-                  if (val === "custom") {
-                    setIsCustom(true);
-                  } else {
-                    setSelectedFee(parseInt(val));
-                  }
-                }}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="10">10% - Premium/High Value</SelectItem>
-                    <SelectItem value="15">15% - Simple Case</SelectItem>
-                    <SelectItem value="20">20% - Standard</SelectItem>
-                    <SelectItem value="25">25% - Complex</SelectItem>
-                    <SelectItem value="30">30% - High Complexity</SelectItem>
-                    <SelectItem value="custom">Custom %...</SelectItem>
-                  </SelectContent>
-                </Select>
-              ) : (
-                <div className="flex gap-2">
-                  <input
-                    type="number"
-                    min="10"
-                    max="30"
-                    step="1"
-                    value={customFee}
-                    onChange={(e) => {
-                      const val = parseInt(e.target.value);
-                      if (val >= 10 && val <= 30) {
-                        setCustomFee(val);
-                        setSelectedFee(val);
-                      }
-                    }}
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                  />
-                  <Button variant="outline" onClick={() => setIsCustom(false)}>
-                    Presets
-                  </Button>
-                </div>
-              )}
+              <label className="text-sm font-medium">Override Fee Percentage</label>
+              <Select value={selectedFee.toString()} onValueChange={(val) => setSelectedFee(parseInt(val))}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="15">15% - Simple/High Value</SelectItem>
+                  <SelectItem value="20">20% - Standard</SelectItem>
+                  <SelectItem value="25">25% - Complex</SelectItem>
+                  <SelectItem value="30">30% - High Complexity</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="flex gap-2">
