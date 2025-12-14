@@ -37,8 +37,14 @@ export default function AgreementPanel({ caseId, caseData }) {
   const [selectedTemplateId, setSelectedTemplateId] = useState("");
   const [showPreview, setShowPreview] = useState(false);
   const [generatedAgreement, setGeneratedAgreement] = useState(null);
+  const [localFee, setLocalFee] = useState(caseData?.fee_percent || 20);
+  const updateTimeoutRef = React.useRef(null);
 
   const queryClient = useQueryClient();
+
+  React.useEffect(() => {
+    setLocalFee(caseData?.fee_percent || 20);
+  }, [caseData?.fee_percent]);
 
   const { data: templates = [] } = useQuery({
     queryKey: ["agreementTemplates"],
@@ -212,13 +218,21 @@ export default function AgreementPanel({ caseId, caseData }) {
                   min="10"
                   max="30"
                   step="1"
-                  value={caseData.fee_percent || 20}
-                  onChange={async (e) => {
+                  value={localFee}
+                  onChange={(e) => {
                     const newFee = parseInt(e.target.value);
+                    setLocalFee(newFee);
+                    
+                    if (updateTimeoutRef.current) {
+                      clearTimeout(updateTimeoutRef.current);
+                    }
+                    
                     if (newFee >= 10 && newFee <= 30) {
-                      await base44.entities.Case.update(caseId, { fee_percent: newFee });
-                      queryClient.invalidateQueries({ queryKey: ["case", caseId] });
-                      toast.success(`Fee updated to ${newFee}%`);
+                      updateTimeoutRef.current = setTimeout(async () => {
+                        await base44.entities.Case.update(caseId, { fee_percent: newFee });
+                        queryClient.invalidateQueries({ queryKey: ["case", caseId] });
+                        toast.success(`Fee updated to ${newFee}%`);
+                      }, 1000);
                     }
                   }}
                   disabled={caseData.fee_locked || caseData.agreement_status === "signed"}
@@ -237,7 +251,7 @@ export default function AgreementPanel({ caseId, caseData }) {
               <span className="font-bold text-emerald-600">
                 $
                 {(
-                  ((caseData.surplus_amount || 0) * (caseData.fee_percent || 20)) /
+                  ((caseData.surplus_amount || 0) * localFee) /
                   100
                 ).toLocaleString()}
               </span>
