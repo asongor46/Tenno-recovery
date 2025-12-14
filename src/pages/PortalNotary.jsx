@@ -90,24 +90,25 @@ export default function PortalNotary() {
       {/* Header */}
       <header className="bg-white border-b">
         <div className="max-w-3xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-xl flex items-center justify-center">
-                <span className="text-white font-bold text-lg">T</span>
-              </div>
-              <span className="font-semibold text-xl text-slate-900">TENNO RECOVERY</span>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div className="flex justify-center w-full sm:w-auto">
+              <img 
+                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6935380f41db07237f45b1db/11ed7b05d_Screenshot_20251213_181447_Chrome.jpg" 
+                alt="TENNO RECOVERY" 
+                className="h-10 w-auto"
+              />
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center">
-                <CheckCircle className="w-4 h-4 text-white" />
+              <div className="w-6 h-6 sm:w-8 sm:h-8 bg-emerald-500 rounded-full flex items-center justify-center">
+                <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
               </div>
-              <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center">
-                <CheckCircle className="w-4 h-4 text-white" />
+              <div className="w-6 h-6 sm:w-8 sm:h-8 bg-emerald-500 rounded-full flex items-center justify-center">
+                <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
               </div>
-              <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center">
-                <span className="text-emerald-700 font-semibold text-sm">3</span>
+              <div className="w-6 h-6 sm:w-8 sm:h-8 bg-emerald-100 rounded-full flex items-center justify-center">
+                <span className="text-emerald-700 font-semibold text-xs sm:text-sm">3</span>
               </div>
-              <span className="text-sm text-slate-500">Step 3 of 3</span>
+              <span className="text-xs sm:text-sm text-slate-500 hidden sm:inline">Step 3 of 3</span>
             </div>
           </div>
         </div>
@@ -204,15 +205,15 @@ export default function PortalNotary() {
                     </div>
                   </div>
 
-                  <div className="flex justify-end mt-6">
+                  <div className="flex justify-center sm:justify-end mt-6">
                     <Button
                       size="lg"
                       disabled={!notaryPhotoPreview || isSubmitting}
                       onClick={handleSubmitNotary}
-                      className="bg-emerald-600 hover:bg-emerald-700 px-8"
+                      className="bg-emerald-600 hover:bg-emerald-700 px-6 sm:px-8 w-full sm:w-auto"
                     >
                       {isSubmitting ? "Uploading..." : "Submit Notarized Page"}
-                      <ArrowRight className="w-5 h-5 ml-2" />
+                      <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />
                     </Button>
                   </div>
                 </CardContent>

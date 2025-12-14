@@ -130,20 +130,20 @@ export default function PortalIDUpload() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Header */}
       <div className="bg-white border-b">
-        <div className="max-w-3xl mx-auto px-6 py-4">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-4">
           <Link to={createPageUrl(`PortalDashboard?token=${token}`)}>
             <Button variant="ghost" size="sm" className="mb-2">
               <ArrowLeft className="w-4 h-4 mr-2" /> Back to Dashboard
             </Button>
           </Link>
-          <h1 className="text-2xl font-bold text-slate-900">Upload Your ID</h1>
-          <p className="text-slate-500 mt-1">
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Upload Your ID</h1>
+          <p className="text-sm sm:text-base text-slate-500 mt-1">
             We need clear photos of the front and back of your government-issued ID
           </p>
         </div>
       </div>
 
-      <div className="max-w-3xl mx-auto p-6 space-y-6">
+      <div className="max-w-3xl mx-auto p-4 sm:p-6 space-y-6">
         {/* Instructions */}
         <Card className="border-blue-200 bg-blue-50/30">
           <CardContent className="pt-6">

@@ -136,21 +136,21 @@ export default function PortalDashboard() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Header */}
       <div className="bg-white border-b">
-        <div className="max-w-4xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div>
-              <h1 className="text-2xl font-bold text-slate-900">Your Surplus Recovery</h1>
-              <p className="text-slate-500 mt-1">{caseData.county}, {caseData.state}</p>
+              <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Your Surplus Recovery</h1>
+              <p className="text-sm sm:text-base text-slate-500 mt-1">{caseData.county}, {caseData.state}</p>
             </div>
-            <div className="text-right">
-              <p className="text-sm text-slate-500">Case #</p>
-              <p className="font-mono font-semibold">{caseData.case_number}</p>
+            <div className="text-left sm:text-right">
+              <p className="text-xs sm:text-sm text-slate-500">Case #</p>
+              <p className="font-mono text-sm sm:text-base font-semibold break-all">{caseData.case_number}</p>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto p-6 space-y-6">
+      <div className="max-w-4xl mx-auto p-4 sm:p-6 space-y-6">
         {/* Case Closed Notice */}
         {isClosed && (
           <motion.div
@@ -193,20 +193,20 @@ export default function PortalDashboard() {
             <CardContent>
               <div className="space-y-4">
                 <div>
-                  <div className="flex justify-between text-sm mb-2">
+                  <div className="flex justify-between text-xs sm:text-sm mb-2">
                     <span className="text-slate-600">Overall Completion</span>
                     <span className="font-semibold">{progress}%</span>
                   </div>
-                  <Progress value={progress} className="h-3" />
+                  <Progress value={progress} className="h-2 sm:h-3" />
                 </div>
-                <div className="grid grid-cols-2 gap-4 pt-2">
-                  <div className="text-center p-3 bg-emerald-50 rounded-lg">
-                    <p className="text-2xl font-bold text-emerald-600">{workflowData?.completed || 0}</p>
-                    <p className="text-sm text-slate-600">Completed</p>
+                <div className="grid grid-cols-2 gap-3 sm:gap-4 pt-2">
+                  <div className="text-center p-2 sm:p-3 bg-emerald-50 rounded-lg">
+                    <p className="text-xl sm:text-2xl font-bold text-emerald-600">{workflowData?.completed || 0}</p>
+                    <p className="text-xs sm:text-sm text-slate-600">Completed</p>
                   </div>
-                  <div className="text-center p-3 bg-amber-50 rounded-lg">
-                    <p className="text-2xl font-bold text-amber-600">{workflowData?.total - (workflowData?.completed || 0)}</p>
-                    <p className="text-sm text-slate-600">Remaining</p>
+                  <div className="text-center p-2 sm:p-3 bg-amber-50 rounded-lg">
+                    <p className="text-xl sm:text-2xl font-bold text-amber-600">{workflowData?.total - (workflowData?.completed || 0)}</p>
+                    <p className="text-xs sm:text-sm text-slate-600">Remaining</p>
                   </div>
                 </div>
               </div>
@@ -220,29 +220,29 @@ export default function PortalDashboard() {
             <CardTitle>Case Summary</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-slate-500">Property Address</p>
-                <p className="font-semibold">{caseData.property_address || "—"}</p>
+                <p className="text-xs sm:text-sm text-slate-500">Property Address</p>
+                <p className="text-sm sm:text-base font-semibold break-words">{caseData.property_address || "—"}</p>
               </div>
               <div>
-                <p className="text-sm text-slate-500">Surplus Amount</p>
-                <p className="text-2xl font-bold text-emerald-600">
+                <p className="text-xs sm:text-sm text-slate-500">Surplus Amount</p>
+                <p className="text-xl sm:text-2xl font-bold text-emerald-600">
                   ${caseData.surplus_amount?.toLocaleString() || "0"}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-slate-500">Your Email</p>
-                <p className="font-semibold flex items-center gap-2">
-                  <Mail className="w-4 h-4" />
-                  {caseData.owner_email || "Not provided"}
+                <p className="text-xs sm:text-sm text-slate-500">Your Email</p>
+                <p className="text-sm font-semibold flex items-center gap-2 break-all">
+                  <Mail className="w-4 h-4 flex-shrink-0" />
+                  <span className="break-all">{caseData.owner_email || "Not provided"}</span>
                 </p>
               </div>
               <div>
-                <p className="text-sm text-slate-500">Contact</p>
-                <p className="font-semibold flex items-center gap-2">
-                  <Mail className="w-4 h-4" />
-                  tennoassetrecovery@gmail.com
+                <p className="text-xs sm:text-sm text-slate-500">Contact</p>
+                <p className="text-sm font-semibold flex items-center gap-2 break-all">
+                  <Mail className="w-4 h-4 flex-shrink-0" />
+                  <span className="break-all">tennoassetrecovery@gmail.com</span>
                 </p>
               </div>
             </div>
@@ -283,11 +283,11 @@ export default function PortalDashboard() {
                 transition={{ delay: index * 0.05 }}
               >
                 <Card className={`${isActive ? "border-2 border-emerald-500 shadow-lg" : ""}`}>
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4 flex-1">
+                  <CardContent className="p-3 sm:p-4">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+                      <div className="flex items-center gap-3 sm:gap-4 flex-1 w-full">
                         <div
-                          className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                          className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center flex-shrink-0 ${
                             isCompleted
                               ? "bg-emerald-500"
                               : isBlocked
@@ -298,35 +298,35 @@ export default function PortalDashboard() {
                           }`}
                         >
                           {isCompleted ? (
-                            <CheckCircle2 className="w-6 h-6 text-white" />
+                            <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                           ) : isBlocked ? (
-                            <AlertCircle className="w-6 h-6 text-white" />
+                            <AlertCircle className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                           ) : (
-                            <StepIcon className={`w-6 h-6 ${isActive ? "text-white" : "text-slate-400"}`} />
+                            <StepIcon className={`w-5 h-5 sm:w-6 sm:h-6 ${isActive ? "text-white" : "text-slate-400"}`} />
                           )}
                         </div>
-                        <div className="flex-1">
-                          <p className={`font-semibold ${isActive ? "text-slate-900" : "text-slate-600"}`}>
+                        <div className="flex-1 min-w-0">
+                          <p className={`text-sm sm:text-base font-semibold ${isActive ? "text-slate-900" : "text-slate-600"}`}>
                             {stepLabels[step.step_key]}
                           </p>
                           {isBlocked && step.blocking_reason && (
-                            <p className="text-sm text-red-600 mt-1">{step.blocking_reason}</p>
+                            <p className="text-xs sm:text-sm text-red-600 mt-1 break-words">{step.blocking_reason}</p>
                           )}
                           {isCompleted && step.completed_at && (
-                            <p className="text-sm text-slate-500 mt-1">
+                            <p className="text-xs sm:text-sm text-slate-500 mt-1">
                               Completed {new Date(step.completed_at).toLocaleDateString()}
                             </p>
                           )}
                           {isActive && (
-                            <Badge className="mt-1 bg-blue-100 text-blue-700 border-0">
+                            <Badge className="mt-1 bg-blue-100 text-blue-700 border-0 text-xs">
                               Current Step
                             </Badge>
                           )}
                         </div>
                       </div>
                       {isActive && !isCompleted && !isBlocked && !isClosed && (
-                        <Link to={createPageUrl(getStepPageUrl(step.step_key, token))}>
-                          <Button className="bg-emerald-600 hover:bg-emerald-700">
+                        <Link to={createPageUrl(getStepPageUrl(step.step_key, token))} className="w-full sm:w-auto">
+                          <Button className="bg-emerald-600 hover:bg-emerald-700 w-full sm:w-auto text-sm">
                             Continue <ChevronRight className="w-4 h-4 ml-1" />
                           </Button>
                         </Link>

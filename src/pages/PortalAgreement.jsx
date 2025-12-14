@@ -137,18 +137,19 @@ export default function PortalAgreement() {
       {/* Header */}
       <header className="bg-white border-b">
         <div className="max-w-3xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-xl flex items-center justify-center">
-                <span className="text-white font-bold text-lg">T</span>
-              </div>
-              <span className="font-semibold text-xl text-slate-900">TENNO RECOVERY</span>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div className="flex justify-center w-full sm:w-auto">
+              <img 
+                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6935380f41db07237f45b1db/11ed7b05d_Screenshot_20251213_181447_Chrome.jpg" 
+                alt="TENNO RECOVERY" 
+                className="h-10 w-auto"
+              />
             </div>
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center">
                 <span className="text-emerald-700 font-semibold text-sm">1</span>
               </div>
-              <span className="text-sm text-slate-500">Step 1 of 3</span>
+              <span className="text-xs sm:text-sm text-slate-500">Step 1 of 3</span>
             </div>
           </div>
         </div>
@@ -172,23 +173,23 @@ export default function PortalAgreement() {
           {/* Fee Display */}
           <Card className="mb-6 bg-gradient-to-br from-emerald-50 to-emerald-100 border-emerald-200">
             <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-emerald-700">Finder Fee</p>
-                  <p className="text-3xl font-bold text-emerald-900">
-                    {caseData?.fee_percentage || 20}%
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="text-center sm:text-left">
+                  <p className="text-xs sm:text-sm text-emerald-700">Finder Fee</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-emerald-900">
+                    {caseData?.fee_percent || 20}%
                   </p>
                 </div>
-                <div className="text-right">
-                  <p className="text-sm text-emerald-700">Your Fee Amount</p>
-                  <p className="text-2xl font-bold text-emerald-900">
-                    ${(((caseData?.surplus_amount || 0) * (caseData?.fee_percentage || 20)) / 100).toLocaleString()}
+                <div className="text-center">
+                  <p className="text-xs sm:text-sm text-emerald-700">Our Fee Amount</p>
+                  <p className="text-xl sm:text-2xl font-bold text-emerald-900 break-words">
+                    ${(((caseData?.surplus_amount || 0) * (caseData?.fee_percent || 20)) / 100).toLocaleString()}
                   </p>
                 </div>
-                <div className="text-right">
-                  <p className="text-sm text-emerald-700">You Receive</p>
-                  <p className="text-2xl font-bold text-emerald-900">
-                    ${((caseData?.surplus_amount || 0) - ((caseData?.surplus_amount || 0) * (caseData?.fee_percentage || 20)) / 100).toLocaleString()}
+                <div className="text-center sm:text-right">
+                  <p className="text-xs sm:text-sm text-emerald-700">You Receive</p>
+                  <p className="text-xl sm:text-2xl font-bold text-emerald-900 break-words">
+                    ${((caseData?.surplus_amount || 0) - ((caseData?.surplus_amount || 0) * (caseData?.fee_percent || 20)) / 100).toLocaleString()}
                   </p>
                 </div>
               </div>
@@ -310,10 +311,10 @@ export default function PortalAgreement() {
                     placeholder="Type your full legal name"
                     value={typedSignature}
                     onChange={(e) => setTypedSignature(e.target.value)}
-                    className="text-2xl font-serif h-16"
+                    className="text-xl sm:text-2xl font-serif h-14 sm:h-16"
                   />
                   {typedSignature && (
-                    <p className="mt-4 text-3xl font-serif text-slate-800 italic">
+                    <p className="mt-4 text-2xl sm:text-3xl font-serif text-slate-800 italic break-words">
                       {typedSignature}
                     </p>
                   )}
@@ -324,11 +325,32 @@ export default function PortalAgreement() {
                     ref={canvasRef}
                     width={500}
                     height={150}
-                    className="border rounded-lg bg-white cursor-crosshair w-full"
+                    className="border rounded-lg bg-white cursor-crosshair w-full touch-none"
                     onMouseDown={startDrawing}
                     onMouseMove={draw}
                     onMouseUp={stopDrawing}
                     onMouseLeave={stopDrawing}
+                    onTouchStart={(e) => {
+                      e.preventDefault();
+                      const touch = e.touches[0];
+                      const rect = e.target.getBoundingClientRect();
+                      const canvas = canvasRef.current;
+                      const ctx = canvas.getContext("2d");
+                      ctx.beginPath();
+                      ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+                      setIsDrawing(true);
+                    }}
+                    onTouchMove={(e) => {
+                      e.preventDefault();
+                      if (!isDrawing) return;
+                      const touch = e.touches[0];
+                      const rect = e.target.getBoundingClientRect();
+                      const canvas = canvasRef.current;
+                      const ctx = canvas.getContext("2d");
+                      ctx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top);
+                      ctx.stroke();
+                    }}
+                    onTouchEnd={() => setIsDrawing(false)}
                   />
                   <Button variant="ghost" size="sm" className="mt-2" onClick={clearCanvas}>
                     Clear
@@ -339,15 +361,15 @@ export default function PortalAgreement() {
           </Card>
 
           {/* Submit */}
-          <div className="flex justify-end">
+          <div className="flex justify-center sm:justify-end">
             <Button
               size="lg"
               disabled={!hasRead || (signatureType === "type" && !typedSignature.trim()) || isSubmitting}
               onClick={handleSubmit}
-              className="bg-emerald-600 hover:bg-emerald-700 px-8"
+              className="bg-emerald-600 hover:bg-emerald-700 px-6 sm:px-8 w-full sm:w-auto"
             >
               {isSubmitting ? "Signing..." : "Sign Agreement"}
-              <ArrowRight className="w-5 h-5 ml-2" />
+              <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />
             </Button>
           </div>
         </motion.div>
