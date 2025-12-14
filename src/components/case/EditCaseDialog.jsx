@@ -22,40 +22,83 @@ import {
 import { useStandardToast } from "@/components/shared/useStandardToast";
 
 export default function EditCaseDialog({ caseData, open, onClose }) {
-  const [formData, setFormData] = useState({
-    owner_name: caseData.owner_name || "",
-    owner_email: caseData.owner_email || "",
-    owner_phone: caseData.owner_phone || "",
-    owner_address: caseData.owner_address || "",
-    property_address: caseData.property_address || "",
-    parcel_number: caseData.parcel_number || "",
-    surplus_amount: caseData.surplus_amount || "",
-    sale_date: caseData.sale_date || "",
-    sale_amount: caseData.sale_amount || "",
-    judgment_amount: caseData.judgment_amount || "",
-    case_complexity: caseData.case_complexity || "medium",
-    internal_notes: caseData.internal_notes || "",
+  const [formData, setFormData] = React.useState({
+    owner_name: caseData?.owner_name || "",
+    owner_email: caseData?.owner_email || "",
+    owner_phone: caseData?.owner_phone || "",
+    owner_address: caseData?.owner_address || "",
+    property_address: caseData?.property_address || "",
+    parcel_number: caseData?.parcel_number || "",
+    surplus_amount: caseData?.surplus_amount || "",
+    sale_date: caseData?.sale_date || "",
+    sale_amount: caseData?.sale_amount || "",
+    judgment_amount: caseData?.judgment_amount || "",
+    case_complexity: caseData?.case_complexity || "medium",
+    internal_notes: caseData?.internal_notes || "",
   });
 
   const queryClient = useQueryClient();
   const toast = useStandardToast();
 
+  // Reset form when caseData changes
+  React.useEffect(() => {
+    if (caseData && open) {
+      setFormData({
+        owner_name: caseData.owner_name || "",
+        owner_email: caseData.owner_email || "",
+        owner_phone: caseData.owner_phone || "",
+        owner_address: caseData.owner_address || "",
+        property_address: caseData.property_address || "",
+        parcel_number: caseData.parcel_number || "",
+        surplus_amount: caseData.surplus_amount || "",
+        sale_date: caseData.sale_date || "",
+        sale_amount: caseData.sale_amount || "",
+        judgment_amount: caseData.judgment_amount || "",
+        case_complexity: caseData.case_complexity || "medium",
+        internal_notes: caseData.internal_notes || "",
+      });
+    }
+  }, [caseData, open]);
+
   const updateMutation = useMutation({
-    mutationFn: (data) => base44.entities.Case.update(caseData.id, data),
+    mutationFn: async (data) => {
+      await base44.entities.Case.update(caseData.id, data);
+      return data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["case", caseData.id] });
+      queryClient.invalidateQueries({ queryKey: ["cases"] });
       toast.success("Case updated successfully");
       onClose();
     },
-    onError: () => toast.error("Failed to update case"),
+    onError: (error) => {
+      console.error("Update error:", error);
+      toast.error("Failed to update case: " + (error.message || "Unknown error"));
+    },
   });
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const cleanData = { ...formData };
-    if (cleanData.surplus_amount) cleanData.surplus_amount = parseFloat(cleanData.surplus_amount);
-    if (cleanData.sale_amount) cleanData.sale_amount = parseFloat(cleanData.sale_amount);
-    if (cleanData.judgment_amount) cleanData.judgment_amount = parseFloat(cleanData.judgment_amount);
+    
+    // Convert numeric fields
+    if (cleanData.surplus_amount !== "" && cleanData.surplus_amount !== null) {
+      cleanData.surplus_amount = parseFloat(cleanData.surplus_amount);
+    }
+    if (cleanData.sale_amount !== "" && cleanData.sale_amount !== null) {
+      cleanData.sale_amount = parseFloat(cleanData.sale_amount);
+    }
+    if (cleanData.judgment_amount !== "" && cleanData.judgment_amount !== null) {
+      cleanData.judgment_amount = parseFloat(cleanData.judgment_amount);
+    }
+    
+    // Remove empty strings to avoid overwriting with blanks
+    Object.keys(cleanData).forEach(key => {
+      if (cleanData[key] === "") {
+        delete cleanData[key];
+      }
+    });
+    
     updateMutation.mutate(cleanData);
   };
 
