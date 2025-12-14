@@ -54,6 +54,7 @@ import DocumentGeneratorPanel from "@/components/case/DocumentGeneratorPanel";
 import PDFViewerDialog from "@/components/pdf/PDFViewerDialog";
 import CaseTimeline from "@/components/case/CaseTimeline";
 import OutreachPanel from "@/components/case/OutreachPanel";
+import EditCaseDialog from "@/components/case/EditCaseDialog";
 import FilingWorkflowPanel from "@/components/case/FilingWorkflowPanel";
 import OrderTreasurerPanel from "@/components/case/OrderTreasurerPanel";
 import AgreementPanel from "@/components/case/AgreementPanel";
@@ -81,6 +82,7 @@ export default function CaseDetail() {
   const [notes, setNotes] = useState("");
   const [viewingPdf, setViewingPdf] = useState(null);
   const [showPdfViewer, setShowPdfViewer] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -298,7 +300,7 @@ export default function CaseDetail() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem>Edit Case</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setShowEditDialog(true)}>Edit Case</DropdownMenuItem>
               <DropdownMenuItem>Regenerate Packet</DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="text-red-600">Archive Case</DropdownMenuItem>
@@ -865,6 +867,15 @@ export default function CaseDetail() {
         pdfUrl={viewingPdf?.url}
         title={viewingPdf?.title || "Document Viewer"}
       />
+
+      {/* Edit Case Dialog */}
+      {caseData && (
+        <EditCaseDialog
+          caseData={caseData}
+          open={showEditDialog}
+          onClose={() => setShowEditDialog(false)}
+        />
+      )}
       </div>
       );
       }
