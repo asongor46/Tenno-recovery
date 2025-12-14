@@ -117,9 +117,9 @@ function generatePitch(caseData, countyInfo) {
 
 However, ${claimDeadline}, and the process requires specific paperwork, notarization, and filing with ${caseData.county} County.
 
-That's where we come in. We handle all the paperwork, filing, and follow-up at no upfront cost. We only get paid if you get paid - our fee is ${caseData.fee_percentage || 20}% of the recovered funds.
+That's where we come in. We handle all the paperwork, filing, and follow-up at no upfront cost. We only get paid if you get paid - our fee is ${caseData.fee_percent || 20}% of the recovered funds.
 
-So if we recover the full $${caseData.surplus_amount?.toLocaleString() || '[SURPLUS]'}, you would receive $${((caseData.surplus_amount || 0) * (1 - (caseData.fee_percentage || 20) / 100)).toLocaleString()} and our fee would be $${((caseData.surplus_amount || 0) * ((caseData.fee_percentage || 20) / 100)).toLocaleString()}.
+So if we recover the full $${caseData.surplus_amount?.toLocaleString() || '[SURPLUS]'}, you would receive $${((caseData.surplus_amount || 0) * (1 - (caseData.fee_percent || 20) / 100)).toLocaleString()} and our fee would be $${((caseData.surplus_amount || 0) * ((caseData.fee_percent || 20) / 100)).toLocaleString()}.
 
 Would you like us to handle this for you?`;
 }
@@ -131,8 +131,8 @@ function generateObjectionResponses(caseData, countyInfo) {
       response: `I completely understand your concern. This is 100% legitimate. You can verify the sale yourself by contacting ${caseData.county} County Clerk's office and asking about case number ${caseData.case_number || '[CASE #]'}. The surplus funds are being held by the county right now, and you have a legal right to claim them.`
     },
     {
-      objection: "Why do you get 20%?",
-      response: `Great question. ${caseData.fee_percentage || 20}% is our fee for handling all the legal paperwork, notarization, filing, and follow-up. The alternative is doing it yourself - which requires knowing the exact forms, deadlines, and procedures for ${caseData.county} County. Many people miss the deadline or file incorrectly and lose their claim entirely. We guarantee the work is done right, and you only pay if you actually receive the money.`
+      objection: "Why do you get ${caseData.fee_percent || 20}%?",
+      response: `Great question. ${caseData.fee_percent || 20}% is our fee for handling all the legal paperwork, notarization, filing, and follow-up. The alternative is doing it yourself - which requires knowing the exact forms, deadlines, and procedures for ${caseData.county} County. Many people miss the deadline or file incorrectly and lose their claim entirely. We guarantee the work is done right, and you only pay if you actually receive the money.`
     },
     {
       objection: "Can I do this myself?",

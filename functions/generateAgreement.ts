@@ -104,7 +104,7 @@ TENNO RECOVERY: ______________________  Date: __________
     }
 
     // Calculate fee amount
-    const feeAmount = (caseData.surplus_amount || 0) * ((caseData.fee_percentage || 20) / 100);
+    const feeAmount = (caseData.surplus_amount || 0) * ((caseData.fee_percent || 20) / 100);
 
     // Fill merge fields
     const filledAgreement = agreementTemplate
@@ -115,7 +115,7 @@ TENNO RECOVERY: ______________________  Date: __________
       .replace(/{COUNTY}/g, caseData.county || '[COUNTY]')
       .replace(/{STATE}/g, caseData.state || '[STATE]')
       .replace(/{CASE_NUMBER}/g, caseData.case_number || '[CASE]')
-      .replace(/{FINDER_FEE_PERCENT}/g, (caseData.fee_percentage || 20).toString())
+      .replace(/{FINDER_FEE_PERCENT}/g, (caseData.fee_percent || 20).toString())
       .replace(/{FINDER_FEE_AMOUNT}/g, feeAmount.toLocaleString())
       .replace(/{SURPLUS_AMOUNT}/g, (caseData.surplus_amount || 0).toLocaleString())
       .replace(/{SALE_DATE}/g, caseData.sale_date ? new Date(caseData.sale_date).toLocaleDateString() : '[SALE_DATE]');
@@ -162,11 +162,10 @@ TENNO RECOVERY: ______________________  Date: __________
       is_primary: true,
     });
 
-    // Lock fee after agreement is generated (agent must override before this if needed)
+    // Update agreement status (fee locks when homeowner signs)
     await base44.entities.Case.update(case_id, {
       agreement_status: send_email ? 'sent' : 'not_sent',
       agreement_sent_at: send_email ? new Date().toISOString() : null,
-      fee_locked: false, // Will lock when signed
     });
 
     // Send email if requested
@@ -199,9 +198,9 @@ TENNO RECOVERY`
     await base44.entities.ActivityLog.create({
       case_id,
       action: send_email ? 'agreement_sent' : 'agreement_generated',
-      description: `Agreement generated with ${caseData.fee_percentage}% fee`,
+      description: `Agreement generated with ${caseData.fee_percent}% fee`,
       performed_by: user.email,
-      metadata: { fee_percentage: caseData.fee_percentage }
+      metadata: { fee_percent: caseData.fee_percent }
     });
 
     return Response.json({
