@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
 
 export default function AgreementPanel({ caseId, caseData }) {
   const [showGenerateDialog, setShowGenerateDialog] = useState(false);
@@ -201,18 +202,43 @@ export default function AgreementPanel({ caseId, caseData }) {
             </div>
           )}
 
-          {/* Fee Display */}
-          <div className="pt-4 border-t">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-slate-600">Finder Fee:</span>
-              <span className="font-semibold">{caseData.fee_percentage || 20}%</span>
+          {/* Fee Editor */}
+          <div className="pt-4 border-t space-y-3">
+            <div>
+              <Label className="text-sm text-slate-600">Finder Fee Percentage</Label>
+              <div className="flex items-center gap-3 mt-2">
+                <Select
+                  value={(caseData.fee_percent || 20).toString()}
+                  onValueChange={async (value) => {
+                    const newFee = parseInt(value);
+                    await base44.entities.Case.update(caseId, { fee_percent: newFee });
+                    queryClient.invalidateQueries({ queryKey: ["case", caseId] });
+                    toast.success(`Fee updated to ${newFee}%`);
+                  }}
+                  disabled={caseData.fee_locked || caseData.agreement_status === "signed"}
+                >
+                  <SelectTrigger className="w-32">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="10">10%</SelectItem>
+                    <SelectItem value="15">15%</SelectItem>
+                    <SelectItem value="20">20%</SelectItem>
+                    <SelectItem value="25">25%</SelectItem>
+                    <SelectItem value="30">30%</SelectItem>
+                  </SelectContent>
+                </Select>
+                <span className="text-sm text-slate-500">
+                  {caseData.fee_locked || caseData.agreement_status === "signed" ? "🔒 Locked" : ""}
+                </span>
+              </div>
             </div>
-            <div className="flex items-center justify-between mt-1">
+            <div className="flex items-center justify-between p-3 bg-emerald-50 rounded-lg">
               <span className="text-sm text-slate-600">Fee Amount:</span>
               <span className="font-bold text-emerald-600">
                 $
                 {(
-                  ((caseData.surplus_amount || 0) * (caseData.fee_percentage || 20)) /
+                  ((caseData.surplus_amount || 0) * (caseData.fee_percent || 20)) /
                   100
                 ).toLocaleString()}
               </span>
@@ -293,7 +319,7 @@ export default function AgreementPanel({ caseId, caseData }) {
               </pre>
               <div className="flex items-center justify-between p-3 bg-emerald-50 rounded-lg">
                 <span className="text-sm text-emerald-700">
-                  Fee: {caseData.fee_percentage}% = ${generatedAgreement.fee_amount?.toLocaleString()}
+                  Fee: {caseData.fee_percent}% = ${generatedAgreement.fee_amount?.toLocaleString()}
                 </span>
                 {generatedAgreement.pdf_url && (
                   <a href={generatedAgreement.pdf_url} target="_blank" rel="noopener noreferrer">
