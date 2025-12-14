@@ -205,32 +205,31 @@ export default function AgreementPanel({ caseId, caseData }) {
           {/* Fee Editor */}
           <div className="pt-4 border-t space-y-3">
             <div>
-              <Label className="text-sm text-slate-600">Finder Fee Percentage</Label>
+              <Label className="text-sm text-slate-600">Finder Fee Percentage (10-30%)</Label>
               <div className="flex items-center gap-3 mt-2">
-                <Select
-                  value={(caseData.fee_percent || 20).toString()}
-                  onValueChange={async (value) => {
-                    const newFee = parseInt(value);
-                    await base44.entities.Case.update(caseId, { fee_percent: newFee });
-                    queryClient.invalidateQueries({ queryKey: ["case", caseId] });
-                    toast.success(`Fee updated to ${newFee}%`);
+                <Input
+                  type="number"
+                  min="10"
+                  max="30"
+                  step="1"
+                  value={caseData.fee_percent || 20}
+                  onChange={async (e) => {
+                    const newFee = parseInt(e.target.value);
+                    if (newFee >= 10 && newFee <= 30) {
+                      await base44.entities.Case.update(caseId, { fee_percent: newFee });
+                      queryClient.invalidateQueries({ queryKey: ["case", caseId] });
+                      toast.success(`Fee updated to ${newFee}%`);
+                    }
                   }}
                   disabled={caseData.fee_locked || caseData.agreement_status === "signed"}
-                >
-                  <SelectTrigger className="w-32">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="10">10%</SelectItem>
-                    <SelectItem value="15">15%</SelectItem>
-                    <SelectItem value="20">20%</SelectItem>
-                    <SelectItem value="25">25%</SelectItem>
-                    <SelectItem value="30">30%</SelectItem>
-                  </SelectContent>
-                </Select>
-                <span className="text-sm text-slate-500">
-                  {caseData.fee_locked || caseData.agreement_status === "signed" ? "🔒 Locked" : ""}
-                </span>
+                  className="w-24"
+                />
+                <span className="font-semibold">%</span>
+                {(caseData.fee_locked || caseData.agreement_status === "signed") && (
+                  <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-300">
+                    🔒 Locked
+                  </Badge>
+                )}
               </div>
             </div>
             <div className="flex items-center justify-between p-3 bg-emerald-50 rounded-lg">
