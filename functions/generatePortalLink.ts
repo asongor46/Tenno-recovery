@@ -110,7 +110,6 @@ function generateUniqueToken() {
 async function sendPortalEmail(caseData, portalUrl, base44) {
   try {
     await base44.integrations.Core.SendEmail({
-      from_name: "TENNO Recovery",
       to: caseData.owner_email,
       subject: `Your Surplus Funds Claim - ${caseData.case_number}`,
       body: `Dear ${caseData.owner_name},
@@ -124,10 +123,10 @@ To claim these funds, please complete your secure online portal:
 ${portalUrl}
 
 This process will take approximately 10-15 minutes and includes:
-1. Reviewing and signing the service agreement
-2. Uploading your ID for verification
+1. Reviewing and signing the recovery agreement
+2. Uploading your ID
 3. Completing your information
-4. Notarizing required documents
+4. Notarizing your claim form
 
 If you have any questions, please reply to this email.
 
