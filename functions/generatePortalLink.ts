@@ -116,76 +116,43 @@ function generateUniqueToken() {
 
 async function sendPortalEmail(caseData, portalUrl, base44) {
   try {
-    const htmlBody = `
-      <p>Hello ${caseData.owner_name},</p>
+    const emailBody = `Hello ${caseData.owner_name},
 
-      <p>
-      We are reaching out regarding <strong>unclaimed surplus funds</strong> associated with a property connected to your name.
-      </p>
+We are reaching out regarding unclaimed surplus funds associated with a property connected to your name.
 
-      <p>
-      To keep everything secure and simple, we've created a private portal where you can:
-      </p>
+To keep everything secure and simple, we've created a private portal where you can:
 
-      <ul>
-        <li>Review your case details</li>
-        <li>Upload any required documents</li>
-        <li>Review and sign the service agreement</li>
-        <li>Track progress as we handle the filing process</li>
-      </ul>
+• Review your case details
+• Upload any required documents
+• Review and sign the service agreement
+• Track progress as we handle the filing process
 
-      <p>
-      👉 <strong>Access your secure case portal here:</strong><br />
-      <a href="${portalUrl}" target="_blank">${portalUrl}</a>
-      </p>
-
-      <p>
-      There is <strong>no upfront cost</strong> to you. Our fee is only collected if funds are successfully recovered.
-      </p>
-
-      <p>
-      If you have questions, simply reply to this email and it will reach us directly.
-      </p>
-
-      <p>
-      Best regards,<br />
-      <strong>TENNO Recovery</strong><br />
-      Surplus Funds Recovery Services<br />
-      📧 tennoassetrecovery@gmail.com
-      </p>
-
-      <hr />
-
-      <p style="font-size: 12px; color: #666;">
-      This message contains a secure access link intended only for the recipient.  
-      If you did not request this or believe it was sent in error, you may safely ignore it.
-      </p>
-    `;
-
-    const plainTextBody = `Hello ${caseData.owner_name},
-
-We are contacting you regarding unclaimed surplus funds connected to a property associated with your name.
-
-To keep things secure and straightforward, we've created a private portal where you can review your case, upload documents, and track progress.
-
-Access your secure case portal here:
+👉 Access your secure case portal here:
 ${portalUrl}
 
-There is no upfront cost. Our fee is only collected if funds are successfully recovered.
+There is no upfront cost to you. Our fee is only collected if funds are successfully recovered.
 
-If you have questions, reply directly to this email.
+If you have questions, simply reply to this email at tennoassetrecovery@gmail.com and it will reach us directly.
 
+Best regards,
 TENNO Recovery
-tennoassetrecovery@gmail.com`;
+Surplus Funds Recovery Services
+📧 tennoassetrecovery@gmail.com
 
+---
+This message contains a secure access link intended only for the recipient.
+If you did not request this or believe it was sent in error, you may safely ignore it.`;
+
+    console.log('Attempting to send email to:', caseData.owner_email);
+    
     const result = await base44.asServiceRole.integrations.Core.SendEmail({
       from_name: 'TENNO Recovery',
-      reply_to: 'tennoassetrecovery@gmail.com',
       to: caseData.owner_email,
       subject: 'TENNO Recovery – Secure Access to Your Surplus Funds Case',
-      body: htmlBody
+      body: emailBody
     });
 
+    console.log('Email send result:', result);
     return { status: 'sent', result };
   } catch (error) {
     console.error('Email send error:', error);
