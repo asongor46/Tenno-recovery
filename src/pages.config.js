@@ -1,14 +1,15 @@
-import Home from './pages/Home';
 import AgreementTemplates from './pages/AgreementTemplates';
 import AutomationLog from './pages/AutomationLog';
 import CaseDetail from './pages/CaseDetail';
 import Cases from './pages/Cases';
 import CleanupTools from './pages/CleanupTools';
+import Communications from './pages/Communications';
 import Counties from './pages/Counties';
 import CountyDetail from './pages/CountyDetail';
 import Dashboard from './pages/Dashboard';
 import FileManager from './pages/FileManager';
 import FormLibrary from './pages/FormLibrary';
+import Home from './pages/Home';
 import HotCases from './pages/HotCases';
 import HowTo from './pages/HowTo';
 import Invoices from './pages/Invoices';
@@ -22,30 +23,31 @@ import PortalDashboard from './pages/PortalDashboard';
 import PortalIDUpload from './pages/PortalIDUpload';
 import PortalInfo from './pages/PortalInfo';
 import PortalIntake from './pages/PortalIntake';
+import PortalLinkRecovery from './pages/PortalLinkRecovery';
+import PortalLostLink from './pages/PortalLostLink';
 import PortalNotary from './pages/PortalNotary';
 import PortalWelcome from './pages/PortalWelcome';
 import Profile from './pages/Profile';
+import Reminders from './pages/Reminders';
 import Settings from './pages/Settings';
 import Templates from './pages/Templates';
-import Communications from './pages/Communications';
-import Reminders from './pages/Reminders';
 import UserManagement from './pages/UserManagement';
-import PortalLinkRecovery from './pages/PortalLinkRecovery';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
-    "Home": Home,
     "AgreementTemplates": AgreementTemplates,
     "AutomationLog": AutomationLog,
     "CaseDetail": CaseDetail,
     "Cases": Cases,
     "CleanupTools": CleanupTools,
+    "Communications": Communications,
     "Counties": Counties,
     "CountyDetail": CountyDetail,
     "Dashboard": Dashboard,
     "FileManager": FileManager,
     "FormLibrary": FormLibrary,
+    "Home": Home,
     "HotCases": HotCases,
     "HowTo": HowTo,
     "Invoices": Invoices,
@@ -59,15 +61,15 @@ export const PAGES = {
     "PortalIDUpload": PortalIDUpload,
     "PortalInfo": PortalInfo,
     "PortalIntake": PortalIntake,
+    "PortalLinkRecovery": PortalLinkRecovery,
+    "PortalLostLink": PortalLostLink,
     "PortalNotary": PortalNotary,
     "PortalWelcome": PortalWelcome,
     "Profile": Profile,
+    "Reminders": Reminders,
     "Settings": Settings,
     "Templates": Templates,
-    "Communications": Communications,
-    "Reminders": Reminders,
     "UserManagement": UserManagement,
-    "PortalLinkRecovery": PortalLinkRecovery,
 }
 
 export const pagesConfig = {

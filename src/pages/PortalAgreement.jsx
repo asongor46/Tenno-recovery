@@ -171,32 +171,6 @@ export default function PortalAgreement() {
           <h1 className="text-2xl font-bold text-slate-900 mb-2">Service Agreement</h1>
           <p className="text-slate-500 mb-6">Please review and sign the agreement below</p>
 
-          {/* Fee Display */}
-          <Card className="mb-6 bg-gradient-to-br from-emerald-50 to-emerald-100 border-emerald-200">
-            <CardContent className="pt-6">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="text-center sm:text-left">
-                  <p className="text-xs sm:text-sm text-emerald-700">Finder Fee</p>
-                  <p className="text-2xl sm:text-3xl font-bold text-emerald-900">
-                    {caseData?.fee_percent || 20}%
-                  </p>
-                </div>
-                <div className="text-center">
-                  <p className="text-xs sm:text-sm text-emerald-700">Our Fee Amount</p>
-                  <p className="text-xl sm:text-2xl font-bold text-emerald-900 break-words">
-                    ${(((caseData?.surplus_amount || 0) * ((caseData?.fee_percent || 20) / 100))).toLocaleString()}
-                  </p>
-                </div>
-                <div className="text-center sm:text-right">
-                  <p className="text-xs sm:text-sm text-emerald-700">You Receive</p>
-                  <p className="text-xl sm:text-2xl font-bold text-emerald-900 break-words">
-                    ${(((caseData?.surplus_amount || 0) * (1 - (caseData?.fee_percent || 20) / 100))).toLocaleString()}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
           {/* Agreement Content */}
           <Card className="mb-6">
             <CardContent className="pt-6">
