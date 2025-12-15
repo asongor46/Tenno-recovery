@@ -56,10 +56,7 @@ export default function Settings() {
 
   const handleProfileSave = async () => {
     setIsSaving(true);
-    await base44.auth.updateMe({ 
-      full_name: profile.full_name,
-      email: profile.email 
-    });
+    await base44.auth.updateMe({ full_name: profile.full_name });
     queryClient.invalidateQueries({ queryKey: ["currentUser"] });
     setIsSaving(false);
   };
@@ -113,9 +110,11 @@ export default function Settings() {
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
-                  value={profile.email}
-                  onChange={(e) => setProfile({ ...profile, email: e.target.value })}
+                  value={user?.email || ""}
+                  disabled
+                  className="bg-slate-50"
                 />
+                <p className="text-xs text-slate-500 mt-1">Email cannot be changed</p>
               </div>
               <div className="pt-4">
                 <Button 
