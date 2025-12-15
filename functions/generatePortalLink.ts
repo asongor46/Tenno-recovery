@@ -44,10 +44,23 @@ Deno.serve(async (req) => {
 
     // Always generate a new token (invalidates previous on resend)
     const token = generateUniqueToken();
-    await base44.entities.Case.update(case_id, { portal_token: token });
-
-    // Build portal URL (you'll need to replace with actual domain)
     const portalUrl = `${Deno.env.get('BASE44_APP_URL') || 'https://your-app.base44.com'}/PortalWelcome?token=${token}`;
+    
+    // Update case with new token and mark old one as inactive
+    const updateData = {
+      portal_token: token,
+      portal_link: portalUrl,
+      portal_token_active: true
+    };
+    
+    // Set timestamps based on whether this is first send or resend
+    if (!caseData.portal_sent_at) {
+      updateData.portal_sent_at = new Date().toISOString();
+    } else {
+      updateData.portal_last_resent_at = new Date().toISOString();
+    }
+    
+    await base44.asServiceRole.entities.Case.update(case_id, updateData);
 
     // Generate email content (do NOT send via Base44)
     const emailSubject = 'TENNO Asset Recovery – Secure Access to Your Surplus Funds Case';
