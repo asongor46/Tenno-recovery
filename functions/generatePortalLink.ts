@@ -14,7 +14,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { case_id, send_email = false, send_sms = false } = await req.json();
+    const { case_id, send_email = true, send_sms = false } = await req.json();
 
     if (!case_id) {
       return Response.json({ 
@@ -34,6 +34,14 @@ Deno.serve(async (req) => {
       }, { status: 404 });
     }
 
+    // Check if email exists
+    if (!caseData.owner_email) {
+      return Response.json({ 
+        status: 'error',
+        details: 'No email address on file for this case' 
+      }, { status: 400 });
+    }
+
     // Generate unique token if not exists
     let token = caseData.portal_token;
     if (!token) {
@@ -44,10 +52,10 @@ Deno.serve(async (req) => {
     // Build portal URL (you'll need to replace with actual domain)
     const portalUrl = `${Deno.env.get('BASE44_APP_URL') || 'https://your-app.base44.com'}/PortalWelcome?token=${token}`;
 
-    // Send invitations if requested
+    // Always send email if email exists
     const notifications = [];
     
-    if (send_email && caseData.owner_email) {
+    if (caseData.owner_email) {
       const emailResult = await sendPortalEmail(caseData, portalUrl, base44);
       notifications.push({ type: 'email', status: emailResult.status });
     }
