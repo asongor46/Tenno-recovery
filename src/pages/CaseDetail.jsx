@@ -930,24 +930,27 @@ export default function CaseDetail() {
                 // Update fee percentage first
                 await base44.entities.Case.update(caseId, { fee_percent: portalFeePercent });
 
-                // Then send portal link
+                // Generate portal link and email content
                 const { data } = await base44.functions.invoke("generatePortalLink", {
-                  case_id: caseId,
-                  send_email: true
+                  case_id: caseId
                 });
 
-                if (data.status === 'success') {
-                  toast.success("Portal link sent with " + portalFeePercent + "% fee!");
+                if (data.status === 'success' && data.email_content) {
+                  // Open email client with pre-filled content
+                  const mailtoLink = `mailto:${encodeURIComponent(data.email_content.to)}?subject=${encodeURIComponent(data.email_content.subject)}&body=${encodeURIComponent(data.email_content.body)}`;
+                  window.location.href = mailtoLink;
+
+                  toast.success("Email client opened - please send from tennoassetrecovery@gmail.com");
                   queryClient.invalidateQueries({ queryKey: ["case", caseId] });
                   queryClient.invalidateQueries({ queryKey: ["activities", caseId] });
                   setShowSendPortalDialog(false);
                 } else {
-                  toast.error("Failed to send portal link");
+                  toast.error("Failed to generate portal link");
                 }
               }}
               className="bg-emerald-600 hover:bg-emerald-700"
             >
-              <Send className="w-4 h-4 mr-2" /> Send Link
+              <Send className="w-4 h-4 mr-2" /> Open Email to Send
             </Button>
           </DialogFooter>
         </DialogContent>
