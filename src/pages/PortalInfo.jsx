@@ -121,11 +121,12 @@ export default function PortalInfo() {
       <header className="bg-white border-b">
         <div className="max-w-3xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-xl flex items-center justify-center">
-                <span className="text-white font-bold text-lg">B</span>
-              </div>
-              <span className="font-semibold text-xl text-slate-900">Base44</span>
+            <div className="flex justify-center w-full sm:w-auto">
+              <img 
+                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6935380f41db07237f45b1db/11ed7b05d_Screenshot_20251213_181447_Chrome.jpg" 
+                alt="TENNO RECOVERY" 
+                className="h-10 w-auto"
+              />
             </div>
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center">
