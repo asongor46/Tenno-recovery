@@ -891,52 +891,35 @@ export default function CaseDetail() {
             <DialogTitle>Send Portal Link</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            {!caseData?.owner_email ? (
-              <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-sm text-red-800 font-medium">
-                  ⚠️ No email address on file for this case
-                </p>
-                <p className="text-xs text-red-600 mt-1">
-                  Please add an email address before sending the portal link.
-                </p>
+            <div>
+              <Label>Fee Percentage (10-30%)</Label>
+              <div className="flex items-center gap-3 mt-2">
+                <Input
+                  type="number"
+                  min="10"
+                  max="30"
+                  step="1"
+                  value={portalFeePercent}
+                  onChange={(e) => setPortalFeePercent(parseInt(e.target.value) || 20)}
+                  className="w-24"
+                />
+                <span className="font-semibold">%</span>
               </div>
-            ) : (
-              <>
-                <div>
-                  <Label>Fee Percentage (10-30%)</Label>
-                  <div className="flex items-center gap-3 mt-2">
-                    <Input
-                      type="number"
-                      min="10"
-                      max="30"
-                      step="1"
-                      value={portalFeePercent}
-                      onChange={(e) => setPortalFeePercent(parseInt(e.target.value) || 20)}
-                      className="w-24"
-                    />
-                    <span className="font-semibold">%</span>
-                  </div>
-                </div>
-                <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
-                  <p className="text-sm text-emerald-800">
-                    <span className="font-medium">Sending to:</span> {caseData.owner_email}
-                  </p>
-                  <p className="text-xs text-emerald-600 mt-1">
-                    From: TENNO Recovery (tennoassetrecovery@gmail.com)
-                  </p>
-                </div>
-              </>
-            )}
+            </div>
+            <div className="p-3 bg-slate-50 rounded-lg">
+              <p className="text-sm text-slate-600">
+                Email: <span className="font-semibold">{caseData?.owner_email || "No email on file"}</span>
+              </p>
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowSendPortalDialog(false)}>
               Cancel
             </Button>
             <Button
-              disabled={!caseData?.owner_email}
               onClick={async () => {
                 if (!caseData?.owner_email) {
-                  toast.error("Cannot send: No email address on file");
+                  toast.error("No email address on file");
                   return;
                 }
                 if (portalFeePercent < 10 || portalFeePercent > 30) {
@@ -944,38 +927,27 @@ export default function CaseDetail() {
                   return;
                 }
 
-                try {
-                  // Update fee percentage first
-                  await base44.entities.Case.update(caseId, { fee_percent: portalFeePercent });
+                // Update fee percentage first
+                await base44.entities.Case.update(caseId, { fee_percent: portalFeePercent });
 
-                  // Then send portal link
-                  const { data } = await base44.functions.invoke("generatePortalLink", {
-                    case_id: caseId,
-                    send_email: true
-                  });
+                // Then send portal link
+                const { data } = await base44.functions.invoke("generatePortalLink", {
+                  case_id: caseId,
+                  send_email: true
+                });
 
-                  if (data.status === 'success') {
-                    const emailStatus = data.notifications?.find(n => n.type === 'email');
-                    if (emailStatus?.status === 'sent') {
-                      toast.success(`Portal link sent to ${caseData.owner_email}!`);
-                    } else if (emailStatus?.status === 'failed') {
-                      toast.error(`Email failed: ${emailStatus.error || 'Unknown error'}`);
-                    } else {
-                      toast.success("Portal link generated!");
-                    }
-                    queryClient.invalidateQueries({ queryKey: ["case", caseId] });
-                    queryClient.invalidateQueries({ queryKey: ["activities", caseId] });
-                    setShowSendPortalDialog(false);
-                  } else {
-                    toast.error(data.details || "Failed to send portal link");
-                  }
-                } catch (error) {
-                  toast.error("Error: " + error.message);
+                if (data.status === 'success') {
+                  toast.success("Portal link sent with " + portalFeePercent + "% fee!");
+                  queryClient.invalidateQueries({ queryKey: ["case", caseId] });
+                  queryClient.invalidateQueries({ queryKey: ["activities", caseId] });
+                  setShowSendPortalDialog(false);
+                } else {
+                  toast.error("Failed to send portal link");
                 }
               }}
               className="bg-emerald-600 hover:bg-emerald-700"
             >
-              <Send className="w-4 h-4 mr-2" /> Send Portal Link
+              <Send className="w-4 h-4 mr-2" /> Send Link
             </Button>
           </DialogFooter>
         </DialogContent>
