@@ -94,7 +94,7 @@ export default function CaseDetail() {
   const [showPdfViewer, setShowPdfViewer] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showSendPortalDialog, setShowSendPortalDialog] = useState(false);
-  const [portalFeePercent, setPortalFeePercent] = useState(caseData?.fee_percent || 20);
+  const [portalFeePercent, setPortalFeePercent] = useState(20);
 
   const queryClient = useQueryClient();
   const toast = useStandardToast();
