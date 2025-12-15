@@ -206,9 +206,7 @@ export default function PortalAgreement() {
 
                 <h3 className="font-semibold mt-6 mb-2">2. COMPENSATION</h3>
                 <p className="mb-4">
-                  Client agrees to pay Company a contingency fee equal to {caseData?.fee_percent || 20} percent ({caseData?.fee_percent || 20}%) of any 
-                  surplus funds recovered. This fee is due and payable only upon successful recovery of 
-                  surplus funds. If no funds are recovered, Client owes nothing.
+                  Client agrees to pay Company a contingency fee within the agreement of any surplus funds recovered. This fee is due and payable only upon successful recovery of surplus funds. If no funds are recovered, Client owes nothing.
                 </p>
 
                 <h3 className="font-semibold mt-6 mb-2">3. CLIENT RESPONSIBILITIES</h3>

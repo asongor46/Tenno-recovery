@@ -55,6 +55,16 @@ import PDFViewerDialog from "@/components/pdf/PDFViewerDialog";
 import CaseTimeline from "@/components/case/CaseTimeline";
 import OutreachPanel from "@/components/case/OutreachPanel";
 import EditCaseDialog from "@/components/case/EditCaseDialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useStandardToast } from "@/components/shared/useStandardToast";
 import FilingWorkflowPanel from "@/components/case/FilingWorkflowPanel";
 import OrderTreasurerPanel from "@/components/case/OrderTreasurerPanel";
 import AgreementPanel from "@/components/case/AgreementPanel";
@@ -83,8 +93,11 @@ export default function CaseDetail() {
   const [viewingPdf, setViewingPdf] = useState(null);
   const [showPdfViewer, setShowPdfViewer] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showSendPortalDialog, setShowSendPortalDialog] = useState(false);
+  const [portalFeePercent, setPortalFeePercent] = useState(caseData?.fee_percent || 20);
 
   const queryClient = useQueryClient();
+  const toast = useStandardToast();
 
   const { data: caseData, isLoading } = useQuery({
     queryKey: ["case", caseId],
@@ -277,15 +290,9 @@ export default function CaseDetail() {
           </DropdownMenu>
           <Button 
             variant="outline"
-            onClick={async () => {
-              const { data } = await base44.functions.invoke("generatePortalLink", {
-                case_id: caseId,
-                send_email: true
-              });
-              if (data.status === 'success') {
-                alert("Portal link sent!");
-                queryClient.invalidateQueries({ queryKey: ["activities", caseId] });
-              }
+            onClick={() => {
+              setPortalFeePercent(caseData?.fee_percent || 20);
+              setShowSendPortalDialog(true);
             }}
           >
             <Send className="w-4 h-4 mr-2" /> Send Portal Link
@@ -876,6 +883,75 @@ export default function CaseDetail() {
           onClose={() => setShowEditDialog(false)}
         />
       )}
+
+      {/* Send Portal Link Dialog */}
+      <Dialog open={showSendPortalDialog} onOpenChange={setShowSendPortalDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Send Portal Link</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <Label>Fee Percentage (10-30%)</Label>
+              <div className="flex items-center gap-3 mt-2">
+                <Input
+                  type="number"
+                  min="10"
+                  max="30"
+                  step="1"
+                  value={portalFeePercent}
+                  onChange={(e) => setPortalFeePercent(parseInt(e.target.value) || 20)}
+                  className="w-24"
+                />
+                <span className="font-semibold">%</span>
+              </div>
+            </div>
+            <div className="p-3 bg-slate-50 rounded-lg">
+              <p className="text-sm text-slate-600">
+                Email: <span className="font-semibold">{caseData?.owner_email || "No email on file"}</span>
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowSendPortalDialog(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={async () => {
+                if (!caseData?.owner_email) {
+                  toast.error("No email address on file");
+                  return;
+                }
+                if (portalFeePercent < 10 || portalFeePercent > 30) {
+                  toast.error("Fee must be between 10-30%");
+                  return;
+                }
+
+                // Update fee percentage first
+                await base44.entities.Case.update(caseId, { fee_percent: portalFeePercent });
+
+                // Then send portal link
+                const { data } = await base44.functions.invoke("generatePortalLink", {
+                  case_id: caseId,
+                  send_email: true
+                });
+
+                if (data.status === 'success') {
+                  toast.success("Portal link sent with " + portalFeePercent + "% fee!");
+                  queryClient.invalidateQueries({ queryKey: ["case", caseId] });
+                  queryClient.invalidateQueries({ queryKey: ["activities", caseId] });
+                  setShowSendPortalDialog(false);
+                } else {
+                  toast.error("Failed to send portal link");
+                }
+              }}
+              className="bg-emerald-600 hover:bg-emerald-700"
+            >
+              <Send className="w-4 h-4 mr-2" /> Send Link
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       </div>
       );
       }
