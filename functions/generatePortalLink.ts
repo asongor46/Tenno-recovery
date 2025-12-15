@@ -51,10 +51,17 @@ Deno.serve(async (req) => {
 
     // Always send email if email exists
     const notifications = [];
-    
+
+    console.log('=== EMAIL SEND DEBUG ===');
+    console.log('Case owner_email:', caseData.owner_email);
+    console.log('Portal URL:', portalUrl);
+
     if (caseData.owner_email) {
       const emailResult = await sendPortalEmail(caseData, portalUrl, base44);
-      notifications.push({ type: 'email', status: emailResult.status });
+      console.log('Email result:', JSON.stringify(emailResult, null, 2));
+      notifications.push({ type: 'email', status: emailResult.status, details: emailResult });
+    } else {
+      console.log('NO EMAIL ADDRESS FOUND');
     }
 
     if (send_sms && caseData.owner_phone) {
@@ -143,7 +150,11 @@ Surplus Funds Recovery Services
 This message contains a secure access link intended only for the recipient.
 If you did not request this or believe it was sent in error, you may safely ignore it.`;
 
-    console.log('Attempting to send email to:', caseData.owner_email);
+    console.log('=== SENDING EMAIL ===');
+    console.log('To:', caseData.owner_email);
+    console.log('From:', 'TENNO Recovery');
+    console.log('Subject:', 'TENNO Recovery – Secure Access to Your Surplus Funds Case');
+    console.log('Body length:', emailBody.length);
     
     const result = await base44.asServiceRole.integrations.Core.SendEmail({
       from_name: 'TENNO Recovery',
@@ -152,11 +163,15 @@ If you did not request this or believe it was sent in error, you may safely igno
       body: emailBody
     });
 
-    console.log('Email send result:', result);
-    return { status: 'sent', result };
+    console.log('=== EMAIL SENT SUCCESSFULLY ===');
+    console.log('Result:', JSON.stringify(result, null, 2));
+    return { status: 'sent', result, email: caseData.owner_email };
   } catch (error) {
-    console.error('Email send error:', error);
-    return { status: 'failed', error: error.message };
+    console.error('=== EMAIL SEND FAILED ===');
+    console.error('Error:', error);
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
+    return { status: 'failed', error: error.message, email: caseData.owner_email };
   }
 }
 
