@@ -132,7 +132,7 @@ ${portalUrl}
 
 There is no upfront cost to you. Our fee is only collected if funds are successfully recovered.
 
-If you have questions, simply reply to this email at tennoassetrecovery@gmail.com and it will reach us directly.
+For questions, comments, or concerns, please email us at tennoassetrecovery@gmail.com
 
 Best regards,
 TENNO Recovery
