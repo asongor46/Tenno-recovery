@@ -57,7 +57,12 @@ Deno.serve(async (req) => {
     
     if (caseData.owner_email) {
       const emailResult = await sendPortalEmail(caseData, portalUrl, base44);
-      notifications.push({ type: 'email', status: emailResult.status });
+      notifications.push({ 
+        type: 'email', 
+        status: emailResult.status,
+        details: emailResult.details,
+        error: emailResult.error 
+      });
     }
 
     if (send_sms && caseData.owner_phone) {
@@ -65,13 +70,18 @@ Deno.serve(async (req) => {
       notifications.push({ type: 'sms', status: smsResult.status });
     }
 
-    // Log activity
+    // Log activity with full details
     await base44.entities.ActivityLog.create({
       case_id,
       action: 'portal_link_generated',
-      description: `Portal link generated and sent via ${notifications.map(n => n.type).join(', ')}`,
+      description: `Portal link generated. Email status: ${notifications.find(n => n.type === 'email')?.status || 'not_sent'}${notifications.find(n => n.type === 'email')?.error ? ' - ERROR: ' + notifications.find(n => n.type === 'email').error : ''}`,
       performed_by: user.email,
-      metadata: { portal_url: portalUrl, notifications }
+      metadata: { 
+        portal_url: portalUrl, 
+        notifications,
+        recipient_email: caseData.owner_email,
+        timestamp: new Date().toISOString()
+      }
     });
 
     // Log homeowner event
@@ -109,6 +119,8 @@ function generateUniqueToken() {
 
 async function sendPortalEmail(caseData, portalUrl, base44) {
   try {
+    console.log('Attempting to send email to:', caseData.owner_email);
+    
     const result = await base44.asServiceRole.integrations.Core.SendEmail({
       from_name: 'TENNO Recovery',
       to: caseData.owner_email,
@@ -135,10 +147,30 @@ Best regards,
 TENNO Recovery Team`
     });
 
-    return { status: 'sent', result };
+    console.log('Email API response:', JSON.stringify(result, null, 2));
+    
+    return { 
+      status: 'sent', 
+      details: {
+        to: caseData.owner_email,
+        subject: `Your Surplus Funds Claim - ${caseData.case_number}`,
+        api_response: result
+      }
+    };
   } catch (error) {
     console.error('Email send error:', error);
-    return { status: 'failed', error: error.message };
+    console.error('Error stack:', error.stack);
+    console.error('Error details:', JSON.stringify(error, null, 2));
+    
+    return { 
+      status: 'failed', 
+      error: error.message,
+      details: {
+        to: caseData.owner_email,
+        error_type: error.name,
+        error_stack: error.stack
+      }
+    };
   }
 }
 
