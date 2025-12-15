@@ -109,7 +109,8 @@ function generateUniqueToken() {
 
 async function sendPortalEmail(caseData, portalUrl, base44) {
   try {
-    await base44.integrations.Core.SendEmail({
+    const result = await base44.asServiceRole.integrations.Core.SendEmail({
+      from_name: 'TENNO Recovery',
       to: caseData.owner_email,
       subject: `Your Surplus Funds Claim - ${caseData.case_number}`,
       body: `Dear ${caseData.owner_name},
@@ -128,14 +129,15 @@ This process will take approximately 10-15 minutes and includes:
 3. Completing your information
 4. Notarizing your claim form
 
-If you have any questions, please reply to this email.
+If you have any questions, please reply to this email at tennoassetrecovery@gmail.com.
 
 Best regards,
 TENNO Recovery Team`
     });
 
-    return { status: 'sent' };
+    return { status: 'sent', result };
   } catch (error) {
+    console.error('Email send error:', error);
     return { status: 'failed', error: error.message };
   }
 }
