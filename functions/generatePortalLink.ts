@@ -42,12 +42,9 @@ Deno.serve(async (req) => {
       }, { status: 400 });
     }
 
-    // Generate unique token if not exists
-    let token = caseData.portal_token;
-    if (!token) {
-      token = generateUniqueToken();
-      await base44.entities.Case.update(case_id, { portal_token: token });
-    }
+    // Always generate a new token (invalidates previous on resend)
+    const token = generateUniqueToken();
+    await base44.entities.Case.update(case_id, { portal_token: token });
 
     // Build portal URL (you'll need to replace with actual domain)
     const portalUrl = `${Deno.env.get('BASE44_APP_URL') || 'https://your-app.base44.com'}/PortalWelcome?token=${token}`;
@@ -65,13 +62,23 @@ Deno.serve(async (req) => {
       notifications.push({ type: 'sms', status: smsResult.status });
     }
 
+    // Determine if this is initial send or resend
+    const isResend = caseData.portal_token ? true : false;
+    const action = isResend ? 'portal_link_resent' : 'portal_link_sent';
+    
     // Log activity
     await base44.entities.ActivityLog.create({
       case_id,
-      action: 'portal_link_generated',
-      description: `Portal link generated and sent via ${notifications.map(n => n.type).join(', ')}`,
+      action,
+      description: `Portal link ${isResend ? 'resent' : 'sent'} to ${caseData.owner_email}`,
       performed_by: user.email,
-      metadata: { portal_url: portalUrl, notifications }
+      metadata: { 
+        portal_url: portalUrl, 
+        recipient: caseData.owner_email,
+        reply_to: 'tennoassetrecovery@gmail.com',
+        delivery: notifications[0]?.status || 'unknown',
+        notifications 
+      }
     });
 
     // Log homeowner event
@@ -109,30 +116,74 @@ function generateUniqueToken() {
 
 async function sendPortalEmail(caseData, portalUrl, base44) {
   try {
-    const result = await base44.asServiceRole.integrations.Core.SendEmail({
-      from_name: 'TENNO Recovery',
-      to: caseData.owner_email,
-      subject: `Your Surplus Funds Claim - ${caseData.case_number}`,
-      body: `Dear ${caseData.owner_name},
+    const htmlBody = `
+      <p>Hello ${caseData.owner_name},</p>
 
-We have good news! There are surplus funds from the sale of your property at ${caseData.property_address || 'your former property'}.
+      <p>
+      We are reaching out regarding <strong>unclaimed surplus funds</strong> associated with a property connected to your name.
+      </p>
 
-Surplus Amount: $${caseData.surplus_amount?.toLocaleString() || '0'}
+      <p>
+      To keep everything secure and simple, we've created a private portal where you can:
+      </p>
 
-To claim these funds, please complete your secure online portal:
+      <ul>
+        <li>Review your case details</li>
+        <li>Upload any required documents</li>
+        <li>Review and sign the service agreement</li>
+        <li>Track progress as we handle the filing process</li>
+      </ul>
 
+      <p>
+      👉 <strong>Access your secure case portal here:</strong><br />
+      <a href="${portalUrl}" target="_blank">${portalUrl}</a>
+      </p>
+
+      <p>
+      There is <strong>no upfront cost</strong> to you. Our fee is only collected if funds are successfully recovered.
+      </p>
+
+      <p>
+      If you have questions, simply reply to this email and it will reach us directly.
+      </p>
+
+      <p>
+      Best regards,<br />
+      <strong>TENNO Recovery</strong><br />
+      Surplus Funds Recovery Services<br />
+      📧 tennoassetrecovery@gmail.com
+      </p>
+
+      <hr />
+
+      <p style="font-size: 12px; color: #666;">
+      This message contains a secure access link intended only for the recipient.  
+      If you did not request this or believe it was sent in error, you may safely ignore it.
+      </p>
+    `;
+
+    const plainTextBody = `Hello ${caseData.owner_name},
+
+We are contacting you regarding unclaimed surplus funds connected to a property associated with your name.
+
+To keep things secure and straightforward, we've created a private portal where you can review your case, upload documents, and track progress.
+
+Access your secure case portal here:
 ${portalUrl}
 
-This process will take approximately 10-15 minutes and includes:
-1. Reviewing and signing the recovery agreement
-2. Uploading your ID
-3. Completing your information
-4. Notarizing your claim form
+There is no upfront cost. Our fee is only collected if funds are successfully recovered.
 
-If you have any questions, please reply to this email at tennoassetrecovery@gmail.com.
+If you have questions, reply directly to this email.
 
-Best regards,
-TENNO Recovery Team`
+TENNO Recovery
+tennoassetrecovery@gmail.com`;
+
+    const result = await base44.asServiceRole.integrations.Core.SendEmail({
+      from_name: 'TENNO Recovery',
+      reply_to: 'tennoassetrecovery@gmail.com',
+      to: caseData.owner_email,
+      subject: 'TENNO Recovery – Secure Access to Your Surplus Funds Case',
+      body: htmlBody
     });
 
     return { status: 'sent', result };
