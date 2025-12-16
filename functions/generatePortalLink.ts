@@ -45,51 +45,31 @@ Deno.serve(async (req) => {
     // Always generate a new token (invalidates previous on resend)
     const token = generateUniqueToken();
     const portalUrl = `${Deno.env.get('BASE44_APP_URL') || 'https://your-app.base44.com'}/PortalWelcome?token=${token}`;
-    
-    // Update case with new token and mark old one as inactive
-    const updateData = {
+
+    // Update case with new token
+    await base44.entities.Case.update(case_id, {
       portal_token: token,
       portal_link: portalUrl,
-      portal_token_active: true
-    };
-    
-    // Set timestamps based on whether this is first send or resend
-    if (!caseData.portal_sent_at) {
-      updateData.portal_sent_at = new Date().toISOString();
-    } else {
-      updateData.portal_last_resent_at = new Date().toISOString();
-    }
-    
-    await base44.asServiceRole.entities.Case.update(case_id, updateData);
+      portal_token_active: true,
+      portal_sent_at: caseData.portal_sent_at || new Date().toISOString(),
+      portal_last_resent_at: caseData.portal_sent_at ? new Date().toISOString() : null
+    });
 
     // Generate email content (do NOT send via Base44)
     const emailSubject = 'TENNO Asset Recovery – Secure Access to Your Surplus Funds Case';
     const emailBody = generateEmailBody(caseData, portalUrl);
 
-    // Determine if this is initial send or resend
-    const isResend = caseData.portal_token ? true : false;
-    const action = isResend ? 'portal_link_generated_resend' : 'portal_link_generated';
-
     // Log activity
-    await base44.entities.ActivityLog.create({
-      case_id,
-      action,
-      description: `Portal link ${isResend ? 'regenerated' : 'generated'} for ${caseData.owner_email} - ready to send via email client`,
-      performed_by: user.email,
-      metadata: { 
-        portal_url: portalUrl, 
-        recipient: caseData.owner_email,
-        send_from: 'tennoassetrecovery@gmail.com'
-      }
-    });
-
-    // Log homeowner event
-    await base44.entities.HomeownerTaskEvent.create({
-      case_id,
-      event_type: 'portal_invited',
-      performed_by: user.email,
-      details: { method: 'email_client' }
-    });
+    try {
+      await base44.entities.ActivityLog.create({
+        case_id,
+        action: 'portal_link_generated',
+        description: `Portal link generated for ${caseData.owner_email}`,
+        performed_by: user.email
+      });
+    } catch (e) {
+      console.log('Activity log failed:', e.message);
+    }
 
     return Response.json({
       status: 'success',
