@@ -70,6 +70,8 @@ import OrderTreasurerPanel from "@/components/case/OrderTreasurerPanel";
 import AgreementPanel from "@/components/case/AgreementPanel";
 import AgentAssistPanel from "@/components/case/AgentAssistPanel";
 import PacketReadinessPanel from "@/components/case/PacketReadinessPanel";
+import EmailFallbackModal from "@/components/communications/EmailFallbackModal";
+import { usePortalLink } from "@/components/shared/usePortalLink";
 
 const stageConfig = {
   imported: { label: "Imported", color: "bg-slate-500" },
@@ -98,6 +100,7 @@ export default function CaseDetail() {
 
   const queryClient = useQueryClient();
   const toast = useStandardToast();
+  const { generateAndSend, isLoading: sendingPortal, fallbackData, clearFallback } = usePortalLink();
 
   const { data: caseData, isLoading } = useQuery({
     queryKey: ["case", caseId],
@@ -927,34 +930,29 @@ export default function CaseDetail() {
                   return;
                 }
 
-                // Update fee percentage first
                 await base44.entities.Case.update(caseId, { fee_percent: portalFeePercent });
 
-                // Generate portal link and email content
-                const { data } = await base44.functions.invoke("generatePortalLink", {
-                  case_id: caseId
-                });
-
-                if (data.status === 'success' && data.email_content) {
-                  // Open email client with pre-filled content
-                  const mailtoLink = `mailto:${encodeURIComponent(data.email_content.to)}?subject=${encodeURIComponent(data.email_content.subject)}&body=${encodeURIComponent(data.email_content.body)}`;
-                  window.location.href = mailtoLink;
-
-                  toast.success("Email client opened - please send from tennoassetrecovery@gmail.com");
+                const result = await generateAndSend(caseId, caseData.owner_email);
+                if (result?.success) {
                   queryClient.invalidateQueries({ queryKey: ["case", caseId] });
                   queryClient.invalidateQueries({ queryKey: ["activities", caseId] });
                   setShowSendPortalDialog(false);
-                } else {
-                  toast.error("Failed to generate portal link");
                 }
               }}
+              disabled={sendingPortal}
               className="bg-emerald-600 hover:bg-emerald-700"
             >
-              <Send className="w-4 h-4 mr-2" /> Open Email to Send
+              <Send className="w-4 h-4 mr-2" /> {sendingPortal ? 'Opening…' : 'Open Email to Send'}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <EmailFallbackModal 
+        open={!!fallbackData}
+        onClose={clearFallback}
+        data={fallbackData}
+      />
       </div>
       );
       }
