@@ -31,6 +31,32 @@ export default function SendEmailPanel({ caseId, caseData }) {
     onSuccess: (data) => setFilled(data),
   });
 
+  const generatePortal = useMutation({
+    mutationFn: async () => {
+      await base44.functions.invoke('generatePortalLink', { case_id: caseId });
+    },
+    onSuccess: async () => {
+      if (selectedTemplateId) await fillMutation.mutateAsync(selectedTemplateId);
+      toast.success('Portal link generated');
+    }
+  });
+
+  const createFollowUp = useMutation({
+    mutationFn: async () => {
+      const tpl = templates.find(t => t.id === selectedTemplateId);
+      const due = new Date();
+      due.setDate(due.getDate() + 3);
+      await base44.entities.Todo.create({
+        case_id: caseId,
+        title: `Follow up email: ${tpl?.name || 'Email'}`,
+        description: 'Send follow-up email to homeowner',
+        priority: 'medium',
+        due_date: due.toISOString().slice(0,10)
+      });
+    },
+    onSuccess: () => toast.success('Follow-up task created')
+  });
+
   const handleOpenOutlook = () => {
     if (!filled?.outlook_link) return;
     window.open(filled.outlook_link, "_blank");
@@ -61,6 +87,7 @@ export default function SendEmailPanel({ caseId, caseData }) {
     }
   });
 
+  const selected = templates.find(t => t.id === selectedTemplateId);
   return (
     <Card>
       <CardHeader>
@@ -108,8 +135,16 @@ export default function SendEmailPanel({ caseId, caseData }) {
         </div>
 
         <div className="flex flex-wrap gap-2 justify-end">
+          {selected?.category === 'Portal' && (
+            <Button type="button" variant="outline" onClick={() => generatePortal.mutate()}>
+              Generate Portal Link
+            </Button>
+          )}
           <Button type="button" variant="outline" onClick={handleOpenOutlook} disabled={!filled?.outlook_link}>
             <ExternalLink className="w-4 h-4 mr-2" /> Open in Outlook
+          </Button>
+          <Button type="button" variant="outline" onClick={() => createFollowUp.mutate()} disabled={!selectedTemplateId}>
+            Create Follow-up Todo (3 days)
           </Button>
           <Button type="button" onClick={() => markSent.mutate()} disabled={!filled}>
             Mark as Sent

@@ -24,6 +24,24 @@ export function usePortalLink() {
         return { success: false };
       }
 
+      // Prefer Outlook deeplink with filled template
+      try {
+        const tplResp = await base44.entities.EmailTemplate.filter({ name: 'Portal Link', is_active: true });
+        if (tplResp && tplResp.length > 0) {
+          const tpl = tplResp[0];
+          const filled = await base44.functions.invoke('fillEmailTemplate', { template_id: tpl.id, case_id: caseId });
+          const out = filled.data || {};
+          if (out.outlook_link) {
+            window.open(out.outlook_link, '_blank');
+            toast.success(`Outlook opened for ${out.recipient || ownerEmail}`);
+            return { success: true, data: out };
+          }
+        }
+      } catch (e) {
+        console.warn('Outlook deeplink fallback to mailto:', e?.message);
+      }
+
+      // Fallback to mailto
       const email = data.email_content || {};
       const subject = encodeURIComponent(email.subject || data.data?.emailSubject || "");
       const body = encodeURIComponent(email.body || data.data?.emailBody || "");
@@ -31,7 +49,6 @@ export function usePortalLink() {
 
       const mailto = `mailto:${to}?subject=${subject}&body=${body}`;
 
-      // Try to open default mail client
       try {
         const a = document.createElement("a");
         a.href = mailto;

@@ -35,6 +35,29 @@ export default function PortalWelcome() {
       await base44.entities.Case.update(cases[0].id, {
         portal_last_accessed: new Date().toISOString()
       });
+
+      // Track portal viewed (once per device/token)
+      const viewedKey = `portal_viewed_${token}`;
+      if (!localStorage.getItem(viewedKey)) {
+        try {
+          await base44.entities.HomeownerTaskEvent.create({
+            case_id: cases[0].id,
+            event_type: 'portal_viewed',
+            step_key: 'agreement',
+            performed_by: cases[0].owner_email || 'Homeowner',
+            details: { viewed_at: new Date().toISOString() }
+          });
+          await base44.entities.ActivityLog.create({
+            case_id: cases[0].id,
+            action: 'Portal Opened',
+            description: 'Homeowner opened the portal link',
+            performed_by: 'Homeowner'
+          });
+          localStorage.setItem(viewedKey, '1');
+        } catch (e) {
+          console.warn('Failed to log portal_viewed:', e?.message);
+        }
+      }
       
       setIsLoading(false);
     }
