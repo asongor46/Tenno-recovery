@@ -45,6 +45,11 @@ Deno.serve(async (req) => {
 
     const cases = await base44.entities.Case.filter({ id: case_id });
     const c = cases[0];
+
+    // Load app settings as key/value
+    const settingsArr = await base44.entities.AppSettings.filter({});
+    const settings = {};
+    for (const s of settingsArr) settings[s.setting_key] = s.setting_value;
     if (!c) return Response.json({ error: 'Case not found' }, { status: 404 });
 
     // Prepare data map
@@ -60,7 +65,14 @@ Deno.serve(async (req) => {
       county_name: c.county || '',
       sale_date: c.sale_date ? formatDate(c.sale_date) : '',
       portal_link: portalLink,
-      case_number: c.case_number || ''
+      case_number: c.case_number || '',
+      // Settings-driven placeholders
+      agent_name: settings.agent_name || '',
+      agent_phone: settings.agent_phone || '',
+      agent_email: settings.agent_email || '',
+      company_name: settings.company_name || '',
+      company_address: settings.company_address || '',
+      website_url: settings.website_url || ''
     };
 
     const subject = replacePlaceholders(template.subject_template, map);

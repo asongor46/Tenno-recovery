@@ -53,7 +53,7 @@ import RunVerificationButton from "@/components/case/RunVerificationButton";
 import CountyProfileView from "@/components/county/CountyProfileView";
 import DocumentGeneratorPanel from "@/components/case/DocumentGeneratorPanel";
 import PDFViewerDialog from "@/components/pdf/PDFViewerDialog";
-import CaseTimeline from "@/components/case/CaseTimeline";
+// import CaseTimeline from "@/components/case/CaseTimeline";
 import OutreachPanel from "@/components/case/OutreachPanel";
 import EditCaseDialog from "@/components/case/EditCaseDialog";
 import {
@@ -333,16 +333,11 @@ export default function CaseDetail() {
           <TabsTrigger value="homeowner" className="gap-2">
             <User className="w-4 h-4" /> Homeowner Info
           </TabsTrigger>
-          {/* ADDED People Finder tab */}
-          <TabsTrigger value="peoplefinder" className="gap-2">
-            <Users className="w-4 h-4" /> People Finder
-          </TabsTrigger>
+          {/* People Finder merged into Homeowner tab */}
           <TabsTrigger value="notary" className="gap-2">
             <Shield className="w-4 h-4" /> Notary
           </TabsTrigger>
-          <TabsTrigger value="packet" className="gap-2">
-            <Package className="w-4 h-4" /> Packet
-          </TabsTrigger>
+          {/* Packet merged into Documents tab */}
           <TabsTrigger value="filing" className="gap-2">
             <FileCheck className="w-4 h-4" /> Filing & Court
           </TabsTrigger>
@@ -353,11 +348,8 @@ export default function CaseDetail() {
           <TabsTrigger value="county" className="gap-2">
             <MapPin className="w-4 h-4" /> County Profile
           </TabsTrigger>
-          <TabsTrigger value="timeline" className="gap-2">
-            <Activity className="w-4 h-4" /> Timeline
-          </TabsTrigger>
-          <TabsTrigger value="email" className="gap-2">
-            <Mail className="w-4 h-4" /> Send Email
+          <TabsTrigger value="communications" className="gap-2">
+            <Mail className="w-4 h-4" /> Communications
           </TabsTrigger>
           <TabsTrigger value="activity" className="gap-2">
             <Activity className="w-4 h-4" /> Activity Log
@@ -488,7 +480,7 @@ export default function CaseDetail() {
           </Card>
         </TabsContent>
 
-        {/* Documents Tab */}
+        {/* Documents & Packet Tab */}
         <TabsContent value="documents" className="space-y-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
@@ -556,9 +548,9 @@ export default function CaseDetail() {
           </Card>
         </TabsContent>
 
-        {/* Homeowner Info Tab */}
-        <TabsContent value="homeowner" className="space-y-4">
-          <div className="grid lg:grid-cols-3 gap-6">
+        {/* Contacts & People (merged) */}
+        <TabsContent value="homeowner" className="space-y-6">
+          <div className="grid lg:grid-cols-2 gap-6">
             <div className="lg:col-span-2 space-y-6">
               {/* ADDED: Agreement Panel */}
               <AgreementPanel caseId={caseId} caseData={caseData} />
@@ -643,10 +635,7 @@ export default function CaseDetail() {
           </div>
         </TabsContent>
 
-        {/* ADDED People Finder Tab */}
-        <TabsContent value="peoplefinder" className="space-y-4">
-          <PeopleFinderTab caseId={caseId} caseData={caseData} />
-        </TabsContent>
+        {/* People Finder now shown inside Homeowner tab below */}
 
         {/* Notary Tab */}
         <TabsContent value="notary" className="space-y-4">
@@ -731,8 +720,7 @@ export default function CaseDetail() {
           </Card>
         </TabsContent>
 
-        {/* Packet Tab */}
-        <TabsContent value="packet" className="space-y-4">
+        {/* Packet tab removed (merged into Documents) */}
           <div className="grid lg:grid-cols-3 gap-6">
             {/* Packet Readiness Panel */}
             <PacketReadinessPanel caseData={caseData} countyData={county} />
@@ -798,8 +786,7 @@ export default function CaseDetail() {
           <VerificationTab caseId={caseId} caseData={caseData} />
         </TabsContent>
 
-        {/* Timeline Tab */}
-        <TabsContent value="timeline" className="space-y-4">
+        {/* Timeline tab removed (use Activity Log) */}
           <Card>
             <CardHeader>
               <CardTitle>Case Timeline</CardTitle>
@@ -829,9 +816,16 @@ export default function CaseDetail() {
           </div>
         </TabsContent>
 
-        {/* Email Tab */}
-        <TabsContent value="email" className="space-y-4">
-          <SendEmailPanel caseId={caseId} caseData={caseData} />
+        {/* Communications Tab */}
+        <TabsContent value="communications" className="space-y-6">
+          <div className="grid lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <SendEmailPanel caseId={caseId} caseData={caseData} />
+            </div>
+            <div>
+              <OutreachPanel caseId={caseId} caseData={caseData} />
+            </div>
+          </div>
         </TabsContent>
 
         {/* Activity Log Tab */}

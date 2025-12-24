@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.4';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 
 /**
  * PORTAL LINK GENERATOR
@@ -16,6 +16,7 @@ Deno.serve(async (req) => {
 
     const { case_id, send_email = true, send_sms = false } = await req.json();
     const diagnostics = { step: 'parsed_request', case_id, timestamp: new Date().toISOString(), errors: [] };
+    console.log(`[generatePortalLink] Start for case_id=${case_id}`);
 
     if (!case_id) {
       diagnostics.step = 'validate_input';
@@ -31,10 +32,12 @@ Deno.serve(async (req) => {
     // Fetch case
     const cases = await base44.entities.Case.filter({ id: case_id });
     const caseData = cases[0];
+    console.log(`[generatePortalLink] Case found? ${!!caseData}`);
     
     if (!caseData) {
       diagnostics.step = 'fetch_case';
       diagnostics.errors.push('Case not found');
+      console.log(`[generatePortalLink] ERROR: Case not found for id=${case_id}`);
       return Response.json({ 
         status: 'error',
         success: false,
@@ -47,6 +50,7 @@ Deno.serve(async (req) => {
     diagnostics.step = 'validate_email';
     if (!caseData.owner_email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(caseData.owner_email)) {
       diagnostics.errors.push(`Invalid or missing email: ${caseData.owner_email || 'null'}`);
+      console.log(`[generatePortalLink] ERROR: Invalid/missing owner_email: ${caseData.owner_email}`);
       return Response.json({ 
         status: 'error',
         success: false,
@@ -58,7 +62,14 @@ Deno.serve(async (req) => {
     // Always generate a new token (invalidates previous on resend)
     diagnostics.step = 'generate_token';
     const token = generateUniqueToken();
-    const portalUrl = `${Deno.env.get('BASE44_APP_URL') || 'https://your-app.base44.com'}/PortalWelcome?token=${token}`;
+    console.log(`[generatePortalLink] Token generated: ${token.slice(0,8)}...`);
+    const appUrl = Deno.env.get('BASE44_APP_URL') || 'https://your-app.base44.com';
+    if (!Deno.env.get('BASE44_APP_URL')) {
+      console.log('[generatePortalLink] WARNING: BASE44_APP_URL not set, using fallback URL');
+    }
+    const portalUrl = `${appUrl}/PortalWelcome?token=${token}`;
+    console.log(`[generatePortalLink] Portal URL: ${portalUrl}`);
+    const expiresAt = new Date(Date.now() + 7*24*60*60*1000).toISOString();
 
     // Update case with new token
     diagnostics.step = 'update_case';
@@ -67,7 +78,8 @@ Deno.serve(async (req) => {
       portal_link: portalUrl,
       portal_token_active: true,
       portal_sent_at: caseData.portal_sent_at || new Date().toISOString(),
-      portal_last_resent_at: caseData.portal_sent_at ? new Date().toISOString() : null
+      portal_last_resent_at: caseData.portal_sent_at ? new Date().toISOString() : null,
+      portal_token_expires_at: expiresAt
     });
 
     // Generate email content (do NOT send via Base44)
@@ -109,9 +121,11 @@ Deno.serve(async (req) => {
     });
 
   } catch (error) {
+    console.log('[generatePortalLink] ERROR:', error?.message);
     return Response.json({ 
       status: 'error',
       success: false,
+      error: error.message,
       details: error.message,
       diagnostics: { errors: [error.message], stack: error.stack },
     }, { status: 500 });

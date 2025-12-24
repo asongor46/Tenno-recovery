@@ -13,6 +13,8 @@ export default function PortalWelcome() {
   const [caseData, setCaseData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [tokenExpired, setTokenExpired] = useState(false);
+  const [settings, setSettings] = useState({});
 
   useEffect(() => {
     async function loadCase() {
@@ -82,6 +84,27 @@ export default function PortalWelcome() {
             </div>
             <h2 className="text-xl font-bold text-slate-900 mb-2">Access Error</h2>
             <p className="text-slate-500">{error}</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (tokenExpired) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
+        <Card className="max-w-md w-full">
+          <CardContent className="pt-6 text-center">
+            <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <CheckCircle className="w-8 h-8 text-amber-600" />
+            </div>
+            <h2 className="text-xl font-bold text-slate-900 mb-2">This Link Has Expired</h2>
+            <p className="text-slate-600 mb-4">For your security, portal links expire after 7 days.</p>
+            <div className="text-sm text-slate-600 space-y-1">
+              <p>Please contact us and we will send a fresh link right away:</p>
+              <p>📞 {settings.agent_phone || '(phone)'} </p>
+              <p>📧 {settings.agent_email || 'tennoassetrecovery@gmail.com'} </p>
+            </div>
           </CardContent>
         </Card>
       </div>
