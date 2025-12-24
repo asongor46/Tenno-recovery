@@ -32,7 +32,8 @@ import {
   Lightbulb,
   MapPin,
   FileCheck,
-} from "lucide-react";
+  Mail,
+  } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -72,6 +73,7 @@ import AgentAssistPanel from "@/components/case/AgentAssistPanel";
 import PacketReadinessPanel from "@/components/case/PacketReadinessPanel";
 import EmailFallbackModal from "@/components/communications/EmailFallbackModal";
 import { usePortalLink } from "@/components/shared/usePortalLink";
+import SendEmailPanel from "@/components/case/SendEmailPanel";
 
 const stageConfig = {
   imported: { label: "Imported", color: "bg-slate-500" },
@@ -353,6 +355,9 @@ export default function CaseDetail() {
           </TabsTrigger>
           <TabsTrigger value="timeline" className="gap-2">
             <Activity className="w-4 h-4" /> Timeline
+          </TabsTrigger>
+          <TabsTrigger value="email" className="gap-2">
+            <Mail className="w-4 h-4" /> Send Email
           </TabsTrigger>
           <TabsTrigger value="activity" className="gap-2">
             <Activity className="w-4 h-4" /> Activity Log
@@ -822,6 +827,11 @@ export default function CaseDetail() {
               <DocumentGeneratorPanel caseId={caseId} />
             </div>
           </div>
+        </TabsContent>
+
+        {/* Email Tab */}
+        <TabsContent value="email" className="space-y-4">
+          <SendEmailPanel caseId={caseId} caseData={caseData} />
         </TabsContent>
 
         {/* Activity Log Tab */}
