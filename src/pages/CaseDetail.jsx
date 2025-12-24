@@ -720,55 +720,7 @@ export default function CaseDetail() {
           </Card>
         </TabsContent>
 
-        {/* Packet tab removed (merged into Documents) */}
-          <div className="grid lg:grid-cols-3 gap-6">
-            {/* Packet Readiness Panel */}
-            <PacketReadinessPanel caseData={caseData} countyData={county} />
-            
-            <div className="lg:col-span-2">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Filing Packet</CardTitle>
-              <div className="flex gap-2">
-                <Button variant="outline">
-                  <RefreshCw className="w-4 h-4 mr-2" /> Regenerate
-                </Button>
-                {caseData.packet_url && (
-                  <Button className="bg-emerald-600 hover:bg-emerald-700">
-                    <Download className="w-4 h-4 mr-2" /> Download PDF
-                  </Button>
-                )}
-              </div>
-            </CardHeader>
-            <CardContent>
-              {caseData.packet_url ? (
-                <div>
-                  <div className="bg-slate-100 rounded-xl p-8 text-center">
-                    <Package className="w-12 h-12 text-slate-400 mx-auto mb-3" />
-                    <p className="font-medium">Packet Generated</p>
-                    <p className="text-sm text-slate-500">
-                      {caseData.packet_generated_at 
-                        ? format(new Date(caseData.packet_generated_at), "MMM d, yyyy h:mm a")
-                        : ""
-                      }
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center py-12">
-                  <Package className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                  <p className="text-slate-500">Packet not yet generated</p>
-                  <p className="text-sm text-slate-400 mt-1">Complete all required steps first</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-            </div>
-            <div>
-              <FilingWorkflowPanel caseId={caseId} caseData={caseData} />
-            </div>
-          </div>
-        </TabsContent>
+
 
         {/* Filing & Court Tab */}
         <TabsContent value="filing" className="space-y-4">
@@ -786,16 +738,7 @@ export default function CaseDetail() {
           <VerificationTab caseId={caseId} caseData={caseData} />
         </TabsContent>
 
-        {/* Timeline tab removed (use Activity Log) */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Case Timeline</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CaseTimeline caseId={caseId} />
-            </CardContent>
-          </Card>
-        </TabsContent>
+
 
         {/* County Profile Tab */}
         <TabsContent value="county" className="space-y-4">
