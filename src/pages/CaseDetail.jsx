@@ -547,6 +547,7 @@ export default function CaseDetail() {
             </CardContent>
           </Card>
           <PacketReadinessPanel caseData={caseData} countyData={county} />
+        <PacketReadinessPanel caseData={caseData} countyData={county} />
         </TabsContent>
 
         {/* Contacts & People (merged) */}
