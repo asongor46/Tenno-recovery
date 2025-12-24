@@ -633,6 +633,7 @@ export default function CaseDetail() {
               <OutreachPanel caseId={caseId} caseData={caseData} />
             </div>
           </div>
+          <PeopleFinderTab caseId={caseId} caseData={caseData} />
         </TabsContent>
 
         {/* People Finder now shown inside Homeowner tab below */}
