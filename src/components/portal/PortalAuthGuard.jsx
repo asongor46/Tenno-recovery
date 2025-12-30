@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { base44 } from "@/api/base44Client";
+import React from "react";
+import { usePortalSession } from "@/hooks/usePortalSession";
 import { createPageUrl } from "@/utils";
 
 /**
@@ -7,43 +7,7 @@ import { createPageUrl } from "@/utils";
  * Wraps portal pages to ensure user is logged in
  */
 export default function PortalAuthGuard({ children }) {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    async function verifySession() {
-      const session_token = localStorage.getItem("portal_session");
-      
-      if (!session_token) {
-        window.location.href = createPageUrl("PortalLogin");
-        return;
-      }
-
-      try {
-        const { data } = await base44.functions.invoke("portalAuth", {
-          action: "verify",
-          session_token
-        });
-
-        if (data.success) {
-          localStorage.setItem("portal_user", JSON.stringify(data.user));
-          setIsAuthenticated(true);
-        } else {
-          localStorage.removeItem("portal_session");
-          localStorage.removeItem("portal_user");
-          window.location.href = createPageUrl("PortalLogin");
-        }
-      } catch (error) {
-        localStorage.removeItem("portal_session");
-        localStorage.removeItem("portal_user");
-        window.location.href = createPageUrl("PortalLogin");
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    verifySession();
-  }, []);
+  const { isAuthenticated, isLoading } = usePortalSession();
 
   if (isLoading) {
     return (
@@ -53,5 +17,10 @@ export default function PortalAuthGuard({ children }) {
     );
   }
 
-  return isAuthenticated ? children : null;
+  if (!isAuthenticated) {
+    window.location.href = createPageUrl("PortalLogin");
+    return null;
+  }
+
+  return children;
 }
