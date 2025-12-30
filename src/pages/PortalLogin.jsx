@@ -1,14 +1,21 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
-import { motion } from "framer-motion";
-import { LogIn, Mail, Lock } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { LogIn, Mail, Lock, Key, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { createPageUrl } from "@/utils";
 
 async function hashPassword(password) {
   const encoder = new TextEncoder();
@@ -19,13 +26,48 @@ async function hashPassword(password) {
 }
 
 export default function PortalLogin() {
+  const [loginType, setLoginType] = useState("access_code");
   const [email, setEmail] = useState("");
+  const [accessCode, setAccessCode] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
+  // Password setup dialog state (for first-time users)
+  const [showPasswordSetup, setShowPasswordSetup] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [validatedCases, setValidatedCases] = useState([]);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const handleAccessCodeSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setIsLoading(true);
+
+    try {
+      const { data } = await base44.functions.invoke("validateAccessCode", {
+        email: email.toLowerCase().trim(),
+        access_code: accessCode.toUpperCase().trim()
+      });
+
+      if (data.success) {
+        setValidatedCases(data.cases);
+        setShowPasswordSetup(true);
+      } else {
+        setError(data.error || "Invalid email or access code");
+      }
+    } catch (err) {
+      setError("An error occurred. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handlePasswordLogin = async (e) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
@@ -33,19 +75,69 @@ export default function PortalLogin() {
     try {
       const password_hash = await hashPassword(password);
       
-      const { data } = await base44.functions.invoke("portalAuth", {
-        action: "login",
-        email,
+      const { data } = await base44.functions.invoke("portalLogin", {
+        email: email.toLowerCase().trim(),
         password_hash,
         remember_me: rememberMe
       });
 
       if (data.success) {
-        localStorage.setItem("portal_session", data.session_token);
-        localStorage.setItem("portal_user", JSON.stringify(data.user));
+        // Store session
+        const storage = rememberMe ? localStorage : sessionStorage;
+        storage.setItem("portal_session_token", data.session_token);
+        storage.setItem("portal_user_email", data.user.email);
+        if (data.session_expires_at) {
+          storage.setItem("portal_session_expires", data.session_expires_at);
+        }
+
+        // Redirect to dashboard
         window.location.href = createPageUrl("PortalDashboard");
       } else {
         setError(data.error || "Login failed");
+      }
+    } catch (err) {
+      setError("An error occurred. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handlePasswordSetup = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    if (newPassword.length < 8) {
+      setError("Password must be at least 8 characters");
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const password_hash = await hashPassword(newPassword);
+      
+      const { data } = await base44.functions.invoke("setupPortalPassword", {
+        email: email.toLowerCase().trim(),
+        access_code: accessCode.toUpperCase().trim(),
+        password_hash,
+        remember_me: rememberMe
+      });
+
+      if (data.success) {
+        // Store session
+        const storage = rememberMe ? localStorage : sessionStorage;
+        storage.setItem("portal_session_token", data.session_token);
+        storage.setItem("portal_user_email", data.user.email);
+
+        // Redirect to dashboard
+        window.location.href = createPageUrl("PortalDashboard");
+      } else {
+        setError(data.error || "Account creation failed");
       }
     } catch (err) {
       setError("An error occurred. Please try again.");
@@ -61,94 +153,252 @@ export default function PortalLogin() {
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md"
       >
-        {/* Logo */}
+        {/* Logo & Header */}
         <div className="text-center mb-8">
           <img 
             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6935380f41db07237f45b1db/11ed7b05d_Screenshot_20251213_181447_Chrome.jpg" 
             alt="TENNO RECOVERY" 
             className="h-12 w-auto mx-auto mb-4"
           />
-          <h1 className="text-2xl font-bold text-slate-900">Welcome Back</h1>
-          <p className="text-slate-500 mt-1">Sign in to access your cases</p>
+          <h1 className="text-2xl font-bold text-slate-900">Surplus Recovery Portal</h1>
+          <p className="text-slate-500 mt-1">Access your case information</p>
         </div>
 
         <Card>
           <CardContent className="pt-6">
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {error && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-                  {error}
-                </div>
-              )}
-
-              <div>
-                <Label htmlFor="email">Email Address</Label>
-                <div className="relative mt-1">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <Input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10"
-                    placeholder="your@email.com"
-                    required
-                  />
-                </div>
+            {/* Email Field (always visible) */}
+            <div className="mb-6">
+              <Label htmlFor="email">Email Address</Label>
+              <div className="relative mt-1">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="pl-10"
+                  placeholder="your@email.com"
+                  required
+                />
               </div>
+            </div>
 
-              <div>
-                <Label htmlFor="password">Password</Label>
-                <div className="relative mt-1">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <Input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10"
-                    placeholder="••••••••"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Checkbox
-                    id="remember"
-                    checked={rememberMe}
-                    onCheckedChange={setRememberMe}
-                  />
-                  <Label htmlFor="remember" className="text-sm cursor-pointer">
-                    Remember me for 30 days
+            {/* Login Type Toggle */}
+            <div className="mb-6">
+              <Label className="text-sm font-medium mb-3 block">Login Method</Label>
+              <RadioGroup value={loginType} onValueChange={setLoginType}>
+                <div className="flex items-center space-x-2 mb-2">
+                  <RadioGroupItem value="access_code" id="access_code" />
+                  <Label htmlFor="access_code" className="cursor-pointer font-normal">
+                    First time? I have an access code
                   </Label>
                 </div>
-              </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="password" id="password" />
+                  <Label htmlFor="password" className="cursor-pointer font-normal">
+                    Returning? I have a password
+                  </Label>
+                </div>
+              </RadioGroup>
+            </div>
 
-              <Button
-                type="submit"
-                className="w-full bg-emerald-600 hover:bg-emerald-700"
-                disabled={isLoading}
-              >
-                {isLoading ? "Signing in..." : "Sign In"}
-                {!isLoading && <LogIn className="w-4 h-4 ml-2" />}
-              </Button>
-
-              <div className="text-center text-sm text-slate-500">
-                Don't have an account?{" "}
-                <Link to={createPageUrl("PortalRegister")} className="text-emerald-600 hover:text-emerald-700 font-medium">
-                  Create one
-                </Link>
+            {error && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                {error}
               </div>
-            </form>
+            )}
+
+            <AnimatePresence mode="wait">
+              {loginType === "access_code" ? (
+                <motion.form
+                  key="access_code"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  onSubmit={handleAccessCodeSubmit}
+                  className="space-y-4"
+                >
+                  <div>
+                    <Label htmlFor="access_code_input">Access Code (8 characters)</Label>
+                    <div className="relative mt-1">
+                      <Key className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <Input
+                        id="access_code_input"
+                        type="text"
+                        value={accessCode}
+                        onChange={(e) => setAccessCode(e.target.value.toUpperCase())}
+                        className="pl-10 uppercase tracking-wider"
+                        placeholder="ABC123XY"
+                        maxLength={8}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <Button
+                    type="submit"
+                    className="w-full bg-emerald-600 hover:bg-emerald-700"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Validating..." : "Validate & Create Account"}
+                  </Button>
+                </motion.form>
+              ) : (
+                <motion.form
+                  key="password"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  onSubmit={handlePasswordLogin}
+                  className="space-y-4"
+                >
+                  <div>
+                    <Label htmlFor="password_input">Password</Label>
+                    <div className="relative mt-1">
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <Input
+                        id="password_input"
+                        type={showPassword ? "text" : "password"}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="pl-10 pr-10"
+                        placeholder="••••••••"
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                      >
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="remember"
+                      checked={rememberMe}
+                      onCheckedChange={setRememberMe}
+                    />
+                    <Label htmlFor="remember" className="text-sm cursor-pointer font-normal">
+                      Remember me for 30 days
+                    </Label>
+                  </div>
+
+                  <Button
+                    type="submit"
+                    className="w-full bg-emerald-600 hover:bg-emerald-700"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Signing in..." : "Sign In"}
+                    {!isLoading && <LogIn className="w-4 h-4 ml-2" />}
+                  </Button>
+                </motion.form>
+              )}
+            </AnimatePresence>
+
+            {/* Help Text */}
+            <div className="mt-6 pt-6 border-t text-center text-sm text-slate-500">
+              <p>Lost your access code?</p>
+              <p className="mt-1">
+                Contact: <a href="mailto:tennoassetrecovery@gmail.com" className="text-emerald-600 hover:text-emerald-700">
+                  tennoassetrecovery@gmail.com
+                </a>
+              </p>
+            </div>
           </CardContent>
         </Card>
 
         <p className="text-center text-xs text-slate-500 mt-6">
-          Need help? Contact us at tennoassetrecovery@gmail.com
+          © 2025 TENNO Asset Recovery
         </p>
       </motion.div>
+
+      {/* Password Setup Dialog */}
+      <Dialog open={showPasswordSetup} onOpenChange={setShowPasswordSetup}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Set Your Password</DialogTitle>
+            <DialogDescription>
+              Create a secure password for your account. You'll use this to sign in on future visits.
+            </DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handlePasswordSetup} className="space-y-4 mt-4">
+            {error && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                {error}
+              </div>
+            )}
+
+            <div>
+              <Label htmlFor="new_password">Password</Label>
+              <div className="relative mt-1">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <Input
+                  id="new_password"
+                  type={showNewPassword ? "text" : "password"}
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="pl-10 pr-10"
+                  placeholder="At least 8 characters"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                >
+                  {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="confirm_password">Confirm Password</Label>
+              <div className="relative mt-1">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <Input
+                  id="confirm_password"
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="pl-10 pr-10"
+                  placeholder="Re-enter password"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                >
+                  {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="remember_setup"
+                checked={rememberMe}
+                onCheckedChange={setRememberMe}
+              />
+              <Label htmlFor="remember_setup" className="text-sm cursor-pointer font-normal">
+                Keep me signed in for 30 days
+              </Label>
+            </div>
+
+            <Button
+              type="submit"
+              className="w-full bg-emerald-600 hover:bg-emerald-700"
+              disabled={isLoading}
+            >
+              {isLoading ? "Creating Account..." : "Create Account & Sign In"}
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
