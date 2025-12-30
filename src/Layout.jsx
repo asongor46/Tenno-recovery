@@ -96,9 +96,16 @@ export default function Layout({ children, currentPageName }) {
   const [expandedMenus, setExpandedMenus] = useState({});
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { data: user } = useQuery({
+  // Public pages (no auth, no layout)
+  const isPublicPage = ['LandingPage', 'HowItWorks', 'About', 'Contact'].includes(currentPageName);
+  const isPortalPage = currentPageName?.startsWith("Portal");
+
+  // Auth check for agent pages
+  const { data: user, isLoading: authLoading } = useQuery({
     queryKey: ["currentUser"],
     queryFn: () => base44.auth.me(),
+    enabled: !isPublicPage && !isPortalPage,
+    retry: false,
   });
 
   const userRole = user?.role || "user";
@@ -109,6 +116,7 @@ export default function Layout({ children, currentPageName }) {
       const allAlerts = await base44.entities.Alert.filter({ is_read: false });
       return allAlerts.slice(0, 5);
     },
+    enabled: !!user,
   });
 
   const toggleMenu = (menuName) => {
@@ -119,11 +127,26 @@ export default function Layout({ children, currentPageName }) {
   };
 
   // Public pages (no auth, no layout)
-  const isPublicPage = ['LandingPage', 'HowItWorks', 'About', 'Contact'].includes(currentPageName);
-  const isPortalPage = currentPageName?.startsWith("Portal");
-
   if (isPublicPage || isPortalPage) {
     return <>{children}</>;
+  }
+
+  // Auth loading state for agent pages
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto"></div>
+          <p className="mt-4 text-slate-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Not authenticated - redirect to login
+  if (!user) {
+    base44.auth.redirectToLogin(window.location.pathname);
+    return null;
   }
 
   const handleLogout = () => {
