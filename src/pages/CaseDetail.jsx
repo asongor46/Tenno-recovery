@@ -97,8 +97,9 @@ export default function CaseDetail() {
   const [viewingPdf, setViewingPdf] = useState(null);
   const [showPdfViewer, setShowPdfViewer] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
-  const [showSendPortalDialog, setShowSendPortalDialog] = useState(false);
-  const [portalFeePercent, setPortalFeePercent] = useState(20);
+  // [MODIFIED - Portal Invite]
+  const [showInviteDialog, setShowInviteDialog] = useState(false);
+  const [inviteData, setInviteData] = useState(null);
 
   const queryClient = useQueryClient();
   const toast = useStandardToast();
@@ -137,6 +138,17 @@ export default function CaseDetail() {
     enabled: !!caseData?.county && !!caseData?.state,
     staleTime: 300000, // Cache county profiles for 5 minutes
     cacheTime: 600000,
+  });
+
+  // [MODIFIED - Portal Invite] Fetch PortalUser for last login
+  const { data: portalUser } = useQuery({
+    queryKey: ["portalUser", caseData?.owner_email],
+    queryFn: async () => {
+      if (!caseData?.owner_email) return null;
+      const users = await base44.entities.PortalUser.filter({ email: caseData.owner_email });
+      return users[0] || null;
+    },
+    enabled: !!caseData?.owner_email,
   });
 
   const updateCase = useMutation({
@@ -293,14 +305,32 @@ export default function CaseDetail() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+          {/* [MODIFIED - Portal Invite] */}
           <Button 
             variant="outline"
-            onClick={() => {
-              setPortalFeePercent(caseData?.fee_percent || 20);
-              setShowSendPortalDialog(true);
+            onClick={async () => {
+              if (!caseData?.owner_email) {
+                toast.error("Please add owner email first");
+                return;
+              }
+              try {
+                const { data } = await base44.functions.invoke("generatePortalInvite", {
+                  case_id: caseId
+                });
+                if (data.success) {
+                  setInviteData(data.data);
+                  setShowInviteDialog(true);
+                  queryClient.invalidateQueries({ queryKey: ["case", caseId] });
+                  queryClient.invalidateQueries({ queryKey: ["activities", caseId] });
+                } else {
+                  toast.error(data.error || "Failed to generate invite");
+                }
+              } catch (err) {
+                toast.error("Error generating invite");
+              }
             }}
           >
-            <Send className="w-4 h-4 mr-2" /> Send Portal Link
+            <Send className="w-4 h-4 mr-2" /> Send Portal Invite
           </Button>
           <Button variant="outline">
             <Download className="w-4 h-4 mr-2" /> Export
@@ -556,11 +586,34 @@ export default function CaseDetail() {
               {/* ADDED: Agreement Panel */}
               <AgreementPanel caseId={caseId} caseData={caseData} />
 
-              <Card>
+              {/* [MODIFIED - Portal Invite] */}
+            <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Homeowner Information</CardTitle>
-              <Button variant="outline" size="sm">
-                <Send className="w-4 h-4 mr-2" /> Resend Portal Link
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={async () => {
+                  if (!caseData?.owner_email) {
+                    toast.error("Please add owner email first");
+                    return;
+                  }
+                  try {
+                    const { data } = await base44.functions.invoke("generatePortalInvite", {
+                      case_id: caseId
+                    });
+                    if (data.success) {
+                      setInviteData(data.data);
+                      setShowInviteDialog(true);
+                      queryClient.invalidateQueries({ queryKey: ["case", caseId] });
+                      toast.success("Access code regenerated");
+                    }
+                  } catch (err) {
+                    toast.error("Error generating invite");
+                  }
+                }}
+              >
+                <Send className="w-4 h-4 mr-2" /> Resend Portal Invite
               </Button>
             </CardHeader>
             <CardContent>
@@ -610,23 +663,92 @@ export default function CaseDetail() {
                 </div>
               </div>
 
-              {/* Portal Access */}
+              {/* [MODIFIED - Portal Invite] Portal Access */}
               <div className="mt-8 p-4 bg-slate-50 rounded-xl">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">Portal Access</p>
-                    <p className="text-sm text-slate-500">
-                      Last accessed: {caseData.portal_last_accessed 
-                        ? format(new Date(caseData.portal_last_accessed), "MMM d, yyyy h:mm a")
-                        : "Never"
-                      }
-                    </p>
-                  </div>
-                  <Button variant="outline" size="sm">
-                    <ExternalLink className="w-4 h-4 mr-2" /> View Portal
-                  </Button>
+                <div className="flex items-center justify-between mb-3">
+                  <p className="font-medium">Portal Access</p>
+                  {caseData.portal_access_code && (
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={async () => {
+                        if (window.confirm("Regenerate access code? The old code will no longer work.")) {
+                          try {
+                            const { data } = await base44.functions.invoke("generatePortalInvite", {
+                              case_id: caseId
+                            });
+                            if (data.success) {
+                              setInviteData(data.data);
+                              setShowInviteDialog(true);
+                              queryClient.invalidateQueries({ queryKey: ["case", caseId] });
+                              toast.success("New access code generated");
+                            }
+                          } catch (err) {
+                            toast.error("Error regenerating code");
+                          }
+                        }
+                      }}
+                    >
+                      <RefreshCw className="w-3 h-3 mr-1" /> Regenerate
+                    </Button>
+                  )}
                 </div>
-              </div>
+                
+                {caseData.portal_access_code ? (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between p-3 bg-white rounded-lg border">
+                      <span className="text-sm text-slate-500">Access Code:</span>
+                      <div className="flex items-center gap-2">
+                        <code className="font-mono font-bold text-lg tracking-wider">
+                          {caseData.portal_access_code}
+                        </code>
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => {
+                            navigator.clipboard.writeText(caseData.portal_access_code);
+                            toast.success("Code copied!");
+                          }}
+                        >
+                          Copy
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-slate-500">Status:</span>
+                      <Badge className={caseData.portal_code_used 
+                        ? "bg-green-100 text-green-700 border-0" 
+                        : "bg-amber-100 text-amber-700 border-0"
+                      }>
+                        {caseData.portal_code_used ? "✓ Used" : "⏳ Unused"}
+                      </Badge>
+                    </div>
+                    {caseData.portal_code_used_at && (
+                      <p className="text-xs text-slate-500">
+                        Code used: {format(new Date(caseData.portal_code_used_at), "MMM d, yyyy h:mm a")}
+                      </p>
+                    )}
+                    {caseData.portal_code_generated_at && (
+                      <p className="text-xs text-slate-500">
+                        Generated: {format(new Date(caseData.portal_code_generated_at), "MMM d, yyyy h:mm a")}
+                      </p>
+                    )}
+                    {portalUser?.last_login_at && (
+                      <div className="mt-2 pt-2 border-t">
+                        <p className="text-sm text-emerald-600 font-medium">
+                          ✓ Account active • Last login: {format(new Date(portalUser.last_login_at), "MMM d, yyyy h:mm a")}
+                        </p>
+                        <p className="text-xs text-slate-500 mt-1">
+                          Total logins: {portalUser.login_count || 0}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-sm text-slate-500">
+                    No access code generated yet. Click "Send Portal Invite" to create one.
+                  </p>
+                )}</div>
             </CardContent>
           </Card>
             </div>
@@ -836,72 +958,89 @@ export default function CaseDetail() {
         />
       )}
 
-      {/* Send Portal Link Dialog */}
-      <Dialog open={showSendPortalDialog} onOpenChange={setShowSendPortalDialog}>
-        <DialogContent>
+      {/* [MODIFIED - Portal Invite] Send Portal Invite Dialog */}
+      <Dialog open={showInviteDialog} onOpenChange={setShowInviteDialog}>
+        <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>Send Portal Link</DialogTitle>
+            <DialogTitle>Portal Invite Generated</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            <div>
-              <Label>Fee Percentage (10-30%)</Label>
-              <div className="flex items-center gap-3 mt-2">
-                <Input
-                  type="number"
-                  min="10"
-                  max="30"
-                  step="1"
-                  value={portalFeePercent}
-                  onChange={(e) => setPortalFeePercent(parseInt(e.target.value) || 20)}
-                  className="w-24"
-                />
-                <span className="font-semibold">%</span>
+            <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+              <p className="text-sm text-slate-600">
+                ✉️ Email will be sent to:
+              </p>
+              <p className="font-semibold text-lg mt-1">{inviteData?.recipientEmail}</p>
+            </div>
+
+            <div className="p-4 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-lg border-2 border-emerald-300">
+              <p className="text-sm text-slate-600 mb-2">🔑 Access Code:</p>
+              <div className="flex items-center justify-center gap-3">
+                <code className="font-mono font-bold text-3xl tracking-widest text-emerald-900">
+                  {inviteData?.accessCode}
+                </code>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => {
+                    navigator.clipboard.writeText(inviteData?.accessCode || "");
+                    toast.success("Code copied!");
+                  }}
+                >
+                  Copy
+                </Button>
               </div>
             </div>
-            <div className="p-3 bg-slate-50 rounded-lg">
-              <p className="text-sm text-slate-600">
-                Email: <span className="font-semibold">{caseData?.owner_email || "No email on file"}</span>
-              </p>
+
+            <div className="space-y-2">
+              <Button 
+                className="w-full bg-blue-600 hover:bg-blue-700"
+                onClick={() => {
+                  if (inviteData?.outlook_link) {
+                    window.location.href = inviteData.outlook_link;
+                  }
+                }}
+              >
+                📧 Open in Outlook
+              </Button>
+              <Button 
+                variant="outline"
+                className="w-full"
+                onClick={() => {
+                  if (inviteData?.mailto_link) {
+                    window.location.href = inviteData.mailto_link;
+                  }
+                }}
+              >
+                📧 Open in Default Email
+              </Button>
+              <Button 
+                variant="outline"
+                className="w-full"
+                onClick={() => {
+                  const emailText = `To: ${inviteData?.recipientEmail}\nSubject: ${inviteData?.emailSubject}\n\n${inviteData?.emailBody}`;
+                  navigator.clipboard.writeText(emailText);
+                  toast.success("Email copied to clipboard!");
+                }}
+              >
+                📋 Copy Full Email
+              </Button>
             </div>
+
+            <p className="text-xs text-center text-slate-500 pt-2">
+              Code has been saved to case record
+            </p>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowSendPortalDialog(false)}>
-              Cancel
-            </Button>
-            <Button
-              onClick={async () => {
-                if (!caseData?.owner_email) {
-                  toast.error("No email address on file");
-                  return;
-                }
-                if (portalFeePercent < 10 || portalFeePercent > 30) {
-                  toast.error("Fee must be between 10-30%");
-                  return;
-                }
-
-                await base44.entities.Case.update(caseId, { fee_percent: portalFeePercent });
-
-                const result = await generateAndSend(caseId, caseData.owner_email);
-                if (result?.success) {
-                  queryClient.invalidateQueries({ queryKey: ["case", caseId] });
-                  queryClient.invalidateQueries({ queryKey: ["activities", caseId] });
-                  setShowSendPortalDialog(false);
-                }
-              }}
-              disabled={sendingPortal}
-              className="bg-emerald-600 hover:bg-emerald-700"
+            <Button 
+              variant="outline" 
+              onClick={() => setShowInviteDialog(false)}
+              className="w-full"
             >
-              <Send className="w-4 h-4 mr-2" /> {sendingPortal ? 'Opening…' : 'Open Email to Send'}
+              Done
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      <EmailFallbackModal 
-        open={!!fallbackData}
-        onClose={clearFallback}
-        data={fallbackData}
-      />
       </div>
       );
       }
