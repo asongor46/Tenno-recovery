@@ -23,7 +23,6 @@ import PortalDashboard from './pages/PortalDashboard';
 import PortalIDUpload from './pages/PortalIDUpload';
 import PortalInfo from './pages/PortalInfo';
 import PortalIntake from './pages/PortalIntake';
-import PortalLinkRecovery from './pages/PortalLinkRecovery';
 import PortalLostLink from './pages/PortalLostLink';
 import PortalNotary from './pages/PortalNotary';
 import PortalWelcome from './pages/PortalWelcome';
@@ -63,7 +62,6 @@ export const PAGES = {
     "PortalIDUpload": PortalIDUpload,
     "PortalInfo": PortalInfo,
     "PortalIntake": PortalIntake,
-    "PortalLinkRecovery": PortalLinkRecovery,
     "PortalLostLink": PortalLostLink,
     "PortalNotary": PortalNotary,
     "PortalWelcome": PortalWelcome,
