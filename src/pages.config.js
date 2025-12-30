@@ -9,7 +9,6 @@ import CountyDetail from './pages/CountyDetail';
 import Dashboard from './pages/Dashboard';
 import FileManager from './pages/FileManager';
 import FormLibrary from './pages/FormLibrary';
-import Home from './pages/Home';
 import HotCases from './pages/HotCases';
 import HowTo from './pages/HowTo';
 import Invoices from './pages/Invoices';
@@ -33,6 +32,8 @@ import Reminders from './pages/Reminders';
 import Settings from './pages/Settings';
 import Templates from './pages/Templates';
 import UserManagement from './pages/UserManagement';
+import LandingPage from './pages/LandingPage';
+import HowItWorks from './pages/HowItWorks';
 import __Layout from './Layout.jsx';
 
 
@@ -48,7 +49,6 @@ export const PAGES = {
     "Dashboard": Dashboard,
     "FileManager": FileManager,
     "FormLibrary": FormLibrary,
-    "Home": Home,
     "HotCases": HotCases,
     "HowTo": HowTo,
     "Invoices": Invoices,
@@ -72,6 +72,8 @@ export const PAGES = {
     "Settings": Settings,
     "Templates": Templates,
     "UserManagement": UserManagement,
+    "LandingPage": LandingPage,
+    "HowItWorks": HowItWorks,
 }
 
 export const pagesConfig = {

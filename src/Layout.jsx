@@ -118,9 +118,11 @@ export default function Layout({ children, currentPageName }) {
     }));
   };
 
+  // Public pages (no auth, no layout)
+  const isPublicPage = ['LandingPage', 'HowItWorks', 'About', 'Contact'].includes(currentPageName);
   const isPortalPage = currentPageName?.startsWith("Portal");
 
-  if (isPortalPage) {
+  if (isPublicPage || isPortalPage) {
     return <>{children}</>;
   }
 
