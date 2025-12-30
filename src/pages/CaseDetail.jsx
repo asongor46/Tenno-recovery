@@ -866,21 +866,31 @@ export default function CaseDetail() {
 
         {/* County Profile Tab */}
         <TabsContent value="county" className="space-y-4">
-          <div className="grid lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle>County Filing Rules</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CountyProfileView county={county} />
-                </CardContent>
-              </Card>
+          {!caseData?.county || !caseData?.state ? (
+            <Card>
+              <CardContent className="pt-6">
+                <div className="text-center py-8">
+                  <p className="text-slate-500">County information not available for this case</p>
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>County Filing Rules</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <CountyProfileView county={county} />
+                  </CardContent>
+                </Card>
+              </div>
+              <div className="space-y-6">
+                <DocumentGeneratorPanel caseId={caseId} />
+              </div>
             </div>
-            <div className="space-y-6">
-              <DocumentGeneratorPanel caseId={caseId} />
-            </div>
-          </div>
+          )}
         </TabsContent>
 
         {/* Communications Tab */}
