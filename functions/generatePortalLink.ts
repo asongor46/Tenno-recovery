@@ -59,33 +59,32 @@ Deno.serve(async (req) => {
       }, { status: 400 });
     }
 
-    // Always generate a new token (invalidates previous on resend)
-    diagnostics.step = 'generate_token';
-    const token = generateUniqueToken();
-    console.log(`[generatePortalLink] Token generated: ${token.slice(0,8)}...`);
+    // Generate access code (8 characters)
+    diagnostics.step = 'generate_access_code';
+    const accessCode = generateAccessCode();
+    console.log(`[generatePortalLink] Access code generated: ${accessCode}`);
     const appUrl = Deno.env.get('BASE44_APP_URL') || 'https://your-app.base44.com';
     if (!Deno.env.get('BASE44_APP_URL')) {
       console.log('[generatePortalLink] WARNING: BASE44_APP_URL not set, using fallback URL');
     }
-    const portalUrl = `${appUrl}/PortalWelcome?token=${token}`;
+    const portalUrl = `${appUrl}/PortalRegister`;
     console.log(`[generatePortalLink] Portal URL: ${portalUrl}`);
-    const expiresAt = new Date(Date.now() + 7*24*60*60*1000).toISOString();
 
-    // Update case with new token
+    // Update case with access code
     diagnostics.step = 'update_case';
     await base44.entities.Case.update(case_id, {
-      portal_token: token,
+      portal_access_code: accessCode,
+      portal_code_generated_at: new Date().toISOString(),
+      portal_code_used: false,
       portal_link: portalUrl,
-      portal_token_active: true,
       portal_sent_at: caseData.portal_sent_at || new Date().toISOString(),
       portal_last_resent_at: caseData.portal_sent_at ? new Date().toISOString() : null,
-      portal_token_expires_at: expiresAt
     });
 
     // Generate email content (do NOT send via Base44)
     diagnostics.step = 'build_email';
-    const emailSubject = 'TENNO Asset Recovery – Secure Access to Your Surplus Funds Case';
-    const emailBody = generateEmailBody(caseData, portalUrl);
+    const emailSubject = 'TENNO Asset Recovery – Your Access Code for Surplus Funds Case';
+    const emailBody = generateEmailBody(caseData, portalUrl, accessCode);
 
     // Log activity (non-blocking)
     try {
@@ -104,7 +103,7 @@ Deno.serve(async (req) => {
       status: 'success',
       success: true,
       portal_url: portalUrl,
-      token,
+      access_code: accessCode,
       email_content: {
         to: caseData.owner_email,
         subject: emailSubject,
@@ -112,6 +111,7 @@ Deno.serve(async (req) => {
       },
       data: {
         portalUrl,
+        accessCode,
         emailSubject,
         emailBody,
         recipientEmail: caseData.owner_email,
@@ -132,25 +132,30 @@ Deno.serve(async (req) => {
   }
 });
 
-function generateUniqueToken() {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let token = '';
-  for (let i = 0; i < 32; i++) {
-    token += chars.charAt(Math.floor(Math.random() * chars.length));
+function generateAccessCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Exclude confusing chars (0, O, 1, I)
+  let code = '';
+  for (let i = 0; i < 8; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
   }
-  return token;
+  return code;
 }
 
-function generateEmailBody(caseData, portalUrl) {
+function generateEmailBody(caseData, portalUrl, accessCode) {
   return `Hello ${caseData.owner_name},
 
 We are assisting you with the recovery of surplus funds related to your property.
 
-Please use the secure link below to review your case, upload documents, and complete required steps:
+To access your secure case portal, please use the following access code:
 
+ACCESS CODE: ${accessCode}
+
+Visit this link to create your account:
 ${portalUrl}
 
-This link is private and secure. If you have any questions, you may reply directly to this email.
+Enter your email (${caseData.owner_email}) and the access code above to set up your password.
+
+If you have any questions, you may reply directly to this email.
 
 — TENNO Asset Recovery
 tennoassetrecovery@gmail.com`;

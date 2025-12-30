@@ -20,6 +20,7 @@ async function hashPassword(password) {
 
 export default function PortalRegister() {
   const [email, setEmail] = useState("");
+  const [accessCode, setAccessCode] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -32,6 +33,11 @@ export default function PortalRegister() {
     setError("");
 
     // Validation
+    if (!accessCode || accessCode.length !== 8) {
+      setError("Please enter the 8-character access code from your email");
+      return;
+    }
+
     if (password.length < 6) {
       setError("Password must be at least 6 characters");
       return;
@@ -45,10 +51,25 @@ export default function PortalRegister() {
     setIsLoading(true);
 
     try {
-      // Check if user has any cases
-      const cases = await base44.entities.Case.filter({ owner_email: email });
+      // Verify access code
+      const cases = await base44.entities.Case.filter({ 
+        owner_email: email,
+        portal_access_code: accessCode.toUpperCase(),
+        portal_code_used: false
+      });
+
       if (cases.length === 0) {
-        setError("No cases found for this email. Please check your email or contact support.");
+        setError("Invalid access code or email. Please check your information.");
+        setIsLoading(false);
+        return;
+      }
+
+      const caseData = cases[0];
+
+      // Check if user already exists
+      const existingUsers = await base44.entities.PortalUser.filter({ email });
+      if (existingUsers.length > 0) {
+        setError("An account with this email already exists. Please sign in instead.");
         setIsLoading(false);
         return;
       }
@@ -63,6 +84,12 @@ export default function PortalRegister() {
       });
 
       if (data.success) {
+        // Mark access code as used
+        await base44.entities.Case.update(caseData.id, {
+          portal_code_used: true,
+          portal_code_used_at: new Date().toISOString()
+        });
+
         localStorage.setItem("portal_session", data.session_token);
         localStorage.setItem("portal_user", JSON.stringify(data.user));
         window.location.href = createPageUrl("PortalDashboard");
@@ -119,6 +146,26 @@ export default function PortalRegister() {
                 </div>
                 <p className="text-xs text-slate-500 mt-1">
                   Use the email we have on file for your case
+                </p>
+              </div>
+
+              <div>
+                <Label htmlFor="accessCode">Access Code</Label>
+                <div className="relative mt-1">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Input
+                    id="accessCode"
+                    type="text"
+                    value={accessCode}
+                    onChange={(e) => setAccessCode(e.target.value.toUpperCase())}
+                    className="pl-10 font-mono text-lg tracking-wider"
+                    placeholder="A3K7M2X9"
+                    maxLength={8}
+                    required
+                  />
+                </div>
+                <p className="text-xs text-slate-500 mt-1">
+                  8-character code from your email
                 </p>
               </div>
 
