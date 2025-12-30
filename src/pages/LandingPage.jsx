@@ -12,12 +12,30 @@ import {
   TrendingUp,
   Clock,
   Award,
+  Phone,
+  DollarSign,
+  Menu,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { base44 } from "@/api/base44Client";
 
 export default function LandingPage() {
+  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+
   const handleAgentLogin = async () => {
     try {
       await base44.auth.me();
@@ -26,6 +44,56 @@ export default function LandingPage() {
       base44.auth.redirectToLogin(createPageUrl("Dashboard"));
     }
   };
+
+  const howItWorksSteps = [
+    {
+      icon: Phone,
+      title: "We Call You",
+      description: "We identify potential surplus and contact you. No searching required on your part.",
+    },
+    {
+      icon: FileText,
+      title: "You Sign Online",
+      description: "Complete our simple online agreement - no upfront cost, no hidden fees.",
+    },
+    {
+      icon: DollarSign,
+      title: "We File & Collect",
+      description: "We handle all paperwork and court filings. You get paid when we recover your funds.",
+    },
+  ];
+
+  const trustPoints = [
+    { icon: CheckCircle2, text: "No upfront fees" },
+    { icon: CheckCircle2, text: "Contingency only" },
+    { icon: CheckCircle2, text: "We do all the work" },
+    { icon: Shield, text: "Licensed & insured" },
+    { icon: Shield, text: "Secure portal" },
+    { icon: Clock, text: "Track your case 24/7" },
+  ];
+
+  const faqs = [
+    {
+      question: "What are surplus funds?",
+      answer: "Surplus funds are excess proceeds from a property sale (foreclosure or tax sale) after all debts and fees are paid. By law, these funds belong to the former property owner and can be claimed.",
+    },
+    {
+      question: "How much does this cost?",
+      answer: "We work on a contingency basis. You pay nothing upfront. Our fee is only taken from the recovered amount, and only if we successfully recover your money. If we don't recover funds, you owe nothing.",
+    },
+    {
+      question: "How long does the process take?",
+      answer: "The timeline varies by county and case complexity, but typically ranges from 3-9 months. We handle all the paperwork, court filings, and waiting periods while you track progress through our secure portal.",
+    },
+    {
+      question: "Is this legitimate?",
+      answer: "Yes! Surplus recovery is a legal process governed by state and county laws. We are licensed professionals specializing in helping property owners recover funds that legally belong to them.",
+    },
+    {
+      question: "What do I need to provide?",
+      answer: "You'll need to provide proof of identity (government-issued ID) and sign our recovery agreement. Everything can be done online through our secure client portal. We handle all the legal paperwork and court filings.",
+    },
+  ];
 
   const features = [
     {
@@ -73,24 +141,70 @@ export default function LandingPage() {
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-slate-200/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-8">
               <img 
                 src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6935380f41db07237f45b1db/11ed7b05d_Screenshot_20251213_181447_Chrome.jpg" 
                 alt="TENNO RECOVERY" 
                 className="h-10 w-auto"
               />
+              <nav className="hidden md:flex items-center gap-6">
+                <Link to={createPageUrl("HowItWorks")} className="text-slate-600 hover:text-slate-900 transition-colors">
+                  How It Works
+                </Link>
+                <a href="mailto:tennoassetrecovery@gmail.com" className="text-slate-600 hover:text-slate-900 transition-colors">
+                  Contact
+                </a>
+              </nav>
             </div>
             <div className="flex items-center gap-3">
-              <Button variant="ghost" onClick={handleAgentLogin}>
-                Agent Login
-              </Button>
-              <Link to={createPageUrl("PortalLogin")}>
-                <Button className="bg-emerald-600 hover:bg-emerald-700">
-                  Client Portal
-                </Button>
-              </Link>
+              <div className="hidden md:block">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline">
+                      Sign In
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={handleAgentLogin}>
+                      Agent Login
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to={createPageUrl("PortalLogin")}>
+                        Client Portal
+                      </Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="md:hidden text-slate-600 hover:text-slate-900"
+              >
+                {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </button>
             </div>
           </div>
+          {/* Mobile Menu */}
+          {mobileMenuOpen && (
+            <div className="md:hidden py-4 border-t">
+              <nav className="flex flex-col gap-3">
+                <Link to={createPageUrl("HowItWorks")} className="text-slate-600 hover:text-slate-900 transition-colors">
+                  How It Works
+                </Link>
+                <a href="mailto:tennoassetrecovery@gmail.com" className="text-slate-600 hover:text-slate-900 transition-colors">
+                  Contact
+                </a>
+                <Button variant="outline" onClick={handleAgentLogin} className="justify-start">
+                  Agent Login
+                </Button>
+                <Link to={createPageUrl("PortalLogin")}>
+                  <Button className="w-full bg-emerald-600 hover:bg-emerald-700">
+                    Client Portal
+                  </Button>
+                </Link>
+              </nav>
+            </div>
+          )}
         </div>
       </header>
 
@@ -177,6 +291,34 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* How It Works - 3 Steps */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900">How It Works</h2>
+            <p className="mt-4 text-lg text-slate-600">Simple, transparent, and no upfront cost</p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8 lg:gap-12">
+            {howItWorksSteps.map((step, index) => (
+              <motion.div
+                key={step.title}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                viewport={{ once: true }}
+                className="text-center"
+              >
+                <div className="w-20 h-20 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                  <step.icon className="w-10 h-10 text-white" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-900 mb-3">{step.title}</h3>
+                <p className="text-slate-600">{step.description}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Stats */}
       <section className="py-12 bg-emerald-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -192,6 +334,27 @@ export default function LandingPage() {
               >
                 <p className="text-4xl font-bold text-white">{stat.value}</p>
                 <p className="text-emerald-100 mt-2">{stat.label}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Trust Section */}
+      <section className="py-16 bg-white">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid md:grid-cols-3 gap-6">
+            {trustPoints.map((point, index) => (
+              <motion.div
+                key={point.text}
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                transition={{ delay: index * 0.05 }}
+                viewport={{ once: true }}
+                className="flex items-center gap-3 p-4 bg-emerald-50 rounded-lg border border-emerald-100"
+              >
+                <point.icon className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+                <span className="font-medium text-slate-900">{point.text}</span>
               </motion.div>
             ))}
           </div>
@@ -233,6 +396,32 @@ export default function LandingPage() {
               </motion.div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="py-20 bg-slate-50">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900">Frequently Asked Questions</h2>
+            <p className="mt-4 text-lg text-slate-600">Everything you need to know about surplus recovery</p>
+          </div>
+          <Accordion type="single" collapsible className="space-y-4">
+            {faqs.map((faq, index) => (
+              <AccordionItem 
+                key={index} 
+                value={`item-${index}`}
+                className="bg-white border border-slate-200 rounded-lg px-6"
+              >
+                <AccordionTrigger className="text-left font-semibold text-slate-900 hover:no-underline">
+                  {faq.question}
+                </AccordionTrigger>
+                <AccordionContent className="text-slate-600 pt-2">
+                  {faq.answer}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
         </div>
       </section>
 
