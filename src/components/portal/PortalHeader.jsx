@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { usePortalSession } from "@/hooks/usePortalSession";
+import { usePortalSession } from "@/components/portal/usePortalSession";
 
 export default function PortalHeader({ currentStep, showBackToDashboard = false }) {
   const { user, logout } = usePortalSession();

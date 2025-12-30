@@ -1,5 +1,5 @@
 import React from "react";
-import { usePortalSession } from "@/hooks/usePortalSession";
+import { usePortalSession } from "@/components/portal/usePortalSession";
 import { createPageUrl } from "@/utils";
 
 /**
