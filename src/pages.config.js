@@ -23,16 +23,16 @@ import PortalDashboard from './pages/PortalDashboard';
 import PortalIDUpload from './pages/PortalIDUpload';
 import PortalInfo from './pages/PortalInfo';
 import PortalIntake from './pages/PortalIntake';
+import PortalLogin from './pages/PortalLogin';
 import PortalLostLink from './pages/PortalLostLink';
 import PortalNotary from './pages/PortalNotary';
+import PortalRegister from './pages/PortalRegister';
 import PortalWelcome from './pages/PortalWelcome';
 import Profile from './pages/Profile';
 import Reminders from './pages/Reminders';
 import Settings from './pages/Settings';
 import Templates from './pages/Templates';
 import UserManagement from './pages/UserManagement';
-import PortalLogin from './pages/PortalLogin';
-import PortalRegister from './pages/PortalRegister';
 import __Layout from './Layout.jsx';
 
 
@@ -62,16 +62,16 @@ export const PAGES = {
     "PortalIDUpload": PortalIDUpload,
     "PortalInfo": PortalInfo,
     "PortalIntake": PortalIntake,
+    "PortalLogin": PortalLogin,
     "PortalLostLink": PortalLostLink,
     "PortalNotary": PortalNotary,
+    "PortalRegister": PortalRegister,
     "PortalWelcome": PortalWelcome,
     "Profile": Profile,
     "Reminders": Reminders,
     "Settings": Settings,
     "Templates": Templates,
     "UserManagement": UserManagement,
-    "PortalLogin": PortalLogin,
-    "PortalRegister": PortalRegister,
 }
 
 export const pagesConfig = {

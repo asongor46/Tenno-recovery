@@ -866,11 +866,15 @@ export default function CaseDetail() {
 
         {/* County Profile Tab */}
         <TabsContent value="county" className="space-y-4">
-          {!caseData?.county || !caseData?.state ? (
+          {!caseData?.county || !caseData?.state || !county ? (
             <Card>
               <CardContent className="pt-6">
                 <div className="text-center py-8">
-                  <p className="text-slate-500">County information not available for this case</p>
+                  <p className="text-slate-500">
+                    {!caseData?.county || !caseData?.state 
+                      ? "County information not available for this case" 
+                      : "Loading county profile..."}
+                  </p>
                 </div>
               </CardContent>
             </Card>
