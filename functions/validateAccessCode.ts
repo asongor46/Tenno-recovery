@@ -8,6 +8,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 
 Deno.serve(async (req) => {
   try {
+    // Initialize client - no auth required for this public endpoint
     const base44 = createClientFromRequest(req);
     
     const { email, access_code } = await req.json();
@@ -24,11 +25,21 @@ Deno.serve(async (req) => {
     }
 
     // Query cases with matching email and unused access code
-    const cases = await base44.asServiceRole.entities.Case.filter({
-      owner_email: normalizedEmail,
-      portal_access_code: normalizedCode,
-      portal_code_used: false
-    });
+    // Use service role since this is a public endpoint
+    let cases;
+    try {
+      cases = await base44.asServiceRole.entities.Case.filter({
+        owner_email: normalizedEmail,
+        portal_access_code: normalizedCode,
+        portal_code_used: false
+      });
+    } catch (queryError) {
+      console.log('[validateAccessCode] Query error:', queryError.message);
+      return Response.json({
+        success: false,
+        error: 'Unable to validate credentials. Please try again.'
+      }, { status: 500 });
+    }
 
     if (cases.length === 0) {
       // Log failed attempt for security audit
