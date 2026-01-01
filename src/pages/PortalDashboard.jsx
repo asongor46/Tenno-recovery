@@ -2,6 +2,7 @@ import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
+// [ENHANCED - Tier 2]
 import {
   CheckCircle2,
   AlertCircle,
@@ -11,7 +12,9 @@ import {
   DollarSign,
   LogOut,
   Clock,
+  Activity,
 } from "lucide-react";
+import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -23,7 +26,7 @@ import PortalAuthGuard from "@/components/portal/PortalAuthGuard";
 function PortalDashboardContent() {
   const userEmail = sessionStorage.getItem("portal_user_email") || localStorage.getItem("portal_user_email");
 
-  // Fetch all cases for this user
+  // [ENHANCED - Tier 2] Fetch cases and activities
   const { data: cases = [], isLoading } = useQuery({
     queryKey: ["portal-cases", userEmail],
     queryFn: async () => {
@@ -31,6 +34,21 @@ function PortalDashboardContent() {
       return allCases;
     },
     enabled: !!userEmail,
+  });
+
+  const { data: activities = [] } = useQuery({
+    queryKey: ["portalActivities", userEmail],
+    queryFn: async () => {
+      if (!userEmail || cases.length === 0) return [];
+      const caseIds = cases.map(c => c.id);
+      const allActivities = await Promise.all(
+        caseIds.map(id => base44.entities.ActivityLog.filter({ case_id: id }, "-created_date", 5))
+      );
+      return allActivities.flat().sort((a, b) => 
+        new Date(b.created_date) - new Date(a.created_date)
+      ).slice(0, 10);
+    },
+    enabled: !!userEmail && cases.length > 0,
   });
 
   const handleLogout = () => {
@@ -49,10 +67,11 @@ function PortalDashboardContent() {
     );
   }
 
+  // [ENHANCED - Tier 2] Dark theme for portal
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="min-h-screen bg-slate-900">
       {/* Header */}
-      <div className="bg-white border-b">
+      <div className="bg-slate-900/80 backdrop-blur-xl border-b border-slate-800">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -62,16 +81,16 @@ function PortalDashboardContent() {
                 className="h-10 w-auto"
               />
               <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-slate-900">
+                <h1 className="text-xl sm:text-2xl font-bold text-white">
                   Welcome, {cases[0]?.owner_name || "Client"}
                 </h1>
-                <p className="text-sm text-slate-500">{userEmail}</p>
+                <p className="text-sm text-slate-400">{userEmail}</p>
               </div>
             </div>
             <Button 
               variant="outline" 
               onClick={handleLogout}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white"
             >
               <LogOut className="w-4 h-4" />
               <span className="hidden sm:inline">Logout</span>
@@ -83,20 +102,20 @@ function PortalDashboardContent() {
       <div className="max-w-5xl mx-auto p-4 sm:p-6 space-y-6">
         {/* Page Title */}
         <div>
-          <h2 className="text-2xl font-bold text-slate-900">Your Surplus Recovery Cases</h2>
-          <p className="text-slate-600 mt-1">
+          <h2 className="text-2xl font-bold text-white">Your Surplus Recovery Cases</h2>
+          <p className="text-slate-300 mt-1">
             {cases.length} {cases.length === 1 ? 'case' : 'cases'} in progress
           </p>
         </div>
 
         {/* No cases message */}
         {cases.length === 0 && (
-          <Card>
+          <Card className="bg-slate-800 border-slate-700">
             <CardContent className="pt-6">
               <div className="text-center py-8">
-                <AlertCircle className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-                <p className="text-slate-600">No cases found for your account.</p>
-                <p className="text-sm text-slate-500 mt-1">
+                <AlertCircle className="w-12 h-12 text-slate-500 mx-auto mb-4" />
+                <p className="text-slate-300">No cases found for your account.</p>
+                <p className="text-sm text-slate-400 mt-1">
                   Contact tennoassetrecovery@gmail.com if you believe this is an error.
                 </p>
               </div>
@@ -119,23 +138,23 @@ function PortalDashboardContent() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
             >
-              <Card className={action?.urgent ? "border-2 border-orange-300" : ""}>
+              <Card className={`bg-slate-800 border-slate-700 ${action?.urgent ? "border-2 border-orange-400" : ""}`}>
                 <CardContent className="pt-6">
                   <div className="space-y-4">
                     {/* Case Header */}
                     <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
-                          <FileText className="w-5 h-5 text-slate-600" />
-                          <h3 className="font-mono font-semibold text-lg">
+                          <FileText className="w-5 h-5 text-slate-400" />
+                          <h3 className="font-mono font-semibold text-lg text-white">
                             Case #{caseData.case_number}
                           </h3>
                         </div>
-                        <div className="flex items-start gap-2 text-slate-600">
+                        <div className="flex items-start gap-2 text-slate-300">
                           <MapPin className="w-4 h-4 flex-shrink-0 mt-0.5" />
                           <span className="text-sm">{caseData.property_address || "Address not available"}</span>
                         </div>
-                        <p className="text-sm text-slate-500 mt-1">
+                        <p className="text-sm text-slate-400 mt-1">
                           {caseData.county} County, {caseData.state}
                         </p>
                       </div>
@@ -145,22 +164,22 @@ function PortalDashboardContent() {
                     </div>
 
                     {/* Financial Summary */}
-                    <div className="grid grid-cols-3 gap-3 py-3 border-y">
+                    <div className="grid grid-cols-3 gap-3 py-3 border-y border-slate-700">
                       <div>
-                        <p className="text-xs text-slate-500">Estimated Surplus</p>
-                        <p className="text-lg font-bold text-slate-900">
+                        <p className="text-xs text-slate-400">Estimated Surplus</p>
+                        <p className="text-lg font-bold text-white">
                           ${caseData.surplus_amount?.toLocaleString() || "0"}
                         </p>
                       </div>
                       <div>
-                        <p className="text-xs text-slate-500">Your Fee ({caseData.fee_percent}%)</p>
-                        <p className="text-lg font-semibold text-slate-600">
+                        <p className="text-xs text-slate-400">Your Fee ({caseData.fee_percent}%)</p>
+                        <p className="text-lg font-semibold text-slate-300">
                           ${parseFloat(feeAmount).toLocaleString()}
                         </p>
                       </div>
                       <div>
-                        <p className="text-xs text-slate-500">Your Recovery</p>
-                        <p className="text-lg font-bold text-emerald-600">
+                        <p className="text-xs text-slate-400">Your Recovery</p>
+                        <p className="text-lg font-bold text-emerald-400">
                           ~${parseFloat(recoveryAmount).toLocaleString()}
                         </p>
                       </div>
@@ -169,62 +188,85 @@ function PortalDashboardContent() {
                     {/* Progress Bar */}
                     <div>
                       <div className="flex justify-between text-sm mb-2">
-                        <span className="text-slate-600 font-medium">{statusInfo.label}</span>
-                        <span className="font-semibold">{progress}%</span>
+                        <span className="text-slate-300 font-medium">{statusInfo.label}</span>
+                        <span className="font-semibold text-emerald-400">{progress}%</span>
                       </div>
-                      <Progress value={progress} className="h-2" />
+                      <div className="w-full bg-slate-700 rounded-full h-2">
+                        <div
+                          className="bg-emerald-500 h-2 rounded-full transition-all"
+                          style={{ width: `${progress}%` }}
+                        />
+                      </div>
                     </div>
 
-                    {/* Action Needed */}
-                    {action && (
-                      <div className={`p-3 rounded-lg ${action.urgent ? 'bg-orange-50 border border-orange-200' : 'bg-blue-50 border border-blue-200'}`}>
-                        <div className="flex items-start gap-2">
-                          {action.urgent ? (
-                            <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
-                          ) : (
-                            <Clock className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                    {/* [ENHANCED - Tier 2] What to Do Next Panel */}
+                    {(() => {
+                      const nextAction = getNextActionEnhanced(caseData);
+                      return nextAction.urgent ? (
+                        <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-lg">
+                          <p className="text-sm font-semibold text-emerald-400 mb-1">
+                            🤖 {nextAction.title}
+                          </p>
+                          <p className="text-xs text-slate-300 mb-3">
+                            {nextAction.description}
+                          </p>
+                          {nextAction.action && (
+                            <Button
+                              size="sm"
+                              className="w-full bg-emerald-600 hover:bg-emerald-700"
+                              onClick={() => {
+                                window.location.href = createPageUrl(nextAction.route);
+                              }}
+                            >
+                              {nextAction.action} →
+                            </Button>
                           )}
-                          <div className="flex-1">
-                            <p className={`font-medium ${action.urgent ? 'text-orange-900' : 'text-blue-900'}`}>
-                              {action.urgent ? 'Action Needed:' : 'Status:'} {action.message}
-                            </p>
-                            {action.waitingDate && (
-                              <p className="text-sm text-slate-600 mt-1">
-                                Expected: {new Date(action.waitingDate).toLocaleDateString()}
-                              </p>
-                            )}
-                          </div>
                         </div>
-                      </div>
-                    )}
-
-                    {/* Action complete message */}
-                    {!action && progress < 100 && (
-                      <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200">
-                        <div className="flex items-center gap-2">
-                          <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-                          <p className="text-emerald-900 font-medium">
-                            ✓ No action needed - we're handling this
+                      ) : (
+                        <div className="p-3 bg-slate-900/50 border border-slate-700 rounded-lg">
+                          <p className="text-sm font-medium text-slate-300">
+                            {nextAction.title}
+                          </p>
+                          <p className="text-xs text-slate-400 mt-1">
+                            {nextAction.description}
                           </p>
                         </div>
-                      </div>
-                    )}
+                      );
+                    })()}
+
+                    {/* [NEW - Tier 2] Checklist */}
+                    <div className="space-y-2">
+                      <p className="text-xs font-semibold text-slate-400 uppercase">Your Checklist:</p>
+                      {getChecklistEnhanced(caseData).map((item, i) => (
+                        <div key={i} className="flex items-center gap-2 text-xs">
+                          {item.completed ? (
+                            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                          ) : (
+                            <div className="w-4 h-4 border-2 border-slate-600 rounded" />
+                          )}
+                          <span className={item.completed ? "text-slate-500 line-through" : "text-slate-300"}>
+                            {item.label}
+                          </span>
+                          {item.completed && item.date && (
+                            <span className="text-slate-500 ml-auto">
+                              {format(new Date(item.date), "MMM d")}
+                            </span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
 
                     {/* Buttons */}
-                    <div className="flex flex-col sm:flex-row gap-2 pt-2">
-                      <Button variant="outline" className="flex-1" asChild>
-                        <Link to={createPageUrl(`CaseDetail?id=${caseData.id}`)}>
-                          View Case Details
-                        </Link>
+                    {getNextActionEnhanced(caseData).action && (
+                      <Button 
+                        className="w-full bg-emerald-600 hover:bg-emerald-700"
+                        onClick={() => {
+                          window.location.href = createPageUrl(getNextActionEnhanced(caseData).route);
+                        }}
+                      >
+                        {getNextActionEnhanced(caseData).action} <ChevronRight className="w-4 h-4 ml-1" />
                       </Button>
-                      {action?.link && (
-                        <Button className="flex-1 bg-emerald-600 hover:bg-emerald-700" asChild>
-                          <Link to={createPageUrl(`${action.link}?case_id=${caseData.id}`)}>
-                            {action.action} <ChevronRight className="w-4 h-4 ml-1" />
-                          </Link>
-                        </Button>
-                      )}
-                    </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -232,20 +274,50 @@ function PortalDashboardContent() {
           );
         })}
 
+        {/* [NEW - Tier 2] Timeline */}
+        {activities.length > 0 && (
+          <Card className="bg-slate-800 border-slate-700">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center gap-2">
+                <Activity className="w-5 h-5" />
+                Recent Activity
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {activities.map((activity) => (
+                  <div key={activity.id} className="flex gap-3 pb-3 border-b border-slate-700 last:border-0">
+                    <div className="w-2 h-2 bg-emerald-500 rounded-full mt-2 flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-white">{activity.action}</p>
+                      {activity.description && (
+                        <p className="text-xs text-slate-400 mt-0.5">{activity.description}</p>
+                      )}
+                      <p className="text-xs text-slate-500 mt-1">
+                        {format(new Date(activity.created_date), "MMM d, yyyy h:mm a")}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Help Section */}
-        <Card className="border-blue-200 bg-blue-50/30">
+        <Card className="border-blue-500/30 bg-blue-500/10">
           <CardContent className="pt-6">
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
-                <AlertCircle className="w-5 h-5 text-white" />
+              <div className="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center flex-shrink-0">
+                <AlertCircle className="w-5 h-5 text-blue-400" />
               </div>
               <div>
-                <p className="font-semibold text-slate-900">Questions or Need Help?</p>
-                <p className="text-sm text-slate-600 mt-1">
+                <p className="font-semibold text-white">Questions or Need Help?</p>
+                <p className="text-sm text-slate-300 mt-1">
                   Contact us at (555) 123-4567 or reply to any email from us.
                 </p>
-                <p className="text-sm text-slate-600 mt-1">
-                  Email: <a href="mailto:tennoassetrecovery@gmail.com" className="text-blue-600 hover:underline">
+                <p className="text-sm text-slate-300 mt-1">
+                  Email: <a href="mailto:tennoassetrecovery@gmail.com" className="text-blue-400 hover:text-blue-300 hover:underline">
                     tennoassetrecovery@gmail.com
                   </a>
                 </p>
@@ -266,21 +338,144 @@ export default function PortalDashboard() {
   );
 }
 
-// Helper: Calculate progress percentage
+// [ENHANCED - Tier 2] Helper functions
 function calculateProgress(caseData) {
   const stageProgress = {
     'imported': 5,
-    'agreement_signed': 20,
-    'info_completed': 35,
+    'intake': 10,
+    'outreach': 15,
+    'portal_sent': 20,
+    'agreement_signed': 30,
+    'info_completed': 50,
     'notary_completed': 65,
     'packet_ready': 70,
     'filed': 80,
-    'approved': 90,
-    'paid': 100,
+    'waiting_period': 85,
+    'order_phase': 90,
+    'approved': 95,
+    'payment_received': 98,
     'closed': 100
   };
   
   return stageProgress[caseData.stage] || 0;
+}
+
+// [NEW - Tier 2] Enhanced next action logic
+function getNextActionEnhanced(caseData) {
+  if (caseData.agreement_status !== 'signed') {
+    return {
+      title: "Sign Your Agreement",
+      description: "Please review and sign the fee agreement to get started.",
+      action: "Sign Agreement",
+      route: `PortalAgreement?token=${caseData.portal_token}`,
+      urgent: true
+    };
+  }
+  
+  if (!caseData.owner_dob || !caseData.owner_ssn_last_four || !caseData.id_front_url || !caseData.id_back_url) {
+    return {
+      title: "Complete Your Information",
+      description: "We need a few more details and ID photos to proceed.",
+      action: "Complete Info",
+      route: `PortalInfo?token=${caseData.portal_token}`,
+      urgent: true
+    };
+  }
+  
+  if (caseData.notary_required && !caseData.notary_packet_uploaded) {
+    return {
+      title: "Upload Notarized Authorization",
+      description: "Download, sign with a notary, and upload the authorization form.",
+      action: "Complete Notary",
+      route: `PortalNotary?token=${caseData.portal_token}`,
+      urgent: true
+    };
+  }
+  
+  if (['filed', 'waiting_period'].includes(caseData.stage)) {
+    const daysRemaining = caseData.waiting_period_end 
+      ? Math.ceil((new Date(caseData.waiting_period_end) - new Date()) / (1000 * 60 * 60 * 24))
+      : null;
+    return {
+      title: "Claim Filed - Waiting Period",
+      description: daysRemaining > 0 
+        ? `Waiting period ends in ${daysRemaining} days (${new Date(caseData.waiting_period_end).toLocaleDateString()})`
+        : "Waiting for court processing",
+      action: null,
+      urgent: false
+    };
+  }
+  
+  if (caseData.stage === 'approved') {
+    return {
+      title: "Claim Approved! 🎉",
+      description: "Your claim was approved by the court. Payment is being processed.",
+      action: null,
+      urgent: false
+    };
+  }
+
+  if (caseData.stage === 'payment_received' || caseData.stage === 'paid') {
+    return {
+      title: "Payment Received",
+      description: "We've received the payment and are processing your distribution.",
+      action: null,
+      urgent: false
+    };
+  }
+
+  if (caseData.stage === 'closed') {
+    return {
+      title: "Case Complete ✓",
+      description: "Your surplus recovery is complete. Thank you!",
+      action: null,
+      urgent: false
+    };
+  }
+  
+  return {
+    title: "Processing",
+    description: "We're working on your case. No action needed from you right now.",
+    action: null,
+    urgent: false
+  };
+}
+
+// [NEW - Tier 2] Checklist helper
+function getChecklistEnhanced(caseData) {
+  return [
+    {
+      label: "Sign fee agreement",
+      completed: caseData.agreement_status === 'signed',
+      date: caseData.agreement_signed_at
+    },
+    {
+      label: "Confirm information & upload ID",
+      completed: !!caseData.owner_dob && !!caseData.owner_ssn_last_four && !!caseData.id_front_url && !!caseData.id_back_url,
+      date: caseData.info_submitted_at || caseData.id_uploaded_at
+    },
+    {
+      label: "Upload notarized authorization",
+      completed: caseData.notary_packet_uploaded,
+      date: null,
+      skip: !caseData.notary_required
+    },
+    {
+      label: "Claim filed with county",
+      completed: ['filed','waiting_period','order_phase','approved','payment_received','paid','closed'].includes(caseData.stage),
+      date: caseData.filed_at
+    },
+    {
+      label: "Court approval",
+      completed: ['approved','payment_received','paid','closed'].includes(caseData.stage),
+      date: caseData.order_signed_date
+    },
+    {
+      label: "Payment sent to you",
+      completed: caseData.stage === 'closed',
+      date: caseData.paid_at
+    }
+  ].filter(item => !item.skip);
 }
 
 // Helper: Get action needed for case
