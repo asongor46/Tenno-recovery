@@ -102,9 +102,6 @@ export default function CaseDetail() {
   const [viewingPdf, setViewingPdf] = useState(null);
   const [showPdfViewer, setShowPdfViewer] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
-  // [MODIFIED - Portal Invite]
-  const [showInviteDialog, setShowInviteDialog] = useState(false);
-  const [inviteData, setInviteData] = useState(null);
   // [NEW - Tier 2]
   const [showCallScript, setShowCallScript] = useState(false);
 
@@ -312,7 +309,6 @@ export default function CaseDetail() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          {/* [MODIFIED - Portal Invite] */}
           <Button 
             variant="outline"
             onClick={async () => {
@@ -325,10 +321,13 @@ export default function CaseDetail() {
                   case_id: caseId
                 });
                 if (data.success) {
-                  setInviteData(data.data);
-                  setShowInviteDialog(true);
+                  // Open default email client directly
+                  if (data.data?.mailto_link) {
+                    window.location.href = data.data.mailto_link;
+                  }
                   queryClient.invalidateQueries({ queryKey: ["case", caseId] });
                   queryClient.invalidateQueries({ queryKey: ["activities", caseId] });
+                  toast.success("Opening email client...");
                 } else {
                   toast.error(data.error || "Failed to generate invite");
                 }
@@ -623,10 +622,12 @@ export default function CaseDetail() {
                       case_id: caseId
                     });
                     if (data.success) {
-                      setInviteData(data.data);
-                      setShowInviteDialog(true);
+                      // Open default email client directly
+                      if (data.data?.mailto_link) {
+                        window.location.href = data.data.mailto_link;
+                      }
                       queryClient.invalidateQueries({ queryKey: ["case", caseId] });
-                      toast.success("Access code regenerated");
+                      toast.success("Opening email client...");
                     }
                   } catch (err) {
                     toast.error("Error generating invite");
@@ -698,10 +699,12 @@ export default function CaseDetail() {
                               case_id: caseId
                             });
                             if (data.success) {
-                              setInviteData(data.data);
-                              setShowInviteDialog(true);
+                              // Open default email client directly
+                              if (data.data?.mailto_link) {
+                                window.location.href = data.data.mailto_link;
+                              }
                               queryClient.invalidateQueries({ queryKey: ["case", caseId] });
-                              toast.success("New access code generated");
+                              toast.success("New code generated, opening email...");
                             }
                           } catch (err) {
                             toast.error("Error regenerating code");
@@ -1000,79 +1003,7 @@ export default function CaseDetail() {
         county={county}
       />
 
-      {/* [MODIFIED - Portal Invite] Send Portal Invite Dialog */}
-      <Dialog open={showInviteDialog} onOpenChange={setShowInviteDialog}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Portal Invite Generated</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
-              <p className="text-sm text-slate-600">
-                ✉️ Email will be sent to:
-              </p>
-              <p className="font-semibold text-lg mt-1">{inviteData?.recipientEmail}</p>
-            </div>
 
-            <div className="p-4 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-lg border-2 border-emerald-300">
-              <p className="text-sm text-slate-600 mb-2">🔑 Access Code:</p>
-              <div className="flex items-center justify-center gap-3">
-                <code className="font-mono font-bold text-3xl tracking-widest text-emerald-900">
-                  {inviteData?.accessCode}
-                </code>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => {
-                    navigator.clipboard.writeText(inviteData?.accessCode || "");
-                    toast.success("Code copied!");
-                  }}
-                >
-                  Copy
-                </Button>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Button 
-                variant="outline"
-                className="w-full"
-                onClick={() => {
-                  if (inviteData?.mailto_link) {
-                    window.location.href = inviteData.mailto_link;
-                  }
-                }}
-              >
-                📧 Open in Default Email
-              </Button>
-              <Button 
-                variant="outline"
-                className="w-full"
-                onClick={() => {
-                  const emailText = `To: ${inviteData?.recipientEmail}\nSubject: ${inviteData?.emailSubject}\n\n${inviteData?.emailBody}`;
-                  navigator.clipboard.writeText(emailText);
-                  toast.success("Email copied to clipboard!");
-                }}
-              >
-                📋 Copy Full Email
-              </Button>
-            </div>
-
-            <p className="text-xs text-center text-slate-500 pt-2">
-              Code has been saved to case record
-            </p>
-          </div>
-          <DialogFooter>
-            <Button 
-              variant="outline" 
-              onClick={() => setShowInviteDialog(false)}
-              className="w-full"
-            >
-              Done
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
       </div>
       );
       }
