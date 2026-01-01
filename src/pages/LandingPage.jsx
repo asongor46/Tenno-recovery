@@ -38,9 +38,14 @@ export default function LandingPage() {
 
   const handleAgentLogin = async () => {
     try {
-      await base44.auth.me();
+      // Check if already authenticated
+      const user = await base44.auth.me();
+      // For now, all authenticated users go to Dashboard
+      // TODO: Add role-based routing when AgentProfile system is implemented
       window.location.href = createPageUrl("Dashboard");
     } catch {
+      // Not authenticated - trigger Base44 login
+      // After successful login, user will be redirected to Dashboard
       base44.auth.redirectToLogin(createPageUrl("Dashboard"));
     }
   };

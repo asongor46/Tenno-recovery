@@ -10,8 +10,10 @@ import Dashboard from './pages/Dashboard';
 import FileManager from './pages/FileManager';
 import FormLibrary from './pages/FormLibrary';
 import HotCases from './pages/HotCases';
+import HowItWorks from './pages/HowItWorks';
 import HowTo from './pages/HowTo';
 import Invoices from './pages/Invoices';
+import LandingPage from './pages/LandingPage';
 import NotaryValidator from './pages/NotaryValidator';
 import OCRExtractor from './pages/OCRExtractor';
 import PacketBuilder from './pages/PacketBuilder';
@@ -32,8 +34,6 @@ import Reminders from './pages/Reminders';
 import Settings from './pages/Settings';
 import Templates from './pages/Templates';
 import UserManagement from './pages/UserManagement';
-import LandingPage from './pages/LandingPage';
-import HowItWorks from './pages/HowItWorks';
 import __Layout from './Layout.jsx';
 
 
@@ -50,8 +50,10 @@ export const PAGES = {
     "FileManager": FileManager,
     "FormLibrary": FormLibrary,
     "HotCases": HotCases,
+    "HowItWorks": HowItWorks,
     "HowTo": HowTo,
     "Invoices": Invoices,
+    "LandingPage": LandingPage,
     "NotaryValidator": NotaryValidator,
     "OCRExtractor": OCRExtractor,
     "PacketBuilder": PacketBuilder,
@@ -72,8 +74,6 @@ export const PAGES = {
     "Settings": Settings,
     "Templates": Templates,
     "UserManagement": UserManagement,
-    "LandingPage": LandingPage,
-    "HowItWorks": HowItWorks,
 }
 
 export const pagesConfig = {
