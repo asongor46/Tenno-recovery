@@ -55,6 +55,12 @@ export default function UserManagement() {
     staleTime: 30000,
   });
 
+  const { data: pendingApplications = [] } = useQuery({
+    queryKey: ["pendingAgents"],
+    queryFn: () => base44.entities.AgentProfile.filter({ status: "pending" }, "-applied_at"),
+    staleTime: 30000,
+  });
+
   const updateRoleMutation = useMutation({
     mutationFn: ({ userId, role }) => 
       base44.entities.User.update(userId, { role }),
@@ -73,6 +79,47 @@ export default function UserManagement() {
       setDeleteUser(null);
     },
     onError: () => toast.error("Failed to delete user"),
+  });
+
+  const approveAgentMutation = useMutation({
+    mutationFn: async (profileId) => {
+      const profile = pendingApplications.find(p => p.id === profileId);
+      const currentUser = await base44.auth.me();
+      
+      await base44.entities.AgentProfile.update(profileId, {
+        status: "approved",
+        approved_at: new Date().toISOString(),
+        approved_by: currentUser.email,
+      });
+      
+      // Generate email content for Outlook
+      const emailSubject = encodeURIComponent("Your TENNO Agent Application - Approved!");
+      const emailBody = encodeURIComponent(
+        `Hi ${profile.full_name},\n\nGreat news! Your application to join TENNO Asset Recovery has been approved.\n\nYou can now access the agent dashboard:\n1. Go to our website\n2. Click "Agent Login"\n3. Sign in with your account\n\nWelcome to the team!\n\nBest regards,\nTENNO Asset Recovery`
+      );
+      const outlookLink = `https://outlook.office.com/mail/deeplink/compose?to=${profile.email}&subject=${emailSubject}&body=${emailBody}`;
+      
+      return { outlookLink };
+    },
+    onSuccess: ({ outlookLink }) => {
+      queryClient.invalidateQueries({ queryKey: ["pendingAgents"] });
+      toast.success("Agent approved");
+      window.open(outlookLink, "_blank");
+    },
+    onError: () => toast.error("Failed to approve agent"),
+  });
+
+  const rejectAgentMutation = useMutation({
+    mutationFn: (profileId) => 
+      base44.entities.AgentProfile.update(profileId, {
+        status: "rejected",
+        rejection_reason: "Application did not meet our current requirements",
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["pendingAgents"] });
+      toast.success("Application rejected");
+    },
+    onError: () => toast.error("Failed to reject application"),
   });
 
   const filteredUsers = users.filter(user => {
@@ -142,6 +189,62 @@ export default function UserManagement() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Pending Applications */}
+        {pendingApplications.length > 0 && (
+          <Card className="border-amber-200 bg-amber-50/50">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="w-5 h-5" />
+                Pending Agent Applications ({pendingApplications.length})
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Location</TableHead>
+                    <TableHead>Applied</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {pendingApplications.map((app) => (
+                    <TableRow key={app.id}>
+                      <TableCell className="font-medium">{app.full_name}</TableCell>
+                      <TableCell>{app.email}</TableCell>
+                      <TableCell>{app.location}</TableCell>
+                      <TableCell className="text-slate-500">
+                        {format(new Date(app.applied_at), "MMM d, yyyy")}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            className="bg-green-600 hover:bg-green-700"
+                            onClick={() => approveAgentMutation.mutate(app.id)}
+                          >
+                            ✓ Approve
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-red-600"
+                            onClick={() => rejectAgentMutation.mutate(app.id)}
+                          >
+                            ✗ Reject
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Filters */}
         <Card>
