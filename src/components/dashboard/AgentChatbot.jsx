@@ -16,7 +16,20 @@ import { useStandardToast } from "@/components/shared/useStandardToast";
  */
 
 export default function AgentChatbot() {
-  const [isOpen, setIsOpen] = useState(false);
+  const { data: user } = useQuery({
+    queryKey: ["currentUser"],
+    queryFn: () => base44.auth.me(),
+  });
+  
+  return (
+    <AIAssistantChat 
+      userType="agent"
+      userId={user?.id}
+      position="floating"
+    />
+  );
+}
+
   const [messages, setMessages] = useState([
     {
       role: "assistant",
