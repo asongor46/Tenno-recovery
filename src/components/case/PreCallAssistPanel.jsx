@@ -97,16 +97,17 @@ export default function PreCallAssistPanel({ caseData, county, onOpenScript }) {
               size="sm" 
               className="w-full justify-start"
               onClick={() => {
-                // Switch to homeowner tab
-                const tab = document.querySelector('[data-state][value="homeowner"]');
-                if (tab) {
-                  tab.click();
-                } else {
-                  // Fallback: try finding by text content
-                  const tabs = document.querySelectorAll('[role="tab"]');
-                  const homeownerTab = Array.from(tabs).find(t => t.textContent?.includes("Homeowner"));
-                  homeownerTab?.click();
-                }
+                // Switch to homeowner tab by finding and clicking the tab trigger
+                setTimeout(() => {
+                  const tabs = document.querySelectorAll('button[role="tab"]');
+                  const homeownerTab = Array.from(tabs).find(t => 
+                    t.getAttribute('value') === 'homeowner' || 
+                    t.textContent?.includes('Homeowner Info')
+                  );
+                  if (homeownerTab) {
+                    homeownerTab.click();
+                  }
+                }, 100);
               }}
             >
               <Users className="w-4 h-4 mr-2" /> Find More Contacts

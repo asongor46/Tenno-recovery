@@ -320,19 +320,16 @@ export default function CaseDetail() {
                 const { data } = await base44.functions.invoke("generatePortalInvite", {
                   case_id: caseId
                 });
-                if (data.success) {
-                  // Open default email client directly
-                  if (data.data?.mailto_link) {
-                    window.location.href = data.data.mailto_link;
-                  }
+                if (data.mailto_link) {
+                  window.location.href = data.mailto_link;
                   queryClient.invalidateQueries({ queryKey: ["case", caseId] });
                   queryClient.invalidateQueries({ queryKey: ["activities", caseId] });
                   toast.success("Opening email client...");
                 } else {
-                  toast.error(data.error || "Failed to generate invite");
+                  toast.error("Failed to generate invite");
                 }
               } catch (err) {
-                toast.error("Error generating invite");
+                toast.error("Error: " + err.message);
               }
             }}
           >
@@ -621,16 +618,13 @@ export default function CaseDetail() {
                     const { data } = await base44.functions.invoke("generatePortalInvite", {
                       case_id: caseId
                     });
-                    if (data.success) {
-                      // Open default email client directly
-                      if (data.data?.mailto_link) {
-                        window.location.href = data.data.mailto_link;
-                      }
+                    if (data.mailto_link) {
+                      window.location.href = data.mailto_link;
                       queryClient.invalidateQueries({ queryKey: ["case", caseId] });
                       toast.success("Opening email client...");
                     }
                   } catch (err) {
-                    toast.error("Error generating invite");
+                    toast.error("Error: " + err.message);
                   }
                 }}
               >
@@ -698,16 +692,13 @@ export default function CaseDetail() {
                             const { data } = await base44.functions.invoke("generatePortalInvite", {
                               case_id: caseId
                             });
-                            if (data.success) {
-                              // Open default email client directly
-                              if (data.data?.mailto_link) {
-                                window.location.href = data.data.mailto_link;
-                              }
+                            if (data.mailto_link) {
+                              window.location.href = data.mailto_link;
                               queryClient.invalidateQueries({ queryKey: ["case", caseId] });
                               toast.success("New code generated, opening email...");
                             }
                           } catch (err) {
-                            toast.error("Error regenerating code");
+                            toast.error("Error: " + err.message);
                           }
                         }
                       }}
