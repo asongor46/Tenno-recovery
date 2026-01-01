@@ -93,19 +93,22 @@ const navigation = [
 ];
 
 export default function Layout({ children, currentPageName }) {
+  // Public pages (no auth, no layout) - Check BEFORE any hooks
+  const isPublicPage = ['LandingPage', 'HowItWorks', 'About', 'Contact', 'AgentApply', 'AgentPending'].includes(currentPageName);
+  const isPortalPage = currentPageName?.startsWith("Portal");
+
+  if (isPublicPage || isPortalPage) {
+    return <>{children}</>;
+  }
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [expandedMenus, setExpandedMenus] = useState({});
   const [searchQuery, setSearchQuery] = useState("");
-
-  // Public pages (no auth, no layout)
-  const isPublicPage = ['LandingPage', 'HowItWorks', 'About', 'Contact', 'AgentApply', 'AgentPending'].includes(currentPageName);
-  const isPortalPage = currentPageName?.startsWith("Portal");
 
   // Auth check for agent pages
   const { data: user, isLoading: authLoading } = useQuery({
     queryKey: ["currentUser"],
     queryFn: () => base44.auth.me(),
-    enabled: !isPublicPage && !isPortalPage,
     retry: false,
   });
 
@@ -126,11 +129,6 @@ export default function Layout({ children, currentPageName }) {
       [menuName]: !prev[menuName],
     }));
   };
-
-  // Public pages (no auth, no layout)
-  if (isPublicPage || isPortalPage) {
-    return <>{children}</>;
-  }
 
   // Auth loading state for agent pages
   if (authLoading) {
@@ -158,7 +156,7 @@ export default function Layout({ children, currentPageName }) {
       const profiles = await base44.entities.AgentProfile.filter({ email: user.email });
       return profiles[0];
     },
-    enabled: !!user?.email && !isPublicPage && !isPortalPage,
+    enabled: !!user?.email,
   });
 
   // [ENHANCED - Tier 3] Redirect based on profile status + onboarding
