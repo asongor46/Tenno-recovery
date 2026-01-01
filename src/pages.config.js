@@ -1,4 +1,5 @@
 import AgentApply from './pages/AgentApply';
+import AgentOnboarding from './pages/AgentOnboarding';
 import AgentPending from './pages/AgentPending';
 import AgreementTemplates from './pages/AgreementTemplates';
 import AutomationLog from './pages/AutomationLog';
@@ -19,6 +20,7 @@ import LandingPage from './pages/LandingPage';
 import NotaryValidator from './pages/NotaryValidator';
 import OCRExtractor from './pages/OCRExtractor';
 import PacketBuilder from './pages/PacketBuilder';
+import PaymentPipeline from './pages/PaymentPipeline';
 import PeopleFinder from './pages/PeopleFinder';
 import PortalAgreement from './pages/PortalAgreement';
 import PortalComplete from './pages/PortalComplete';
@@ -36,13 +38,12 @@ import Reminders from './pages/Reminders';
 import Settings from './pages/Settings';
 import Templates from './pages/Templates';
 import UserManagement from './pages/UserManagement';
-import AgentOnboarding from './pages/AgentOnboarding';
-import PaymentPipeline from './pages/PaymentPipeline';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "AgentApply": AgentApply,
+    "AgentOnboarding": AgentOnboarding,
     "AgentPending": AgentPending,
     "AgreementTemplates": AgreementTemplates,
     "AutomationLog": AutomationLog,
@@ -63,6 +64,7 @@ export const PAGES = {
     "NotaryValidator": NotaryValidator,
     "OCRExtractor": OCRExtractor,
     "PacketBuilder": PacketBuilder,
+    "PaymentPipeline": PaymentPipeline,
     "PeopleFinder": PeopleFinder,
     "PortalAgreement": PortalAgreement,
     "PortalComplete": PortalComplete,
@@ -80,8 +82,6 @@ export const PAGES = {
     "Settings": Settings,
     "Templates": Templates,
     "UserManagement": UserManagement,
-    "AgentOnboarding": AgentOnboarding,
-    "PaymentPipeline": PaymentPipeline,
 }
 
 export const pagesConfig = {

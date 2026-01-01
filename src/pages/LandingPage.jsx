@@ -110,12 +110,7 @@ export default function LandingPage() {
 
 
 
-  const stats = [
-    { value: "98%", label: "Filing Accuracy" },
-    { value: "50%", label: "Time Saved" },
-    { value: "24/7", label: "Client Access" },
-    { value: "50+", label: "Counties Supported" },
-  ];
+
 
   return (
     <div className="min-h-screen bg-slate-900">
@@ -301,26 +296,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Stats */}
-      <section className="py-12 bg-emerald-600">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                viewport={{ once: true }}
-                className="text-center"
-              >
-                <p className="text-4xl font-bold text-white">{stat.value}</p>
-                <p className="text-emerald-100 mt-2">{stat.label}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+
 
       {/* Trust Section */}
       <section className="py-16 bg-slate-900">
