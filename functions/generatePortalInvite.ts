@@ -224,9 +224,8 @@ function buildOutlookDeeplink(to, subject, body) {
  * Build mailto link as fallback for non-Outlook users
  */
 function buildMailtoLink(to, subject, body) {
-  const params = new URLSearchParams({
-    subject,
-    body
-  });
-  return `mailto:${to}?${params.toString()}`;
+  // Manual encoding to preserve newlines and readability
+  const encodedSubject = encodeURIComponent(subject);
+  const encodedBody = encodeURIComponent(body);
+  return `mailto:${to}?subject=${encodedSubject}&body=${encodedBody}`;
 }
