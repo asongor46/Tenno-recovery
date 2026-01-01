@@ -29,9 +29,97 @@ export default function Dashboard() {
     refetchInterval: 30000, // Auto-refresh every 30 seconds
   });
 
+  // [ENHANCED - Tier 2] Smart alerts with computed cases needing attention
   const { data: alerts = [], isLoading: alertsLoading } = useQuery({
     queryKey: ["alerts"],
-    queryFn: () => base44.entities.Alert.filter({ is_resolved: false }, "-created_date", 10),
+    queryFn: async () => {
+      // Fetch stored alerts
+      const storedAlerts = await base44.entities.Alert.filter({ is_resolved: false }, "-created_date", 10);
+      
+      // Compute dynamic alerts from case state
+      const allCases = await base44.entities.Case.list("-updated_date", 100);
+      const computedAlerts = [];
+
+      allCases.forEach(c => {
+        // Homeowner completed all steps
+        if (c.agreement_status === "signed" && c.id_front_url && c.id_back_url && 
+            c.notary_packet_uploaded && c.stage !== "packet_ready") {
+          computedAlerts.push({
+            id: `computed-ready-${c.id}`,
+            case_id: c.id,
+            type: "action_required",
+            title: `${c.case_number} - ${c.owner_name}`,
+            message: "✅ Homeowner completed all steps → Ready to generate filing packet",
+            severity: "info",
+            is_read: false,
+            is_resolved: false
+          });
+        }
+
+        // Waiting period ending soon
+        if (c.waiting_period_end) {
+          const daysUntilEnd = Math.ceil((new Date(c.waiting_period_end) - new Date()) / (1000 * 60 * 60 * 24));
+          if (daysUntilEnd === 0) {
+            computedAlerts.push({
+              id: `computed-waiting-${c.id}`,
+              case_id: c.id,
+              type: "action_required",
+              title: `${c.case_number} - Waiting Period Ends TODAY`,
+              message: "→ File proposed order",
+              severity: "warning",
+              is_read: false,
+              is_resolved: false
+            });
+          } else if (daysUntilEnd > 0 && daysUntilEnd <= 3) {
+            computedAlerts.push({
+              id: `computed-waiting-${c.id}`,
+              case_id: c.id,
+              type: "action_required",
+              title: `${c.case_number} - Waiting period ends in ${daysUntilEnd} days`,
+              message: "→ Prepare proposed order",
+              severity: "info",
+              is_read: false,
+              is_resolved: false
+            });
+          }
+        }
+
+        // Notary needs review
+        if (c.notary_packet_uploaded && c.notary_verified === "pending") {
+          computedAlerts.push({
+            id: `computed-notary-${c.id}`,
+            case_id: c.id,
+            type: "action_required",
+            title: `${c.case_number} - Notary document needs review`,
+            message: "→ Verify notarization",
+            severity: "warning",
+            is_read: false,
+            is_resolved: false
+          });
+        }
+
+        // Stale cases (no contact in 7+ days, in outreach stage)
+        if (c.portal_sent_at) {
+          const daysSinceSent = Math.floor((new Date() - new Date(c.portal_sent_at)) / (1000 * 60 * 60 * 24));
+          if (daysSinceSent >= 7 && !c.portal_code_used && c.stage === "imported") {
+            computedAlerts.push({
+              id: `computed-stale-${c.id}`,
+              case_id: c.id,
+              type: "action_required",
+              title: `${c.case_number} - Portal invite not used (${daysSinceSent} days)`,
+              message: "→ Follow up with homeowner",
+              severity: "warning",
+              is_read: false,
+              is_resolved: false
+            });
+          }
+        }
+      });
+
+      // Merge stored and computed, limit to 10 most important
+      return [...computedAlerts, ...storedAlerts].slice(0, 10);
+    },
+    refetchInterval: 60000, // Refresh every minute
   });
 
   const { data: todos = [], isLoading: todosLoading } = useQuery({

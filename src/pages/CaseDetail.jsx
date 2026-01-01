@@ -74,6 +74,9 @@ import PacketReadinessPanel from "@/components/case/PacketReadinessPanel";
 import EmailFallbackModal from "@/components/communications/EmailFallbackModal";
 import { usePortalLink } from "@/components/shared/usePortalLink";
 import SendEmailPanel from "@/components/case/SendEmailPanel";
+// [NEW - Tier 2]
+import PreCallAssistPanel from "@/components/case/PreCallAssistPanel";
+import CallScriptModal from "@/components/case/CallScriptModal";
 
 const stageConfig = {
   imported: { label: "Imported", color: "bg-slate-500" },
@@ -100,6 +103,8 @@ export default function CaseDetail() {
   // [MODIFIED - Portal Invite]
   const [showInviteDialog, setShowInviteDialog] = useState(false);
   const [inviteData, setInviteData] = useState(null);
+  // [NEW - Tier 2]
+  const [showCallScript, setShowCallScript] = useState(false);
 
   const queryClient = useQueryClient();
   const toast = useStandardToast();
@@ -389,8 +394,17 @@ export default function CaseDetail() {
         {/* Overview Tab */}
         <TabsContent value="overview" className="space-y-6">
           <div className="grid lg:grid-cols-3 gap-6">
-            {/* Agent Assist Panel - Prominent Position */}
-            <div className="lg:col-span-3">
+            {/* [NEW - Tier 2] Pre-Call Assistant Panel */}
+            <div className="lg:col-span-2">
+              <PreCallAssistPanel 
+                caseData={caseData} 
+                county={county}
+                onOpenScript={() => setShowCallScript(true)}
+              />
+            </div>
+
+            {/* Agent Assist Panel - Moved to right column */}
+            <div>
               <AgentAssistPanel caseData={caseData} />
             </div>
 
@@ -971,6 +985,14 @@ export default function CaseDetail() {
           onClose={() => setShowEditDialog(false)}
         />
       )}
+
+      {/* [NEW - Tier 2] Call Script Modal */}
+      <CallScriptModal
+        open={showCallScript}
+        onClose={() => setShowCallScript(false)}
+        caseData={caseData}
+        county={county}
+      />
 
       {/* [MODIFIED - Portal Invite] Send Portal Invite Dialog */}
       <Dialog open={showInviteDialog} onOpenChange={setShowInviteDialog}>

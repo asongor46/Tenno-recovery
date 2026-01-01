@@ -32,6 +32,7 @@ const severityConfig = {
   },
 };
 
+// [ENHANCED - Tier 2] Dashboard Alerts with smart notifications
 export default function AlertsPanel({ alerts, isLoading }) {
   const queryClient = useQueryClient();
 
@@ -39,6 +40,13 @@ export default function AlertsPanel({ alerts, isLoading }) {
     await base44.entities.Alert.update(alertId, { is_resolved: true, is_read: true });
     queryClient.invalidateQueries({ queryKey: ["alerts"] });
     queryClient.invalidateQueries({ queryKey: ["unreadAlerts"] });
+  };
+
+  const handleQuickAction = async (alert) => {
+    // Navigate to case if case_id exists
+    if (alert.case_id) {
+      window.location.href = `/case-detail?id=${alert.case_id}`;
+    }
   };
 
   if (isLoading) {
@@ -75,23 +83,42 @@ export default function AlertsPanel({ alerts, isLoading }) {
             return (
               <div
                 key={alert.id}
-                className={`flex items-start gap-3 p-3 rounded-xl ${config.bg} border ${config.border}`}
+                className={`flex flex-col gap-2 p-3 rounded-xl ${config.bg} border ${config.border} hover:shadow-sm transition-shadow`}
               >
-                <Icon className={`w-5 h-5 ${config.iconColor} flex-shrink-0 mt-0.5`} />
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-sm text-slate-900">{alert.title}</p>
-                  {alert.message && (
-                    <p className="text-xs text-slate-600 mt-0.5">{alert.message}</p>
-                  )}
+                <div className="flex items-start gap-3">
+                  <Icon className={`w-5 h-5 ${config.iconColor} flex-shrink-0 mt-0.5`} />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm text-slate-900">{alert.title}</p>
+                    {alert.message && (
+                      <p className="text-xs text-slate-600 mt-0.5">{alert.message}</p>
+                    )}
+                    {alert.case_id && (
+                      <p className="text-xs text-slate-500 mt-1">
+                        Case #{alert.case_id.substring(0, 8)}
+                      </p>
+                    )}
+                  </div>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleResolve(alert.id)}
-                  className="text-slate-500 hover:text-slate-700 h-7 px-2"
-                >
-                  Resolve
-                </Button>
+                <div className="flex items-center gap-2 ml-8">
+                  {alert.case_id && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleQuickAction(alert)}
+                      className="h-7 text-xs"
+                    >
+                      Open Case
+                    </Button>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleResolve(alert.id)}
+                    className="text-slate-500 hover:text-slate-700 h-7 px-2 text-xs ml-auto"
+                  >
+                    Dismiss
+                  </Button>
+                </div>
               </div>
             );
           })}
