@@ -54,14 +54,17 @@ export default function PortalLogin() {
         access_code: accessCode.toUpperCase().trim()
       });
 
-      if (data.success) {
-        setValidatedCases(data.cases);
+      console.log("validateAccessCode response:", data);
+
+      if (data?.success) {
+        setValidatedCases(data.cases || []);
         setShowPasswordSetup(true);
       } else {
-        setError(data.error || "Invalid email or access code");
+        setError(data?.error || "Invalid email or access code");
       }
     } catch (err) {
-      setError("An error occurred. Please try again.");
+      console.error("Access code validation error:", err);
+      setError(err?.message || "An error occurred. Please try again.");
     } finally {
       setIsLoading(false);
     }
