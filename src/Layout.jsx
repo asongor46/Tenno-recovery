@@ -32,7 +32,8 @@ import {
   FolderOpen,
   Activity,
   Trash2,
-  Inbox
+  Inbox,
+  DollarSign
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
