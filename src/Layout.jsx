@@ -163,7 +163,7 @@ export default function Layout({ children, currentPageName }) {
 
   // [ENHANCED - Tier 3] Redirect based on profile status + onboarding
   React.useEffect(() => {
-    if (user && profile !== undefined) {
+    if (user && profile !== undefined && !isPublicPage && !isPortalPage) {
       if (!profile) {
         window.location.href = createPageUrl("AgentApply");
       } else if (profile.status === "pending") {
@@ -171,12 +171,12 @@ export default function Layout({ children, currentPageName }) {
       } else if (profile.status === "rejected") {
         alert("Your application has been rejected. Please contact support.");
         base44.auth.logout();
-      } else if (profile.status === "approved" && !profile.notes?.includes("Completed onboarding") && currentPageName !== "AgentOnboarding") {
+      } else if (profile.status === "approved" && !(profile.notes || "").includes("Completed onboarding") && currentPageName !== "AgentOnboarding") {
         // Approved but hasn't completed onboarding
         window.location.href = createPageUrl("AgentOnboarding");
       }
     }
-  }, [user, profile, currentPageName]);
+  }, [user, profile, currentPageName, isPublicPage, isPortalPage]);
 
   const handleLogout = () => {
     base44.auth.logout();
