@@ -211,7 +211,7 @@ export default function LandingPage() {
                   Join Our Team <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
                 <Link to={createPageUrl("HowItWorks")}>
-                  <Button size="lg" variant="outline" className="text-lg px-8 border-slate-600 text-white hover:bg-slate-800">
+                  <Button size="lg" className="text-lg px-8 bg-slate-800 text-white hover:bg-slate-700 border border-slate-600">
                     See How It Works
                   </Button>
                 </Link>
@@ -367,8 +367,7 @@ export default function LandingPage() {
             <Link to={createPageUrl("PortalLogin")}>
               <Button 
                 size="lg" 
-                variant="outline" 
-                className="text-lg px-8 border-slate-600 text-white hover:bg-slate-800"
+                className="text-lg px-8 bg-slate-800 text-white hover:bg-slate-700 border border-slate-600"
               >
                 Access Client Portal
               </Button>
