@@ -49,7 +49,7 @@ Deno.serve(async (req) => {
       return Response.json({
         success: false,
         error: 'Invalid email or access code. Please check your credentials and try again.'
-      }, { status: 401 });
+      }, { status: 200 });
     }
 
     // Return success with case list
