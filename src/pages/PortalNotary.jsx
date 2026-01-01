@@ -196,7 +196,7 @@ export default function PortalNotary() {
           </p>
 
           {/* Prerequisites Check */}
-          {(!caseData.agreement_status || caseData.agreement_status !== 'signed') && (
+          {caseData && (!caseData.agreement_status || caseData.agreement_status !== 'signed') && (
             <Card className="mb-6 border-amber-300 bg-amber-50">
               <CardContent className="pt-6">
                 <div className="flex items-start gap-3">
@@ -285,7 +285,7 @@ export default function PortalNotary() {
                     ) : (
                       <Button 
                         onClick={handleGeneratePacket}
-                        disabled={isGeneratingPacket || caseData.agreement_status !== 'signed'}
+                        disabled={isGeneratingPacket || !caseData || caseData.agreement_status !== 'signed'}
                         className="w-full"
                       >
                         {isGeneratingPacket ? (
