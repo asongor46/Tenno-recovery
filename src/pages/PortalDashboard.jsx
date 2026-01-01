@@ -22,6 +22,7 @@ import { Progress } from "@/components/ui/progress";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
 import PortalAuthGuard from "@/components/portal/PortalAuthGuard";
+import ClientAIAssistant from "@/components/portal/ClientAIAssistant";
 
 function PortalDashboardContent() {
   const userEmail = sessionStorage.getItem("portal_user_email") || localStorage.getItem("portal_user_email");
@@ -326,6 +327,9 @@ function PortalDashboardContent() {
           </CardContent>
         </Card>
       </div>
+
+      {/* [NEW - Tier 3] AI Assistant */}
+      <ClientAIAssistant caseId={cases[0]?.id} userEmail={userEmail} />
     </div>
   );
 }
