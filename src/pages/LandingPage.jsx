@@ -76,18 +76,11 @@ export default function LandingPage() {
       title: "You Sign Online",
       description: "Complete our simple online agreement - no upfront cost, no hidden fees.",
     },
-    {
-      icon: DollarSign,
-      title: "We File & Collect",
-      description: "We handle all paperwork and court filings. You get paid when we recover your funds.",
-    },
   ];
 
   const trustPoints = [
     { icon: CheckCircle2, text: "No upfront fees" },
     { icon: CheckCircle2, text: "Contingency only" },
-    { icon: CheckCircle2, text: "We do all the work" },
-    { icon: Shield, text: "Licensed & insured" },
     { icon: Shield, text: "Secure portal" },
     { icon: Clock, text: "Track your case 24/7" },
   ];
@@ -115,38 +108,7 @@ export default function LandingPage() {
     },
   ];
 
-  const features = [
-    {
-      icon: Zap,
-      title: "Automated Case Management",
-      description: "Streamline your surplus recovery workflow with intelligent automation and AI-powered assistance.",
-    },
-    {
-      icon: Shield,
-      title: "Secure Client Portal",
-      description: "Give clients 24/7 access to their case status with password-protected accounts and email notifications.",
-    },
-    {
-      icon: FileText,
-      title: "Smart Document Generation",
-      description: "Auto-generate county-specific forms, agreements, and packets with built-in compliance checks.",
-    },
-    {
-      icon: Users,
-      title: "People Finder Integration",
-      description: "Locate hard-to-find property owners with integrated skip tracing and identity verification.",
-    },
-    {
-      icon: TrendingUp,
-      title: "Real-Time Analytics",
-      description: "Track your pipeline, revenue, and performance metrics with comprehensive dashboards.",
-    },
-    {
-      icon: Clock,
-      title: "Deadline Management",
-      description: "Never miss a filing deadline with automated reminders and waiting period tracking.",
-    },
-  ];
+
 
   const stats = [
     { value: "98%", label: "Filing Accuracy" },
@@ -318,7 +280,7 @@ export default function LandingPage() {
             <h2 className="text-3xl sm:text-4xl font-bold text-white">How It Works</h2>
             <p className="mt-4 text-lg text-slate-300">Simple, transparent, and no upfront cost</p>
           </div>
-          <div className="grid md:grid-cols-3 gap-8 lg:gap-12">
+          <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
             {howItWorksSteps.map((step, index) => (
               <motion.div
                 key={step.title}
@@ -363,7 +325,7 @@ export default function LandingPage() {
       {/* Trust Section */}
       <section className="py-16 bg-slate-900">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 gap-6">
             {trustPoints.map((point, index) => (
               <motion.div
                 key={point.text}
@@ -381,43 +343,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Features */}
-      <section className="py-20 lg:py-32 bg-slate-800/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-white">
-              Everything You Need to Scale Your Business
-            </h2>
-            <p className="mt-4 text-lg text-slate-300">
-              Built specifically for surplus recovery professionals
-            </p>
-          </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
-              <motion.div
-                key={feature.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                viewport={{ once: true }}
-              >
-                <Card className="h-full hover:shadow-lg transition-shadow bg-slate-800 border-slate-700">
-                  <CardContent className="pt-6">
-                    <div className="w-12 h-12 bg-emerald-500/10 rounded-lg flex items-center justify-center mb-4">
-                      <feature.icon className="w-6 h-6 text-emerald-400" />
-                    </div>
-                    <h3 className="text-xl font-semibold text-white mb-2">
-                      {feature.title}
-                    </h3>
-                    <p className="text-slate-300">{feature.description}</p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* FAQ Section */}
       <section className="py-20 bg-slate-900">
