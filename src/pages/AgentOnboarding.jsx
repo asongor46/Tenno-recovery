@@ -163,7 +163,7 @@ export default function AgentOnboarding() {
   });
 
   const updateProfileMutation = useMutation({
-    mutationFn: (data) => base44.entities.AgentProfile.update(profile.id, data),
+    mutationFn: (data) => base44.entities.AgentProfile.update(profile?.id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["agentProfile"] });
     },
@@ -200,6 +200,8 @@ export default function AgentOnboarding() {
   };
 
   const handleComplete = async () => {
+    if (!profile) return;
+    
     await updateProfileMutation.mutateAsync({
       ...profile,
       notes: (profile.notes || "") + "\nCompleted onboarding: " + new Date().toISOString()
