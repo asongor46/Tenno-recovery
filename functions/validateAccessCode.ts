@@ -1,4 +1,4 @@
-import { createClient } from 'npm:@base44/sdk@0.8.6';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 
 /**
  * VALIDATE ACCESS CODE
@@ -9,11 +9,8 @@ import { createClient } from 'npm:@base44/sdk@0.8.6';
 
 Deno.serve(async (req) => {
   try {
-    // Initialize client with service role - this is a public endpoint
-    const base44 = createClient(
-      Deno.env.get('BASE44_APP_ID'),
-      Deno.env.get('BASE44_APP_OWNER')
-    );
+    // Initialize client - use service role for database access
+    const base44 = createClientFromRequest(req);
     
     const { email, access_code } = await req.json();
 
@@ -29,7 +26,7 @@ Deno.serve(async (req) => {
     }
 
     // Query cases with matching email and unused access code
-    const cases = await base44.entities.Case.filter({
+    const cases = await base44.asServiceRole.entities.Case.filter({
       owner_email: normalizedEmail,
       portal_access_code: normalizedCode,
       portal_code_used: false
@@ -38,7 +35,7 @@ Deno.serve(async (req) => {
     if (cases.length === 0) {
       // Log failed attempt for security audit
       try {
-        await base44.entities.ActivityLog.create({
+        await base44.asServiceRole.entities.ActivityLog.create({
           case_id: null,
           action: 'portal_access_validation_failed',
           description: `Failed access code validation attempt for email: ${normalizedEmail}`,
