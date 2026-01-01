@@ -97,7 +97,7 @@ export default function Layout({ children, currentPageName }) {
   const [searchQuery, setSearchQuery] = useState("");
 
   // Public pages (no auth, no layout)
-  const isPublicPage = ['LandingPage', 'HowItWorks', 'About', 'Contact'].includes(currentPageName);
+  const isPublicPage = ['LandingPage', 'HowItWorks', 'About', 'Contact', 'AgentApply', 'AgentPending'].includes(currentPageName);
   const isPortalPage = currentPageName?.startsWith("Portal");
 
   // Auth check for agent pages
@@ -148,6 +148,30 @@ export default function Layout({ children, currentPageName }) {
     base44.auth.redirectToLogin(window.location.pathname);
     return null;
   }
+
+  // Check if user has approved AgentProfile
+  const { data: profile } = useQuery({
+    queryKey: ["agentProfile", user?.email],
+    queryFn: async () => {
+      const profiles = await base44.entities.AgentProfile.filter({ email: user.email });
+      return profiles[0];
+    },
+    enabled: !!user?.email,
+  });
+
+  // Redirect based on profile status
+  React.useEffect(() => {
+    if (user && profile !== undefined) {
+      if (!profile) {
+        window.location.href = createPageUrl("AgentApply");
+      } else if (profile.status === "pending") {
+        window.location.href = createPageUrl("AgentPending");
+      } else if (profile.status === "rejected") {
+        alert("Your application has been rejected. Please contact support.");
+        base44.auth.logout();
+      }
+    }
+  }, [user, profile]);
 
   const handleLogout = () => {
     base44.auth.logout();
