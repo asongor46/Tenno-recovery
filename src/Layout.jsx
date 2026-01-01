@@ -154,10 +154,11 @@ export default function Layout({ children, currentPageName }) {
   const { data: profile } = useQuery({
     queryKey: ["agentProfile", user?.email],
     queryFn: async () => {
+      if (!user?.email) return null;
       const profiles = await base44.entities.AgentProfile.filter({ email: user.email });
       return profiles[0];
     },
-    enabled: !!user?.email,
+    enabled: !!user?.email && !isPublicPage && !isPortalPage,
   });
 
   // [ENHANCED - Tier 3] Redirect based on profile status + onboarding
