@@ -141,9 +141,9 @@ export default function LandingPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="min-h-screen bg-slate-900">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-slate-200/50">
+      <header className="sticky top-0 z-50 bg-slate-900/80 backdrop-blur-xl border-b border-slate-800/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-8">
@@ -153,10 +153,10 @@ export default function LandingPage() {
                 className="h-10 w-auto"
               />
               <nav className="hidden md:flex items-center gap-6">
-                <Link to={createPageUrl("HowItWorks")} className="text-slate-600 hover:text-slate-900 transition-colors">
+                <Link to={createPageUrl("HowItWorks")} className="text-slate-300 hover:text-white transition-colors">
                   How It Works
                 </Link>
-                <a href="mailto:tennoassetrecovery@gmail.com" className="text-slate-600 hover:text-slate-900 transition-colors">
+                <a href="mailto:tennoassetrecovery@gmail.com" className="text-slate-300 hover:text-white transition-colors">
                   Contact
                 </a>
               </nav>
@@ -165,16 +165,16 @@ export default function LandingPage() {
               <div className="hidden md:block">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline">
+                    <Button variant="outline" className="border-slate-700 text-white hover:bg-slate-800">
                       Sign In
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={handleAgentLogin}>
+                  <DropdownMenuContent align="end" className="bg-slate-800 border-slate-700">
+                    <DropdownMenuItem onClick={handleAgentLogin} className="text-slate-200 hover:text-white focus:bg-slate-700 focus:text-white">
                       Agent Login
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link to={createPageUrl("PortalLogin")}>
+                      <Link to={createPageUrl("PortalLogin")} className="text-slate-200 hover:text-white">
                         Client Portal
                       </Link>
                     </DropdownMenuItem>
@@ -183,7 +183,7 @@ export default function LandingPage() {
               </div>
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="md:hidden text-slate-600 hover:text-slate-900"
+                className="md:hidden text-slate-300 hover:text-white"
               >
                 {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
               </button>
@@ -191,15 +191,15 @@ export default function LandingPage() {
           </div>
           {/* Mobile Menu */}
           {mobileMenuOpen && (
-            <div className="md:hidden py-4 border-t">
+            <div className="md:hidden py-4 border-t border-slate-800">
               <nav className="flex flex-col gap-3">
-                <Link to={createPageUrl("HowItWorks")} className="text-slate-600 hover:text-slate-900 transition-colors">
+                <Link to={createPageUrl("HowItWorks")} className="text-slate-300 hover:text-white transition-colors">
                   How It Works
                 </Link>
-                <a href="mailto:tennoassetrecovery@gmail.com" className="text-slate-600 hover:text-slate-900 transition-colors">
+                <a href="mailto:tennoassetrecovery@gmail.com" className="text-slate-300 hover:text-white transition-colors">
                   Contact
                 </a>
-                <Button variant="outline" onClick={handleAgentLogin} className="justify-start">
+                <Button variant="outline" onClick={handleAgentLogin} className="justify-start border-slate-700 text-white hover:bg-slate-800">
                   Agent Login
                 </Button>
                 <Link to={createPageUrl("PortalLogin")}>
@@ -222,11 +222,11 @@ export default function LandingPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 leading-tight">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight">
                 Tax Sale Surplus Recovery{" "}
-                <span className="text-emerald-600">Made Simple</span>
+                <span className="text-emerald-400">Made Simple</span>
               </h1>
-              <p className="mt-6 text-lg sm:text-xl text-slate-600">
+              <p className="mt-6 text-lg sm:text-xl text-slate-300">
                 The complete platform for surplus recovery professionals. Manage cases, 
                 automate workflows, and help homeowners recover their funds—all in one place.
               </p>
@@ -254,8 +254,8 @@ export default function LandingPage() {
                   ))}
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-slate-900">Trusted by 100+ agents</p>
-                  <p className="text-xs text-slate-500">Processing millions in recoveries</p>
+                  <p className="text-sm font-semibold text-white">Trusted by 100+ agents</p>
+                  <p className="text-xs text-slate-400">Processing millions in recoveries</p>
                 </div>
               </div>
             </motion.div>
@@ -266,27 +266,27 @@ export default function LandingPage() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="relative"
             >
-              <div className="bg-white rounded-2xl shadow-2xl p-8 border border-slate-200">
+              <div className="bg-slate-800 rounded-2xl shadow-2xl p-8 border border-slate-700">
                 <div className="space-y-4">
-                  <div className="flex items-center gap-3 p-4 bg-emerald-50 rounded-lg">
-                    <CheckCircle2 className="w-6 h-6 text-emerald-600" />
+                  <div className="flex items-center gap-3 p-4 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
+                    <CheckCircle2 className="w-6 h-6 text-emerald-400" />
                     <div>
-                      <p className="font-semibold text-slate-900">Case #2024-1234</p>
-                      <p className="text-sm text-slate-600">Agreement signed, ready for notary</p>
+                      <p className="font-semibold text-white">Case #2024-1234</p>
+                      <p className="text-sm text-slate-300">Agreement signed, ready for notary</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-lg">
-                    <Clock className="w-6 h-6 text-blue-600" />
+                  <div className="flex items-center gap-3 p-4 bg-blue-500/10 rounded-lg border border-blue-500/20">
+                    <Clock className="w-6 h-6 text-blue-400" />
                     <div>
-                      <p className="font-semibold text-slate-900">Case #2024-5678</p>
-                      <p className="text-sm text-slate-600">Waiting period: 45 days remaining</p>
+                      <p className="font-semibold text-white">Case #2024-5678</p>
+                      <p className="text-sm text-slate-300">Waiting period: 45 days remaining</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3 p-4 bg-amber-50 rounded-lg">
-                    <Award className="w-6 h-6 text-amber-600" />
+                  <div className="flex items-center gap-3 p-4 bg-amber-500/10 rounded-lg border border-amber-500/20">
+                    <Award className="w-6 h-6 text-amber-400" />
                     <div>
-                      <p className="font-semibold text-slate-900">Case #2024-9012</p>
-                      <p className="text-sm text-slate-600">$45,000 surplus approved!</p>
+                      <p className="font-semibold text-white">Case #2024-9012</p>
+                      <p className="text-sm text-slate-300">$45,000 surplus approved!</p>
                     </div>
                   </div>
                 </div>
@@ -297,11 +297,11 @@ export default function LandingPage() {
       </section>
 
       {/* How It Works - 3 Steps */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-slate-800/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900">How It Works</h2>
-            <p className="mt-4 text-lg text-slate-600">Simple, transparent, and no upfront cost</p>
+            <h2 className="text-3xl sm:text-4xl font-bold text-white">How It Works</h2>
+            <p className="mt-4 text-lg text-slate-300">Simple, transparent, and no upfront cost</p>
           </div>
           <div className="grid md:grid-cols-3 gap-8 lg:gap-12">
             {howItWorksSteps.map((step, index) => (
@@ -316,8 +316,8 @@ export default function LandingPage() {
                 <div className="w-20 h-20 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
                   <step.icon className="w-10 h-10 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-3">{step.title}</h3>
-                <p className="text-slate-600">{step.description}</p>
+                <h3 className="text-xl font-bold text-white mb-3">{step.title}</h3>
+                <p className="text-slate-300">{step.description}</p>
               </motion.div>
             ))}
           </div>
@@ -346,7 +346,7 @@ export default function LandingPage() {
       </section>
 
       {/* Trust Section */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-slate-900">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-3 gap-6">
             {trustPoints.map((point, index) => (
@@ -356,10 +356,10 @@ export default function LandingPage() {
                 whileInView={{ opacity: 1, scale: 1 }}
                 transition={{ delay: index * 0.05 }}
                 viewport={{ once: true }}
-                className="flex items-center gap-3 p-4 bg-emerald-50 rounded-lg border border-emerald-100"
+                className="flex items-center gap-3 p-4 bg-emerald-500/10 rounded-lg border border-emerald-500/20"
               >
-                <point.icon className="w-5 h-5 text-emerald-600 flex-shrink-0" />
-                <span className="font-medium text-slate-900">{point.text}</span>
+                <point.icon className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+                <span className="font-medium text-white">{point.text}</span>
               </motion.div>
             ))}
           </div>
@@ -367,13 +367,13 @@ export default function LandingPage() {
       </section>
 
       {/* Features */}
-      <section className="py-20 lg:py-32">
+      <section className="py-20 lg:py-32 bg-slate-800/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white">
               Everything You Need to Scale Your Business
             </h2>
-            <p className="mt-4 text-lg text-slate-600">
+            <p className="mt-4 text-lg text-slate-300">
               Built specifically for surplus recovery professionals
             </p>
           </div>
@@ -387,15 +387,15 @@ export default function LandingPage() {
                 transition={{ delay: index * 0.1 }}
                 viewport={{ once: true }}
               >
-                <Card className="h-full hover:shadow-lg transition-shadow">
+                <Card className="h-full hover:shadow-lg transition-shadow bg-slate-800 border-slate-700">
                   <CardContent className="pt-6">
-                    <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center mb-4">
-                      <feature.icon className="w-6 h-6 text-emerald-600" />
+                    <div className="w-12 h-12 bg-emerald-500/10 rounded-lg flex items-center justify-center mb-4">
+                      <feature.icon className="w-6 h-6 text-emerald-400" />
                     </div>
-                    <h3 className="text-xl font-semibold text-slate-900 mb-2">
+                    <h3 className="text-xl font-semibold text-white mb-2">
                       {feature.title}
                     </h3>
-                    <p className="text-slate-600">{feature.description}</p>
+                    <p className="text-slate-300">{feature.description}</p>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -405,23 +405,23 @@ export default function LandingPage() {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-20 bg-slate-50">
+      <section className="py-20 bg-slate-900">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900">Frequently Asked Questions</h2>
-            <p className="mt-4 text-lg text-slate-600">Everything you need to know about surplus recovery</p>
+            <h2 className="text-3xl sm:text-4xl font-bold text-white">Frequently Asked Questions</h2>
+            <p className="mt-4 text-lg text-slate-300">Everything you need to know about surplus recovery</p>
           </div>
           <Accordion type="single" collapsible className="space-y-4">
             {faqs.map((faq, index) => (
               <AccordionItem 
                 key={index} 
                 value={`item-${index}`}
-                className="bg-white border border-slate-200 rounded-lg px-6"
+                className="bg-slate-800 border border-slate-700 rounded-lg px-6"
               >
-                <AccordionTrigger className="text-left font-semibold text-slate-900 hover:no-underline">
+                <AccordionTrigger className="text-left font-semibold text-white hover:no-underline">
                   {faq.question}
                 </AccordionTrigger>
-                <AccordionContent className="text-slate-600 pt-2">
+                <AccordionContent className="text-slate-300 pt-2">
                   {faq.answer}
                 </AccordionContent>
               </AccordionItem>
@@ -451,7 +451,7 @@ export default function LandingPage() {
               <Button 
                 size="lg" 
                 variant="outline" 
-                className="text-lg px-8 bg-white text-slate-900 hover:bg-slate-100"
+                className="text-lg px-8 border-slate-600 text-white hover:bg-slate-800"
               >
                 Access Client Portal
               </Button>
@@ -461,7 +461,7 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-slate-950 text-slate-400 py-12">
+      <footer className="bg-black text-slate-400 py-12 border-t border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-3 gap-8">
             <div>
