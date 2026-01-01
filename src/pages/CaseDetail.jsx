@@ -1035,16 +1035,6 @@ export default function CaseDetail() {
 
             <div className="space-y-2">
               <Button 
-                className="w-full bg-blue-600 hover:bg-blue-700"
-                onClick={() => {
-                  if (inviteData?.outlook_link) {
-                    window.location.href = inviteData.outlook_link;
-                  }
-                }}
-              >
-                📧 Open in Outlook
-              </Button>
-              <Button 
                 variant="outline"
                 className="w-full"
                 onClick={() => {

@@ -55,18 +55,7 @@ export default function AgentAssistPanel({ caseData }) {
   };
 
   if (!script && !loadingScript) {
-    return (
-      <Card className="border-purple-200 bg-gradient-to-br from-purple-50 to-indigo-50">
-        <CardContent className="pt-6 text-center">
-          <MessageSquare className="w-12 h-12 text-purple-400 mx-auto mb-3" />
-          <p className="text-slate-600 mb-4">Generate your call script</p>
-          <Button onClick={loadCallScript} className="bg-purple-600 hover:bg-purple-700">
-            <Phone className="w-4 h-4 mr-2" />
-            Load Agent Assist
-          </Button>
-        </CardContent>
-      </Card>
-    );
+    return null;
   }
 
   if (loadingScript) {

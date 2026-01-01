@@ -139,15 +139,14 @@ export default function OutreachPanel({ caseId, caseData }) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <Tabs defaultValue="script" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="script">Call Script</TabsTrigger>
+        <Tabs defaultValue="log" className="w-full">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="log">Log Contact</TabsTrigger>
             <TabsTrigger value="history">History</TabsTrigger>
             <TabsTrigger value="quick">Quick Actions</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="script" className="space-y-4">
+          <TabsContent value="script" className="space-y-4 hidden">
             {!callScript ? (
               <div className="text-center py-8">
                 <FileText className="w-12 h-12 text-slate-300 mx-auto mb-3" />
