@@ -78,7 +78,7 @@ export default function AgentPending() {
                   <ol className="space-y-2 text-slate-300">
                     <li className="flex gap-2">
                       <span className="text-emerald-400 font-bold">1.</span>
-                      <span>We review your application</span>
+                      <span>We review your application (usually 24-48 hours)</span>
                     </li>
                     <li className="flex gap-2">
                       <span className="text-emerald-400 font-bold">2.</span>
@@ -86,7 +86,11 @@ export default function AgentPending() {
                     </li>
                     <li className="flex gap-2">
                       <span className="text-emerald-400 font-bold">3.</span>
-                      <span>Log back in to access the dashboard</span>
+                      <span>Log back in and complete onboarding training</span>
+                    </li>
+                    <li className="flex gap-2">
+                      <span className="text-emerald-400 font-bold">4.</span>
+                      <span>Start working cases and earning commissions!</span>
                     </li>
                   </ol>
                 </div>

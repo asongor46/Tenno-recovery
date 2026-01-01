@@ -59,7 +59,7 @@ const navigation = [
   { name: "Hot Cases", href: "HotCases", icon: Flame },
   { name: "Reminders", href: "Reminders", icon: Bell },
   { name: "Communications", href: "Communications", icon: Inbox },
-  { name: "Invoices", href: "Invoices", icon: FileText },
+  { name: "Payment Pipeline", href: "PaymentPipeline", icon: DollarSign }, // [NEW - Tier 3]
   { name: "County Directory", href: "Counties", icon: Building2 },
   { name: "User Management", href: "UserManagement", icon: Users, adminOnly: true },
   {
@@ -159,7 +159,7 @@ export default function Layout({ children, currentPageName }) {
     enabled: !!user?.email,
   });
 
-  // Redirect based on profile status
+  // [ENHANCED - Tier 3] Redirect based on profile status + onboarding
   React.useEffect(() => {
     if (user && profile !== undefined) {
       if (!profile) {
@@ -169,9 +169,12 @@ export default function Layout({ children, currentPageName }) {
       } else if (profile.status === "rejected") {
         alert("Your application has been rejected. Please contact support.");
         base44.auth.logout();
+      } else if (profile.status === "approved" && !profile.notes?.includes("Completed onboarding") && currentPageName !== "AgentOnboarding") {
+        // Approved but hasn't completed onboarding
+        window.location.href = createPageUrl("AgentOnboarding");
       }
     }
-  }, [user, profile]);
+  }, [user, profile, currentPageName]);
 
   const handleLogout = () => {
     base44.auth.logout();

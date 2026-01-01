@@ -77,6 +77,8 @@ import SendEmailPanel from "@/components/case/SendEmailPanel";
 // [NEW - Tier 2]
 import PreCallAssistPanel from "@/components/case/PreCallAssistPanel";
 import CallScriptModal from "@/components/case/CallScriptModal";
+// [NEW - Tier 3]
+import AutoFilingPacketGenerator from "@/components/case/AutoFilingPacketGenerator";
 
 const stageConfig = {
   imported: { label: "Imported", color: "bg-slate-500" },
@@ -590,7 +592,11 @@ export default function CaseDetail() {
               )}
             </CardContent>
           </Card>
-          <PacketReadinessPanel caseData={caseData} countyData={county} />
+          <div className="space-y-6">
+            <PacketReadinessPanel caseData={caseData} countyData={county} />
+            {/* [NEW - Tier 3] Auto Filing Packet Generator */}
+            <AutoFilingPacketGenerator caseData={caseData} countyData={county} />
+          </div>
         </TabsContent>
 
         {/* Contacts & People (merged) */}

@@ -36,6 +36,8 @@ import Templates from './pages/Templates';
 import UserManagement from './pages/UserManagement';
 import AgentApply from './pages/AgentApply';
 import AgentPending from './pages/AgentPending';
+import AgentOnboarding from './pages/AgentOnboarding';
+import PaymentPipeline from './pages/PaymentPipeline';
 import __Layout from './Layout.jsx';
 
 
@@ -78,6 +80,8 @@ export const PAGES = {
     "UserManagement": UserManagement,
     "AgentApply": AgentApply,
     "AgentPending": AgentPending,
+    "AgentOnboarding": AgentOnboarding,
+    "PaymentPipeline": PaymentPipeline,
 }
 
 export const pagesConfig = {
