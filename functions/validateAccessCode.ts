@@ -2,17 +2,25 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 
 /**
  * VALIDATE ACCESS CODE
- * First-time portal access validation using email + 8-character code
- * Does NOT handle password-based login (see portalAuth function)
- * PUBLIC ENDPOINT - No authentication required
+ * Validates that an authenticated user's email matches cases with the provided access code
+ * User must be authenticated first (via Base44 OAuth)
  */
 
 Deno.serve(async (req) => {
   try {
-    // Initialize client - use service role for database access
     const base44 = createClientFromRequest(req);
     
-    const { email, access_code } = await req.json();
+    // Verify user is authenticated
+    const user = await base44.auth.me();
+    if (!user) {
+      return Response.json({
+        success: false,
+        error: 'Authentication required'
+      }, { status: 401 });
+    }
+    
+    const { access_code } = await req.json();
+    const email = user.email;
 
     // Normalize inputs
     const normalizedEmail = email?.toLowerCase().trim();
