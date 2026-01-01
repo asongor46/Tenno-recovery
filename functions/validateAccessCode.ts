@@ -1,15 +1,19 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { createClient } from 'npm:@base44/sdk@0.8.6';
 
 /**
  * VALIDATE ACCESS CODE
  * First-time portal access validation using email + 8-character code
  * Does NOT handle password-based login (see portalAuth function)
+ * PUBLIC ENDPOINT - No authentication required
  */
 
 Deno.serve(async (req) => {
   try {
-    // Initialize client - no auth required for this public endpoint
-    const base44 = createClientFromRequest(req);
+    // Initialize client with service role - this is a public endpoint
+    const base44 = createClient(
+      Deno.env.get('BASE44_APP_ID'),
+      Deno.env.get('BASE44_APP_OWNER')
+    );
     
     const { email, access_code } = await req.json();
 
@@ -25,26 +29,16 @@ Deno.serve(async (req) => {
     }
 
     // Query cases with matching email and unused access code
-    // Use service role since this is a public endpoint
-    let cases;
-    try {
-      cases = await base44.asServiceRole.entities.Case.filter({
-        owner_email: normalizedEmail,
-        portal_access_code: normalizedCode,
-        portal_code_used: false
-      });
-    } catch (queryError) {
-      console.log('[validateAccessCode] Query error:', queryError.message);
-      return Response.json({
-        success: false,
-        error: 'Unable to validate credentials. Please try again.'
-      }, { status: 500 });
-    }
+    const cases = await base44.entities.Case.filter({
+      owner_email: normalizedEmail,
+      portal_access_code: normalizedCode,
+      portal_code_used: false
+    });
 
     if (cases.length === 0) {
       // Log failed attempt for security audit
       try {
-        await base44.asServiceRole.entities.ActivityLog.create({
+        await base44.entities.ActivityLog.create({
           case_id: null,
           action: 'portal_access_validation_failed',
           description: `Failed access code validation attempt for email: ${normalizedEmail}`,
