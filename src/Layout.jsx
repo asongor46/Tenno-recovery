@@ -93,22 +93,19 @@ const navigation = [
 ];
 
 export default function Layout({ children, currentPageName }) {
-  // Public pages (no auth, no layout) - Check BEFORE any hooks
-  const isPublicPage = ['LandingPage', 'HowItWorks', 'About', 'Contact', 'AgentApply', 'AgentPending'].includes(currentPageName);
-  const isPortalPage = currentPageName?.startsWith("Portal");
-
-  if (isPublicPage || isPortalPage) {
-    return <>{children}</>;
-  }
-
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [expandedMenus, setExpandedMenus] = useState({});
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Public pages (no auth, no layout)
+  const isPublicPage = ['LandingPage', 'HowItWorks', 'About', 'Contact', 'AgentApply', 'AgentPending'].includes(currentPageName);
+  const isPortalPage = currentPageName?.startsWith("Portal");
 
   // Auth check for agent pages
   const { data: user, isLoading: authLoading } = useQuery({
     queryKey: ["currentUser"],
     queryFn: () => base44.auth.me(),
+    enabled: !isPublicPage && !isPortalPage,
     retry: false,
   });
 
@@ -120,8 +117,24 @@ export default function Layout({ children, currentPageName }) {
       const allAlerts = await base44.entities.Alert.filter({ is_read: false });
       return allAlerts.slice(0, 5);
     },
-    enabled: !!user,
+    enabled: !!user && !isPublicPage && !isPortalPage,
   });
+
+  // Check if user has approved AgentProfile
+  const { data: profile } = useQuery({
+    queryKey: ["agentProfile", user?.email],
+    queryFn: async () => {
+      if (!user?.email) return null;
+      const profiles = await base44.entities.AgentProfile.filter({ email: user.email });
+      return profiles[0];
+    },
+    enabled: !!user?.email && !isPublicPage && !isPortalPage,
+  });
+
+  // Public pages (no auth, no layout)
+  if (isPublicPage || isPortalPage) {
+    return <>{children}</>;
+  }
 
   const toggleMenu = (menuName) => {
     setExpandedMenus((prev) => ({
@@ -147,17 +160,6 @@ export default function Layout({ children, currentPageName }) {
     base44.auth.redirectToLogin(window.location.pathname);
     return null;
   }
-
-  // Check if user has approved AgentProfile
-  const { data: profile } = useQuery({
-    queryKey: ["agentProfile", user?.email],
-    queryFn: async () => {
-      if (!user?.email) return null;
-      const profiles = await base44.entities.AgentProfile.filter({ email: user.email });
-      return profiles[0];
-    },
-    enabled: !!user?.email,
-  });
 
   // [ENHANCED - Tier 3] Redirect based on profile status + onboarding
   React.useEffect(() => {
