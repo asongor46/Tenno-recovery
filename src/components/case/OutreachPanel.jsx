@@ -56,7 +56,10 @@ export default function OutreachPanel({ caseId, caseData }) {
   });
 
   const logAttempt = useMutation({
-    mutationFn: (data) => base44.functions.invoke("logContactAttempt", data),
+    mutationFn: async (data) => {
+      const { data: result } = await base44.functions.invoke("logContactAttempt", data);
+      return result;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["contactAttempts", caseId] });
       queryClient.invalidateQueries({ queryKey: ["activities", caseId] });
@@ -65,6 +68,9 @@ export default function OutreachPanel({ caseId, caseData }) {
       setValueUsed("");
       setNotes("");
       toast.success("Contact attempt logged");
+    },
+    onError: (error) => {
+      toast.error("Failed to log contact attempt: " + (error.message || "Unknown error"));
     },
   });
 

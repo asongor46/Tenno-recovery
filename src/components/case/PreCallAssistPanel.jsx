@@ -92,22 +92,25 @@ export default function PreCallAssistPanel({ caseData, county, onOpenScript }) {
             >
               <Phone className="w-4 h-4 mr-2" /> View Call Script
             </Button>
-            <Link to={createPageUrl(`CaseDetail?id=${caseData?.id}`)}>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="w-full justify-start"
-                onClick={() => {
-                  // Switch to homeowner tab
-                  setTimeout(() => {
-                    const tab = document.querySelector('[value="homeowner"]');
-                    tab?.click();
-                  }, 100);
-                }}
-              >
-                <Users className="w-4 h-4 mr-2" /> Find More Contacts
-              </Button>
-            </Link>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-full justify-start"
+              onClick={() => {
+                // Switch to homeowner tab
+                const tab = document.querySelector('[data-state][value="homeowner"]');
+                if (tab) {
+                  tab.click();
+                } else {
+                  // Fallback: try finding by text content
+                  const tabs = document.querySelectorAll('[role="tab"]');
+                  const homeownerTab = Array.from(tabs).find(t => t.textContent?.includes("Homeowner"));
+                  homeownerTab?.click();
+                }
+              }}
+            >
+              <Users className="w-4 h-4 mr-2" /> Find More Contacts
+            </Button>
           </div>
         </div>
 
