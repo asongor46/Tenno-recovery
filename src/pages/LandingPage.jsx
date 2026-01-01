@@ -137,7 +137,7 @@ export default function LandingPage() {
               <div className="hidden md:block">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="border-slate-700 text-white hover:bg-slate-800">
+                    <Button variant="outline" className="border-slate-600 bg-slate-800 text-white hover:bg-slate-700 hover:border-slate-500">
                       Sign In
                     </Button>
                   </DropdownMenuTrigger>
@@ -208,10 +208,10 @@ export default function LandingPage() {
                   onClick={handleAgentLogin}
                   className="bg-emerald-600 hover:bg-emerald-700 text-lg px-8"
                 >
-                  Get Started <ArrowRight className="w-5 h-5 ml-2" />
+                  Join Our Team <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
                 <Link to={createPageUrl("HowItWorks")}>
-                  <Button size="lg" variant="outline" className="text-lg px-8">
+                  <Button size="lg" variant="outline" className="text-lg px-8 border-slate-600 text-white hover:bg-slate-800">
                     See How It Works
                   </Button>
                 </Link>
@@ -362,7 +362,7 @@ export default function LandingPage() {
               onClick={handleAgentLogin}
               className="bg-emerald-600 hover:bg-emerald-700 text-lg px-8"
             >
-              Get Started Now <ArrowRight className="w-5 h-5 ml-2" />
+              Join Our Team <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
             <Link to={createPageUrl("PortalLogin")}>
               <Button 
