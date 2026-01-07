@@ -42,14 +42,15 @@ export default function PortalLogin() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Check if user is already logged in on page load
   useEffect(() => {
     const checkExistingSession = () => {
       const sessionToken = localStorage.getItem("portal_session_token") || sessionStorage.getItem("portal_session_token");
       const userEmail = localStorage.getItem("portal_user_email") || sessionStorage.getItem("portal_user_email");
       
+      console.log("PortalLogin - Checking existing session:", { sessionToken: !!sessionToken, userEmail });
+      
       if (sessionToken && userEmail) {
-        // User has an existing session, redirect to dashboard
+        console.log("PortalLogin - Session found, redirecting to dashboard");
         window.location.href = createPageUrl("PortalDashboard");
       }
     };
@@ -101,6 +102,7 @@ export default function PortalLogin() {
     try {
       const password_hash = await hashPassword(newPassword);
       
+      console.log("🔑 Invoking setupPortalPassword...");
       const { data } = await base44.functions.invoke("setupPortalPassword", {
         email: email.toLowerCase().trim(),
         access_code: accessCode.toUpperCase().trim(),
@@ -108,17 +110,29 @@ export default function PortalLogin() {
         remember_me: rememberMe
       });
 
+      console.log("📦 Backend response:", data);
+
       if (data.success) {
+        console.log("✅ Setup successful!");
+        console.log("Session token:", data.session_token);
+        console.log("User:", data.user);
+        
         const storage = rememberMe ? localStorage : sessionStorage;
         storage.setItem("portal_session_token", data.session_token);
         storage.setItem("portal_user_email", data.user.email);
 
-        window.location.href = createPageUrl("PortalDashboard");
+        console.log("💾 Stored in:", rememberMe ? "localStorage" : "sessionStorage");
+        
+        const dashboardUrl = createPageUrl("PortalDashboard");
+        console.log("🔗 Redirecting to:", dashboardUrl);
+        
+        window.location.href = dashboardUrl;
       } else {
+        console.log("❌ Setup failed:", data.error);
         setError(data.error || "Account creation failed");
       }
     } catch (err) {
-      console.error("Password setup error:", err);
+      console.error("❌ Password setup error:", err);
       setError("An error occurred. Please try again.");
     } finally {
       setIsLoading(false);
@@ -133,13 +147,17 @@ export default function PortalLogin() {
     try {
       const password_hash = await hashPassword(password);
       
+      console.log("🔑 Invoking portalLogin...");
       const { data } = await base44.functions.invoke("portalLogin", {
         email: email.toLowerCase().trim(),
         password_hash,
         remember_me: rememberMe
       });
 
+      console.log("📦 Backend response:", data);
+
       if (data.success) {
+        console.log("✅ Login successful!");
         const storage = rememberMe ? localStorage : sessionStorage;
         storage.setItem("portal_session_token", data.session_token);
         storage.setItem("portal_user_email", data.user.email);
@@ -147,12 +165,18 @@ export default function PortalLogin() {
           storage.setItem("portal_session_expires", data.session_expires_at);
         }
 
-        window.location.href = createPageUrl("PortalDashboard");
+        console.log("💾 Stored in:", rememberMe ? "localStorage" : "sessionStorage");
+        
+        const dashboardUrl = createPageUrl("PortalDashboard");
+        console.log("🔗 Redirecting to:", dashboardUrl);
+
+        window.location.href = dashboardUrl;
       } else {
+        console.log("❌ Login failed:", data.error);
         setError(data.error || "Login failed");
       }
     } catch (err) {
-      console.error("Login error:", err);
+      console.error("❌ Login error:", err);
       setError("An error occurred. Please try again.");
     } finally {
       setIsLoading(false);
