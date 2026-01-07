@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { motion, AnimatePresence } from "framer-motion";
 import { LogIn, Mail, Lock, Key, Eye, EyeOff } from "lucide-react";
@@ -26,6 +27,7 @@ async function hashPassword(password) {
 }
 
 export default function PortalLogin() {
+  const navigate = useNavigate();
   const [loginType, setLoginType] = useState("access_code");
   const [email, setEmail] = useState("");
   const [accessCode, setAccessCode] = useState("");
@@ -41,6 +43,21 @@ export default function PortalLogin() {
   const [validatedCases, setValidatedCases] = useState([]);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  // Check if user is already logged in on page load
+  useEffect(() => {
+    const checkExistingSession = () => {
+      const sessionToken = localStorage.getItem("portal_session_token") || sessionStorage.getItem("portal_session_token");
+      const userEmail = localStorage.getItem("portal_user_email") || sessionStorage.getItem("portal_user_email");
+      
+      if (sessionToken && userEmail) {
+        // User has an existing session, redirect to dashboard
+        navigate(createPageUrl("PortalDashboard"));
+      }
+    };
+    
+    checkExistingSession();
+  }, [navigate]);
 
   const handleAccessCodeSubmit = async (e) => {
     e.preventDefault();
@@ -98,7 +115,7 @@ export default function PortalLogin() {
         storage.setItem("portal_session_token", data.session_token);
         storage.setItem("portal_user_email", data.user.email);
 
-        window.location.href = createPageUrl("PortalDashboard");
+        navigate(createPageUrl("PortalDashboard"));
       } else {
         setError(data.error || "Account creation failed");
       }
@@ -132,7 +149,7 @@ export default function PortalLogin() {
           storage.setItem("portal_session_expires", data.session_expires_at);
         }
 
-        window.location.href = createPageUrl("PortalDashboard");
+        navigate(createPageUrl("PortalDashboard"));
       } else {
         setError(data.error || "Login failed");
       }
