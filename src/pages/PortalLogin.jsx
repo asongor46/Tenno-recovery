@@ -48,16 +48,10 @@ export default function PortalLogin() {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_BASE44_FUNCTIONS_URL}/validateAccessCode`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: email.toLowerCase().trim(),
-          access_code: accessCode.toUpperCase().trim()
-        })
+      const { data } = await base44.functions.invoke("validateAccessCode", {
+        email: email.toLowerCase().trim(),
+        access_code: accessCode.toUpperCase().trim()
       });
-
-      const data = await response.json();
 
       if (data?.success) {
         setValidatedCases(data.cases || []);
@@ -92,18 +86,12 @@ export default function PortalLogin() {
     try {
       const password_hash = await hashPassword(newPassword);
       
-      const response = await fetch(`${import.meta.env.VITE_BASE44_FUNCTIONS_URL}/setupPortalPassword`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: email.toLowerCase().trim(),
-          access_code: accessCode.toUpperCase().trim(),
-          password_hash,
-          remember_me: rememberMe
-        })
+      const { data } = await base44.functions.invoke("setupPortalPassword", {
+        email: email.toLowerCase().trim(),
+        access_code: accessCode.toUpperCase().trim(),
+        password_hash,
+        remember_me: rememberMe
       });
-
-      const data = await response.json();
 
       if (data.success) {
         const storage = rememberMe ? localStorage : sessionStorage;
@@ -115,6 +103,7 @@ export default function PortalLogin() {
         setError(data.error || "Account creation failed");
       }
     } catch (err) {
+      console.error("Password setup error:", err);
       setError("An error occurred. Please try again.");
     } finally {
       setIsLoading(false);
@@ -129,17 +118,11 @@ export default function PortalLogin() {
     try {
       const password_hash = await hashPassword(password);
       
-      const response = await fetch(`${import.meta.env.VITE_BASE44_FUNCTIONS_URL}/portalLogin`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: email.toLowerCase().trim(),
-          password_hash,
-          remember_me: rememberMe
-        })
+      const { data } = await base44.functions.invoke("portalLogin", {
+        email: email.toLowerCase().trim(),
+        password_hash,
+        remember_me: rememberMe
       });
-
-      const data = await response.json();
 
       if (data.success) {
         const storage = rememberMe ? localStorage : sessionStorage;
@@ -154,6 +137,7 @@ export default function PortalLogin() {
         setError(data.error || "Login failed");
       }
     } catch (err) {
+      console.error("Login error:", err);
       setError("An error occurred. Please try again.");
     } finally {
       setIsLoading(false);
