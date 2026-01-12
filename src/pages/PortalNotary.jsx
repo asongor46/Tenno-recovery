@@ -64,14 +64,7 @@ export default function PortalNotary() {
           setCaseData(cases[0]);
         }
       } else {
-        // Better error handling for missing forms
-        if (data.missing_forms) {
-          toast.error("County forms are being prepared. We'll notify you when they're ready.", {
-            duration: 6000
-          });
-        } else {
-          toast.error(data.error || 'Failed to generate packet');
-        }
+        toast.error(data.error || 'Failed to generate packet');
       }
     } catch (error) {
       toast.error('Error generating packet: ' + error.message);
@@ -413,52 +406,17 @@ export default function PortalNotary() {
                     <div className="p-4 border rounded-xl">
                       <p className="font-medium">How it works:</p>
                       <ol className="mt-2 space-y-2 text-sm text-slate-600">
-                        <li>1. Choose an online notary service below</li>
+                        <li>1. Click the button below to connect with an online notary</li>
                         <li>2. Verify your identity via video call</li>
                         <li>3. Sign electronically in front of the notary</li>
-                        <li>4. Download the notarized documents</li>
-                        <li>5. Upload them using the "In-Person Notary" tab</li>
+                        <li>4. Receive your notarized document instantly</li>
                       </ol>
                     </div>
 
-                    <div className="space-y-3">
-                      <p className="font-medium text-sm">Choose a service:</p>
-                      
-                      <Button 
-                        variant="outline" 
-                        className="w-full justify-between"
-                        onClick={() => window.open("https://www.notarize.com/", "_blank")}
-                      >
-                        <span>Notarize.com</span>
-                        <span className="text-sm text-slate-500">~$25</span>
-                      </Button>
-                      
-                      <Button 
-                        variant="outline" 
-                        className="w-full justify-between"
-                        onClick={() => window.open("https://www.signnow.com/features/online-notary", "_blank")}
-                      >
-                        <span>SignNow</span>
-                        <span className="text-sm text-slate-500">~$25</span>
-                      </Button>
-                      
-                      <Button 
-                        variant="outline" 
-                        className="w-full justify-between"
-                        onClick={() => window.open("https://www.onenotary.us/", "_blank")}
-                      >
-                        <span>OneNotary</span>
-                        <span className="text-sm text-slate-500">~$30</span>
-                      </Button>
-                    </div>
-
-                    <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm">
-                      <p className="font-medium text-blue-800">After completing online notarization:</p>
-                      <p className="text-blue-700 mt-1">
-                        Download your notarized documents and upload them using the "In-Person Notary" 
-                        tab's upload section above.
-                      </p>
-                    </div>
+                    <Button className="w-full" variant="outline">
+                      <Globe className="w-4 h-4 mr-2" />
+                      Connect to Online Notary Service
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
