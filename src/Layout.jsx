@@ -118,6 +118,9 @@ export default function Layout({ children, currentPageName }) {
       return allAlerts.slice(0, 5);
     },
     enabled: !!user && !isPublicPage && !isPortalPage,
+    retry: false,
+    refetchOnMount: true,
+    staleTime: 0,
   });
 
   // Check if user has approved AgentProfile
