@@ -28,14 +28,14 @@ Deno.serve(async (req) => {
       return Response.json({ 
         error: 'Agreement must be signed before generating notarization packet',
         status: 'blocked'
-      }, { status: 400 });
+      }, { status: 200 });
     }
 
     if (!caseData.fee_locked) {
       return Response.json({ 
         error: 'Fee must be locked before generating notarization packet',
         status: 'blocked'
-      }, { status: 400 });
+      }, { status: 200 });
     }
 
     // Fetch all documents requiring notarization
@@ -61,9 +61,10 @@ Deno.serve(async (req) => {
 
     if (notaryDocs.length === 0) {
       return Response.json({ 
-        error: 'No documents requiring notarization found',
-        status: 'no_docs'
-      }, { status: 400 });
+        error: `No notarization forms configured for ${caseData.county} County, ${caseData.state || ''}. Please contact support to add the required county forms.`,
+        status: 'no_docs',
+        missing_forms: true
+      }, { status: 200 });
     }
 
     // Create merged PDF
