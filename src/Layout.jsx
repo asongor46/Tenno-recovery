@@ -114,8 +114,13 @@ export default function Layout({ children, currentPageName }) {
   const { data: alerts = [] } = useQuery({
     queryKey: ["unreadAlerts"],
     queryFn: async () => {
-      const allAlerts = await base44.entities.Alert.filter({ is_read: false });
-      return allAlerts.slice(0, 5);
+      try {
+        const allAlerts = await base44.entities.Alert.filter({ is_read: false });
+        return allAlerts.slice(0, 5);
+      } catch (error) {
+        console.error("Error fetching alerts:", error);
+        return [];
+      }
     },
     enabled: !!user && !isPublicPage && !isPortalPage,
     retry: false,
