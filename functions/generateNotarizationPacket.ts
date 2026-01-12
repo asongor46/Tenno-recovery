@@ -61,8 +61,9 @@ Deno.serve(async (req) => {
 
     if (notaryDocs.length === 0) {
       return Response.json({ 
-        error: 'No documents requiring notarization found',
-        status: 'no_docs'
+        error: `No notarization forms configured for ${caseData.county} County, ${caseData.state}. Please contact support to have forms prepared for your county.`,
+        status: 'no_docs',
+        missing_forms: true
       }, { status: 400 });
     }
 

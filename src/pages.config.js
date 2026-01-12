@@ -30,7 +30,6 @@ import PortalInfo from './pages/PortalInfo';
 import PortalIntake from './pages/PortalIntake';
 import PortalLogin from './pages/PortalLogin';
 import PortalLostLink from './pages/PortalLostLink';
-import PortalNotary from './pages/PortalNotary';
 import PortalRegister from './pages/PortalRegister';
 import PortalWelcome from './pages/PortalWelcome';
 import Profile from './pages/Profile';
@@ -38,6 +37,7 @@ import Reminders from './pages/Reminders';
 import Settings from './pages/Settings';
 import Templates from './pages/Templates';
 import UserManagement from './pages/UserManagement';
+import PortalNotary from './pages/PortalNotary';
 import __Layout from './Layout.jsx';
 
 
@@ -74,7 +74,6 @@ export const PAGES = {
     "PortalIntake": PortalIntake,
     "PortalLogin": PortalLogin,
     "PortalLostLink": PortalLostLink,
-    "PortalNotary": PortalNotary,
     "PortalRegister": PortalRegister,
     "PortalWelcome": PortalWelcome,
     "Profile": Profile,
@@ -82,6 +81,7 @@ export const PAGES = {
     "Settings": Settings,
     "Templates": Templates,
     "UserManagement": UserManagement,
+    "PortalNotary": PortalNotary,
 }
 
 export const pagesConfig = {
