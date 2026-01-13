@@ -97,8 +97,8 @@ export default function Counties() {
             <Building2 className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">County Directory</h1>
-            <p className="text-sm sm:text-base text-slate-500">{filteredCounties.length} counties</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-white">County Directory</h1>
+            <p className="text-sm sm:text-base text-slate-400">{filteredCounties.length} counties</p>
           </div>
         </div>
         <Dialog open={showNewCountyDialog} onOpenChange={setShowNewCountyDialog}>
@@ -126,7 +126,7 @@ export default function Counties() {
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-2xl border border-slate-100 p-4"
+        className="bg-slate-800 rounded-2xl border border-slate-700 p-4"
       >
         <div className="relative max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -134,7 +134,7 @@ export default function Counties() {
             placeholder="Search counties..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
+            className="pl-10 bg-slate-900 border-slate-700 text-white placeholder:text-slate-500"
           />
         </div>
       </motion.div>
@@ -144,19 +144,19 @@ export default function Counties() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="bg-white rounded-2xl border border-slate-100 overflow-hidden"
+        className="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden"
       >
         <div className="overflow-x-auto -mx-3 sm:mx-0">
           <Table className="min-w-[800px]">
             <TableHeader>
-              <TableRow className="bg-slate-50/50">
-                <TableHead className="font-semibold">County</TableHead>
-                <TableHead className="font-semibold">State</TableHead>
-                <TableHead className="font-semibold text-center">Rep Allowed</TableHead>
-                <TableHead className="font-semibold text-center">Assignment</TableHead>
-                <TableHead className="font-semibold text-center">Notary Required</TableHead>
-                <TableHead className="font-semibold">Notary Type</TableHead>
-                <TableHead className="font-semibold">Filing Method</TableHead>
+              <TableRow className="bg-slate-900/50 border-slate-700">
+                <TableHead className="font-semibold text-slate-300">County</TableHead>
+                <TableHead className="font-semibold text-slate-300">State</TableHead>
+                <TableHead className="font-semibold text-center text-slate-300">Rep Allowed</TableHead>
+                <TableHead className="font-semibold text-center text-slate-300">Assignment</TableHead>
+                <TableHead className="font-semibold text-center text-slate-300">Notary Required</TableHead>
+                <TableHead className="font-semibold text-slate-300">Notary Type</TableHead>
+                <TableHead className="font-semibold text-slate-300">Filing Method</TableHead>
                 <TableHead className="font-semibold w-20"></TableHead>
               </TableRow>
             </TableHeader>
@@ -187,16 +187,16 @@ export default function Counties() {
                 </TableRow>
               ) : (
                 filteredCounties.map((county) => (
-                  <TableRow key={county.id} className="group hover:bg-slate-50/50">
+                  <TableRow key={county.id} className="group hover:bg-slate-700/30 border-slate-700">
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center">
                           <MapPin className="w-4 h-4 text-blue-600" />
                         </div>
-                        <span className="font-medium text-slate-900">{county.name}</span>
+                        <span className="font-medium text-white">{county.name}</span>
                       </div>
                     </TableCell>
-                    <TableCell className="text-slate-600">{county.state}</TableCell>
+                    <TableCell className="text-slate-300">{county.state}</TableCell>
                     <TableCell className="text-center">
                       {county.rep_allowed ? (
                         <CheckCircle className="w-5 h-5 text-green-500 mx-auto" />
@@ -218,7 +218,7 @@ export default function Counties() {
                         <XCircle className="w-5 h-5 text-slate-300 mx-auto" />
                       )}
                     </TableCell>
-                    <TableCell className="text-slate-600">
+                    <TableCell className="text-slate-300">
                       {notaryTypeLabels[county.notary_type] || "—"}
                     </TableCell>
                     <TableCell>

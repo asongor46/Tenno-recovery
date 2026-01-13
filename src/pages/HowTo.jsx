@@ -130,8 +130,8 @@ export default function HowTo() {
             <BookOpen className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-slate-900">How-To Guide</h1>
-            <p className="text-slate-500">Training resources and documentation</p>
+            <h1 className="text-3xl font-bold text-white">How-To Guide</h1>
+            <p className="text-slate-400">Training resources and documentation</p>
           </div>
         </div>
         <Dialog open={showNewDialog} onOpenChange={setShowNewDialog}>
@@ -163,7 +163,7 @@ export default function HowTo() {
             placeholder="Search articles..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
+            className="pl-10 bg-slate-800 border-slate-700 text-white placeholder:text-slate-500"
           />
         </div>
         <div className="flex flex-wrap gap-2">
@@ -214,7 +214,7 @@ export default function HowTo() {
                   <div className={`w-10 h-10 ${config?.color} rounded-lg flex items-center justify-center`}>
                     <Icon className="w-5 h-5 text-white" />
                   </div>
-                  <h2 className="text-xl font-semibold text-slate-900">{config?.label}</h2>
+                  <h2 className="text-xl font-semibold text-white">{config?.label}</h2>
                   <Badge variant="secondary">{categoryArticles.length}</Badge>
                 </div>
 
@@ -222,7 +222,7 @@ export default function HowTo() {
                   {categoryArticles.map((article) => (
                     <Card 
                       key={article.id}
-                      className="group cursor-pointer hover:shadow-md transition-all"
+                      className="group cursor-pointer hover:shadow-md transition-all bg-slate-800 border-slate-700"
                       onClick={() => setSelectedArticle(article)}
                     >
                       <CardHeader className="pb-2">
