@@ -1,191 +1,284 @@
 import React from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { Mail, ExternalLink, Copy, Check } from "lucide-react";
+import { Mail, ExternalLink, Copy, Check, Loader2, Send } from "lucide-react";
 import { useStandardToast } from "@/components/shared/useStandardToast";
+import { EMAIL_TEMPLATES, getTemplatesByCategory } from "@/components/shared/emailTemplates";
 
 export default function SendEmailPanel({ caseId, caseData }) {
-  const [selectedTemplateId, setSelectedTemplateId] = React.useState("");
-  const [filled, setFilled] = React.useState(null);
-  const [copied, setCopied] = React.useState(null);
+  const [selectedTemplate, setSelectedTemplate] = React.useState(null);
+  const [portalInfo, setPortalInfo] = React.useState(null);
+  const [emailContent, setEmailContent] = React.useState(null);
+  const [loading, setLoading] = React.useState(false);
+  const [sendingDirect, setSendingDirect] = React.useState(false);
+  const [copied, setCopied] = React.useState(false);
+  const [activeTab, setActiveTab] = React.useState('portal');
   const toast = useStandardToast();
-  const qc = useQueryClient();
 
-  const { data: templates = [] } = useQuery({
-    queryKey: ["emailTemplates"],
-    queryFn: () => base44.entities.EmailTemplate.filter({ is_active: true }),
-    staleTime: 300000,
-  });
+  const categories = [
+    { id: 'portal', label: 'Portal Invites' },
+    { id: 'outreach', label: 'Cold Outreach' },
+    { id: 'status', label: 'Status Updates' }
+  ];
 
-  const fillMutation = useMutation({
-    mutationFn: async (template_id) => {
-      const { data } = await base44.functions.invoke("fillEmailTemplate", { template_id, case_id: caseId });
-      return data;
-    },
-    onSuccess: (data) => setFilled(data),
-  });
+  const templates = getTemplatesByCategory(activeTab);
 
   const generatePortal = useMutation({
     mutationFn: async () => {
       const { data } = await base44.functions.invoke('generatePortalInvite', { case_id: caseId });
       return data;
     },
-    onSuccess: async (data) => {
-      // Check if owner email is a base44 user
-      const isBase44User = await checkIfBase44User(data.owner_email);
-      
-      if (isBase44User) {
-        // Send via Base44 email system
-        try {
-          await base44.integrations.Core.SendEmail({
-            to: data.owner_email,
-            subject: data.email_subject,
-            body: data.email_body,
-            from_name: "TENNO Recovery"
-          });
-          toast.success('Portal invite sent via email!');
-          
-          // Update filled state with sent confirmation
-          setFilled({
-            subject: data.email_subject + " (Sent via Base44)",
-            body: data.email_body + "\n\n✅ Email sent successfully via Base44 system",
-            recipient: data.owner_email
-          });
-        } catch (emailError) {
-          toast.error('Failed to send email: ' + emailError.message);
-        }
-      } else {
-        // Open in default email client
-        if (selectedTemplateId) await fillMutation.mutateAsync(selectedTemplateId);
-        toast.success('Portal link generated - opening email client');
-      }
+    onSuccess: (data) => {
+      setPortalInfo({
+        portal_link: data.portal_url || data.portal_link,
+        access_code: data.access_code
+      });
     }
   });
 
-  const checkIfBase44User = async (email) => {
+  const handleSelectTemplate = async (template) => {
+    setSelectedTemplate(template);
+    setLoading(true);
+    
     try {
-      const users = await base44.entities.User.filter({ email });
-      return users.length > 0;
-    } catch (e) {
-      return false;
-    }
-  };
-
-  const createFollowUp = useMutation({
-    mutationFn: async () => {
-      const tpl = templates.find(t => t.id === selectedTemplateId);
-      const due = new Date();
-      due.setDate(due.getDate() + 3);
-      await base44.entities.Todo.create({
+      let currentPortalInfo = portalInfo;
+      if (template.category === 'portal' && !currentPortalInfo) {
+        const portalResult = await generatePortal.mutateAsync();
+        currentPortalInfo = {
+          portal_link: portalResult.portal_url || portalResult.portal_link,
+          access_code: portalResult.access_code
+        };
+        setPortalInfo(currentPortalInfo);
+      }
+      
+      const { data: fillResult } = await base44.functions.invoke('fillEmailTemplate', {
         case_id: caseId,
-        title: `Follow up email: ${tpl?.name || 'Email'}`,
-        description: 'Send follow-up email to homeowner',
-        priority: 'medium',
-        due_date: due.toISOString().slice(0,10)
+        template_id: template.id,
+        portal_link: currentPortalInfo?.portal_link,
+        access_code: currentPortalInfo?.access_code
       });
-    },
-    onSuccess: () => toast.success('Follow-up task created')
-  });
-
-  const handleOpenOutlook = () => {
-    if (!filled?.outlook_link) return;
-    window.open(filled.outlook_link, "_blank");
-  };
-
-  const copy = async (text, key) => {
-    await navigator.clipboard.writeText(text || "");
-    setCopied(key);
-    setTimeout(() => setCopied(null), 1200);
-  };
-
-  const markSent = useMutation({
-    mutationFn: async () => {
-      if (!filled) return;
-      const tpl = templates.find(t => t.id === selectedTemplateId);
-      await base44.entities.EmailLog.create({
-        case_id: caseId,
-        template_name: tpl?.name || "Custom",
-        recipient_email: filled.recipient,
-        subject_sent: filled.subject,
-        sent_at: new Date().toISOString(),
-        status: "Sent"
-      });
-    },
-    onSuccess: () => {
-      toast.success("Email logged!");
-      qc.invalidateQueries({ queryKey: ["emailLogs", caseId] });
+      
+      if (fillResult.success) {
+        setEmailContent(fillResult);
+      }
+    } catch (error) {
+      toast.error('Failed to prepare email');
     }
-  });
+    
+    setLoading(false);
+  };
 
-  const selected = templates.find(t => t.id === selectedTemplateId);
+  const handleSendDirect = async () => {
+    setSendingDirect(true);
+    try {
+      const { data: result } = await base44.functions.invoke('sendDirectEmail', {
+        case_id: caseId,
+        to: emailContent.to,
+        subject: emailContent.subject,
+        body_html: emailContent.body_html,
+        body_text: emailContent.body_text
+      });
+      
+      if (result.success) {
+        toast.success('Email sent successfully!');
+      } else if (result.should_use_mailto) {
+        toast.warning('Recipient not in system - use "Open in Email Client" option');
+      }
+    } catch (error) {
+      toast.error('Failed to send email');
+    }
+    setSendingDirect(false);
+  };
+
+  const handleCopyContent = () => {
+    const textToCopy = `To: ${emailContent.to}\nSubject: ${emailContent.subject}\n\n${emailContent.body_text}`;
+    navigator.clipboard.writeText(textToCopy);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2"><Mail className="w-5 h-5" /> Send Email</CardTitle>
+        <CardTitle className="flex items-center gap-2">
+          <Mail className="w-5 h-5" /> Send Email
+        </CardTitle>
+        <p className="text-sm text-slate-500 mt-1">
+          To: {caseData?.owner_email || 'No email on file'}
+        </p>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid sm:grid-cols-2 gap-4">
-          <div>
-            <Label>Template</Label>
-            <Select value={selectedTemplateId} onValueChange={(v) => { setSelectedTemplateId(v); fillMutation.mutate(v); }}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a template" />
-              </SelectTrigger>
-              <SelectContent>
-                {templates.map(t => (
-                  <SelectItem key={t.id} value={t.id}>{t.name} {t.category ? `(${t.category})` : ''}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label>To</Label>
-            <Input value={caseData?.owner_email || ''} readOnly />
-          </div>
-        </div>
-
+      
+      <div className="flex border-b">
+        {categories.map(cat => (
+          <button
+            key={cat.id}
+            onClick={() => {
+              setActiveTab(cat.id);
+              setSelectedTemplate(null);
+              setEmailContent(null);
+            }}
+            className={`flex-1 py-3 text-sm font-medium transition ${
+              activeTab === cat.id 
+                ? 'text-emerald-600 border-b-2 border-emerald-600' 
+                : 'text-slate-500 hover:text-slate-700'
+            }`}
+          >
+            {cat.label}
+          </button>
+        ))}
+      </div>
+      
+      <CardContent className="space-y-4 mt-4">
         <div>
-          <Label>Subject</Label>
-          <div className="flex gap-2 mt-1">
-            <Input value={filled?.subject || ''} readOnly />
-            <Button type="button" variant="outline" onClick={() => copy(filled?.subject || '', 'subject')}>
-              {copied === 'subject' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-            </Button>
+          <Label className="text-sm font-medium text-slate-700 mb-2 block">
+            Select Template
+          </Label>
+          <div className="space-y-2">
+            {templates.map(template => (
+              <button
+                key={template.id}
+                onClick={() => handleSelectTemplate(template)}
+                className={`w-full text-left p-3 rounded-lg border transition ${
+                  selectedTemplate?.id === template.id
+                    ? 'border-emerald-500 bg-emerald-50'
+                    : 'border-slate-200 hover:border-slate-300'
+                }`}
+              >
+                <p className="font-medium text-sm">{template.name}</p>
+                <p className="text-xs text-slate-500 mt-1 truncate">
+                  {template.subject}
+                </p>
+              </button>
+            ))}
           </div>
         </div>
 
-        <div>
-          <Label>Body</Label>
-          <div className="flex gap-2 mt-1">
-            <Textarea value={filled?.body || ''} readOnly rows={10} className="font-mono" />
-            <Button type="button" variant="outline" onClick={() => copy(filled?.body || '', 'body')}>
-              {copied === 'body' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-            </Button>
+        {loading && (
+          <div className="p-8 text-center">
+            <Loader2 className="w-8 h-8 animate-spin mx-auto text-emerald-500" />
+            <p className="text-sm text-slate-500 mt-2">Preparing email...</p>
           </div>
-        </div>
+        )}
 
-        <div className="flex flex-wrap gap-2 justify-end">
-          {selected?.category === 'Portal' && (
-            <Button type="button" variant="outline" onClick={() => generatePortal.mutate()}>
-              Generate Portal Link
-            </Button>
-          )}
-          <Button type="button" variant="outline" onClick={handleOpenOutlook} disabled={!filled?.outlook_link}>
-            <ExternalLink className="w-4 h-4 mr-2" /> Open in Outlook
-          </Button>
-          <Button type="button" variant="outline" onClick={() => createFollowUp.mutate()} disabled={!selectedTemplateId}>
-            Create Follow-up Todo (3 days)
-          </Button>
-          <Button type="button" onClick={() => markSent.mutate()} disabled={!filled}>
-            Mark as Sent
-          </Button>
-        </div>
+        {emailContent && !loading && (
+          <div className="border-t pt-4">
+            <div className="bg-slate-50 rounded-lg p-4">
+              <div className="flex justify-between items-center mb-3">
+                <h4 className="font-medium text-sm">Preview</h4>
+                <button
+                  onClick={handleCopyContent}
+                  className="text-sm text-slate-500 hover:text-slate-700 flex items-center gap-1"
+                >
+                  {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                  {copied ? 'Copied!' : 'Copy'}
+                </button>
+              </div>
+              
+              <div className="bg-white rounded-lg border p-4 max-h-64 overflow-y-auto">
+                <p className="text-sm text-slate-500 mb-1">
+                  <strong>To:</strong> {emailContent.to}
+                </p>
+                <p className="text-sm text-slate-500 mb-3">
+                  <strong>Subject:</strong> {emailContent.subject}
+                </p>
+                <div className="text-sm whitespace-pre-wrap">
+                  {emailContent.body_text}
+                </div>
+              </div>
+            </div>
+
+            {portalInfo && (
+              <div className="mt-4 p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
+                <p className="text-sm font-medium text-emerald-900 mb-2">
+                  Portal Access Info
+                </p>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs text-emerald-700">Access Code</label>
+                    <p className="font-mono font-bold text-emerald-900">
+                      {portalInfo.access_code}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-xs text-emerald-700">Portal Link</label>
+                    <a 
+                      href={portalInfo.portal_link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-emerald-600 text-sm hover:underline truncate block"
+                    >
+                      View Portal
+                    </a>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="mt-4 space-y-3">
+              <button
+                onClick={handleSendDirect}
+                disabled={sendingDirect}
+                className="w-full py-3 bg-emerald-600 text-white rounded-lg font-medium
+                         hover:bg-emerald-700 disabled:bg-emerald-300 flex items-center 
+                         justify-center gap-2"
+              >
+                {sendingDirect ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4" />
+                    Send Email Directly
+                  </>
+                )}
+              </button>
+
+              <div className="text-center text-sm text-slate-500">or</div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <a
+                  href={emailContent.outlook_link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="py-3 px-4 border border-slate-300 rounded-lg text-sm 
+                           font-medium text-slate-700 hover:bg-slate-50 flex items-center 
+                           justify-center gap-2"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  Open in Outlook
+                </a>
+                
+                <a
+                  href={emailContent.mailto_link}
+                  className="py-3 px-4 border border-slate-300 rounded-lg text-sm 
+                           font-medium text-slate-700 hover:bg-slate-50 flex items-center 
+                           justify-center gap-2"
+                >
+                  <Mail className="w-4 h-4" />
+                  Default Email App
+                </a>
+              </div>
+
+              <p className="text-xs text-slate-400 text-center mt-2">
+                "Open in..." options let you review and send from your own email account
+              </p>
+            </div>
+          </div>
+        )}
+
+        {!selectedTemplate && !loading && (
+          <div className="p-8 text-center text-slate-500">
+            <Mail className="w-12 h-12 mx-auto text-slate-300 mb-3" />
+            <p>Select a template to preview and send</p>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
