@@ -1,28 +1,38 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { Clock, Mail, LogOut } from "lucide-react";
+import { Clock, Mail, LogOut, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { format } from "date-fns";
 
 export default function AgentPending() {
+  const navigate = useNavigate();
+  
   const { data: user } = useQuery({
     queryKey: ["currentUser"],
     queryFn: () => base44.auth.me(),
   });
 
-  const { data: profile } = useQuery({
+  const { data: profile, refetch: refetchProfile } = useQuery({
     queryKey: ["agentProfile", user?.email],
     queryFn: async () => {
       const profiles = await base44.entities.AgentProfile.filter({ email: user.email });
       return profiles[0];
     },
     enabled: !!user?.email,
+    refetchInterval: 10000, // Auto-refresh every 10 seconds
   });
+
+  // Redirect if status changed to approved
+  React.useEffect(() => {
+    if (profile?.status === "approved") {
+      window.location.reload();
+    }
+  }, [profile?.status]);
 
   const handleLogout = () => {
     base44.auth.logout();
@@ -37,9 +47,18 @@ export default function AgentPending() {
             alt="TENNO RECOVERY" 
             className="h-10 w-auto"
           />
-          <Button variant="ghost" onClick={handleLogout} className="text-slate-300">
-            <LogOut className="w-4 h-4 mr-2" /> Logout
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              variant="ghost" 
+              onClick={() => refetchProfile()} 
+              className="text-slate-300"
+            >
+              <RefreshCw className="w-4 h-4 mr-2" /> Check Status
+            </Button>
+            <Button variant="ghost" onClick={handleLogout} className="text-slate-300">
+              <LogOut className="w-4 h-4 mr-2" /> Logout
+            </Button>
+          </div>
         </div>
       </header>
 
