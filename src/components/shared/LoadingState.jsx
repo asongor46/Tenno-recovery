@@ -1,32 +1,26 @@
 import React from "react";
 import { Loader2 } from "lucide-react";
+import { Card } from "@/components/ui/card";
 
-export default function LoadingState({ message = "Loading...", fullScreen = false, size = "default" }) {
-  const sizeClasses = {
-    small: "w-4 h-4",
-    default: "w-8 h-8",
-    large: "w-12 h-12",
-  };
-
-  const spinnerSize = sizeClasses[size] || sizeClasses.default;
-
+/**
+ * Reusable LoadingState component
+ */
+export default function LoadingState({ message = "Loading...", fullScreen = false }) {
   if (fullScreen) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="text-center">
-          <Loader2 className={`${spinnerSize} text-emerald-600 animate-spin mx-auto mb-4`} />
-          {message && <p className="text-slate-600 text-sm">{message}</p>}
+          <Loader2 className="w-12 h-12 animate-spin text-emerald-600 mx-auto mb-4" />
+          <p className="text-slate-600">{message}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex items-center justify-center py-12">
-      <div className="text-center">
-        <Loader2 className={`${spinnerSize} text-emerald-600 animate-spin mx-auto mb-3`} />
-        {message && <p className="text-slate-600 text-sm">{message}</p>}
-      </div>
-    </div>
+    <Card className="p-12 text-center">
+      <Loader2 className="w-8 h-8 animate-spin text-emerald-600 mx-auto mb-3" />
+      <p className="text-slate-600">{message}</p>
+    </Card>
   );
 }

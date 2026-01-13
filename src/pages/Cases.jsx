@@ -7,20 +7,18 @@ import { motion } from "framer-motion";
 import {
   Plus,
   Search,
-  Filter,
   Trash2,
   Archive,
   Flame,
-  Download,
   MoreHorizontal,
   Eye,
   ChevronLeft,
   ChevronRight,
-  FileUp, // ADDED for PDF import
-  Globe, // ADDED for URL import
-  Edit3, // ADDED for manual entry
-  ChevronDown, // ADDED for dropdown
-  FileText, // ADDED for text import
+  FileUp,
+  Globe,
+  Edit3,
+  ChevronDown,
+  FileText,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -72,39 +70,7 @@ import TodayTasksPanel from "@/components/dashboard/TodayTasksPanel";
 import CasePipelineKanban from "@/components/dashboard/CasePipelineKanban";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-const stageColors = {
-  imported: "bg-slate-100 text-slate-700",
-  agreement_signed: "bg-blue-100 text-blue-700",
-  info_completed: "bg-indigo-100 text-indigo-700",
-  notary_completed: "bg-purple-100 text-purple-700",
-  packet_ready: "bg-amber-100 text-amber-700",
-  filed: "bg-emerald-100 text-emerald-700",
-  approved: "bg-green-100 text-green-700",
-  paid: "bg-teal-100 text-teal-700",
-  closed: "bg-slate-200 text-slate-600",
-};
-
-const stageLabels = {
-  imported: "Imported",
-  agreement_signed: "Agreement Signed",
-  info_completed: "Info Completed",
-  notary_completed: "Notary Done",
-  packet_ready: "Packet Ready",
-  filed: "Filed",
-  approved: "Approved",
-  paid: "Paid",
-  closed: "Closed",
-};
-
-const statusColors = {
-  active: "bg-emerald-500",
-  pending: "bg-amber-500",
-  filed: "bg-blue-500",
-  approved: "bg-green-500",
-  paid: "bg-teal-500",
-  closed: "bg-slate-400",
-  archived: "bg-slate-300",
-};
+import { STAGE_COLORS, STAGE_LABELS, STATUS_COLORS } from "@/components/shared/caseConstants";
 
 export default function Cases() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -455,7 +421,7 @@ export default function Cases() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Stages</SelectItem>
-              {Object.entries(stageLabels).map(([value, label]) => (
+              {Object.entries(STAGE_LABELS).map(([value, label]) => (
                 <SelectItem key={value} value={value}>{label}</SelectItem>
               ))}
             </SelectContent>
@@ -584,13 +550,13 @@ export default function Cases() {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <div className={`w-2 h-2 rounded-full ${statusColors[caseItem.status]}`} />
+                        <div className={`w-2 h-2 rounded-full ${STATUS_COLORS[caseItem.status]}`} />
                         <span className="capitalize text-slate-600">{caseItem.status}</span>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge className={`${stageColors[caseItem.stage]} border-0 font-medium`}>
-                        {stageLabels[caseItem.stage]}
+                      <Badge className={`${STAGE_COLORS[caseItem.stage]} border-0 font-medium`}>
+                        {STAGE_LABELS[caseItem.stage]}
                       </Badge>
                     </TableCell>
                     {/* MODIFIED: Verification status with better visibility */}
