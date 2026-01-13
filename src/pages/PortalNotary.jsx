@@ -48,6 +48,16 @@ export default function PortalNotary() {
   const handleGeneratePacket = async () => {
     setIsGeneratingPacket(true);
     try {
+      // First check if county has required templates
+      const counties = await base44.entities.County.filter({ name: caseData.county });
+      const county = counties[0];
+      
+      if (!county || !county.notary_template_id) {
+        toast.error(`${caseData.county} County does not have notary templates configured yet. Please contact support.`);
+        setIsGeneratingPacket(false);
+        return;
+      }
+
       const { data } = await base44.functions.invoke("generateNotarizationPacket", {
         case_id: caseData.id
       });
@@ -202,9 +212,9 @@ export default function PortalNotary() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <Link to={createPageUrl(`PortalInfo?token=${token}`)}>
+          <Link to={createPageUrl(`PortalDashboard?token=${token}`)}>
             <Button variant="ghost" className="mb-4">
-              <ArrowLeft className="w-4 h-4 mr-2" /> Back
+              <ArrowLeft className="w-4 h-4 mr-2" /> Back to Dashboard
             </Button>
           </Link>
 

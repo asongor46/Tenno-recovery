@@ -152,6 +152,9 @@ export default function Layout({ children, currentPageName }) {
 
   // [ENHANCED - Tier 3] Redirect based on profile status + onboarding
   React.useEffect(() => {
+    // Skip all agent profile checks for admins
+    if (user?.role === "admin") return;
+    
     if (user && profile !== undefined && !isPublicPage && !isPortalPage) {
       if (!profile) {
         window.location.href = createPageUrl("AgentApply");
