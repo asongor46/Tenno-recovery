@@ -50,14 +50,19 @@ export default function CountyForm({ county, onSuccess }) {
     e.preventDefault();
     setIsSubmitting(true);
 
-    if (county) {
-      await base44.entities.County.update(county.id, formData);
-    } else {
-      await base44.entities.County.create(formData);
+    try {
+      if (county) {
+        await base44.entities.County.update(county.id, formData);
+      } else {
+        await base44.entities.County.create(formData);
+      }
+      onSuccess();
+    } catch (error) {
+      console.error("Error saving county:", error);
+      alert("Error saving county: " + error.message);
+    } finally {
+      setIsSubmitting(false);
     }
-
-    setIsSubmitting(false);
-    onSuccess();
   };
 
   return (

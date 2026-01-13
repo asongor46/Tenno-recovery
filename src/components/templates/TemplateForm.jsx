@@ -53,14 +53,19 @@ export default function TemplateForm({ template, category, mergeTags, onSuccess 
     e.preventDefault();
     setIsSubmitting(true);
 
-    if (template) {
-      await base44.entities.Template.update(template.id, formData);
-    } else {
-      await base44.entities.Template.create(formData);
+    try {
+      if (template) {
+        await base44.entities.Template.update(template.id, formData);
+      } else {
+        await base44.entities.Template.create(formData);
+      }
+      onSuccess();
+    } catch (error) {
+      console.error("Error saving template:", error);
+      alert("Error saving template: " + error.message);
+    } finally {
+      setIsSubmitting(false);
     }
-
-    setIsSubmitting(false);
-    onSuccess();
   };
 
   const showSubject = ["email", "cover_letter"].includes(formData.category);

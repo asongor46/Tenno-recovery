@@ -1,48 +1,7 @@
-import React from "react";
-import { AlertCircle, CheckCircle2 } from "lucide-react";
-
 /**
- * Form field wrapper with validation display
+ * Shared form validation utilities
  */
-export function FormField({ 
-  label, 
-  error, 
-  success,
-  required = false,
-  children,
-  hint
-}) {
-  return (
-    <div className="space-y-2">
-      {label && (
-        <label className="text-sm font-medium text-slate-700 flex items-center gap-1">
-          {label}
-          {required && <span className="text-red-500">*</span>}
-        </label>
-      )}
-      {children}
-      {error && (
-        <div className="flex items-center gap-1 text-sm text-red-600">
-          <AlertCircle className="w-4 h-4" />
-          <span>{error}</span>
-        </div>
-      )}
-      {success && (
-        <div className="flex items-center gap-1 text-sm text-emerald-600">
-          <CheckCircle2 className="w-4 h-4" />
-          <span>{success}</span>
-        </div>
-      )}
-      {hint && !error && !success && (
-        <p className="text-xs text-slate-500">{hint}</p>
-      )}
-    </div>
-  );
-}
 
-/**
- * Validation utilities
- */
 export const validators = {
   required: (value) => {
     if (!value || (typeof value === 'string' && !value.trim())) {
@@ -55,7 +14,7 @@ export const validators = {
     if (!value) return null;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(value)) {
-      return "Please enter a valid email address";
+      return "Invalid email address";
     }
     return null;
   },
@@ -63,8 +22,8 @@ export const validators = {
   phone: (value) => {
     if (!value) return null;
     const phoneRegex = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
-    if (!phoneRegex.test(value)) {
-      return "Please enter a valid phone number";
+    if (!phoneRegex.test(value.replace(/\s/g, ''))) {
+      return "Invalid phone number";
     }
     return null;
   },
@@ -85,104 +44,68 @@ export const validators = {
     return null;
   },
 
-  number: (value) => {
+  numeric: (value) => {
     if (!value) return null;
     if (isNaN(value)) {
-      return "Please enter a valid number";
+      return "Must be a number";
     }
     return null;
   },
 
-  min: (min) => (value) => {
+  positiveNumber: (value) => {
     if (!value) return null;
-    if (parseFloat(value) < min) {
-      return `Must be at least ${min}`;
+    const num = parseFloat(value);
+    if (isNaN(num) || num <= 0) {
+      return "Must be a positive number";
     }
     return null;
   },
 
-  max: (max) => (value) => {
+  url: (value) => {
     if (!value) return null;
-    if (parseFloat(value) > max) {
-      return `Must be no more than ${max}`;
+    try {
+      new URL(value);
+      return null;
+    } catch {
+      return "Invalid URL";
+    }
+  },
+
+  date: (value) => {
+    if (!value) return null;
+    const date = new Date(value);
+    if (isNaN(date.getTime())) {
+      return "Invalid date";
     }
     return null;
   },
-
-  custom: (validatorFn, errorMessage) => (value) => {
-    if (!validatorFn(value)) {
-      return errorMessage;
-    }
-    return null;
-  }
 };
 
 /**
- * useFormValidation hook
+ * Run multiple validators on a value
  */
-export function useFormValidation(initialValues, validationRules) {
-  const [values, setValues] = React.useState(initialValues);
-  const [errors, setErrors] = React.useState({});
-  const [touched, setTouched] = React.useState({});
+export const validate = (value, validatorFns) => {
+  for (const fn of validatorFns) {
+    const error = fn(value);
+    if (error) return error;
+  }
+  return null;
+};
 
-  const validateField = (name, value) => {
-    const rules = validationRules[name];
-    if (!rules) return null;
+/**
+ * Validate an entire form object
+ */
+export const validateForm = (formData, schema) => {
+  const errors = {};
+  let hasErrors = false;
 
-    for (const rule of rules) {
-      const error = rule(value);
-      if (error) return error;
+  Object.keys(schema).forEach(field => {
+    const error = validate(formData[field], schema[field]);
+    if (error) {
+      errors[field] = error;
+      hasErrors = true;
     }
-    return null;
-  };
+  });
 
-  const handleChange = (name, value) => {
-    setValues(prev => ({ ...prev, [name]: value }));
-    
-    // Validate on change if field was touched
-    if (touched[name]) {
-      const error = validateField(name, value);
-      setErrors(prev => ({ ...prev, [name]: error }));
-    }
-  };
-
-  const handleBlur = (name) => {
-    setTouched(prev => ({ ...prev, [name]: true }));
-    const error = validateField(name, values[name]);
-    setErrors(prev => ({ ...prev, [name]: error }));
-  };
-
-  const validateAll = () => {
-    const newErrors = {};
-    let isValid = true;
-
-    Object.keys(validationRules).forEach(name => {
-      const error = validateField(name, values[name]);
-      if (error) {
-        newErrors[name] = error;
-        isValid = false;
-      }
-    });
-
-    setErrors(newErrors);
-    setTouched(Object.keys(validationRules).reduce((acc, key) => ({ ...acc, [key]: true }), {}));
-    return isValid;
-  };
-
-  const reset = () => {
-    setValues(initialValues);
-    setErrors({});
-    setTouched({});
-  };
-
-  return {
-    values,
-    errors,
-    touched,
-    handleChange,
-    handleBlur,
-    validateAll,
-    reset,
-    isValid: Object.keys(errors).every(key => !errors[key])
-  };
-}
+  return { errors, hasErrors };
+};

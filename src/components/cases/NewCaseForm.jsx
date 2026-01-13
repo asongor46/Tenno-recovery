@@ -75,9 +75,11 @@ export default function NewCaseForm({ counties, onSuccess }) {
       
       onSuccess();
     } catch (error) {
+      console.error("Error creating case:", error);
       alert("Error creating case: " + error.message);
+    } finally {
+      setIsSubmitting(false);
     }
-    setIsSubmitting(false);
   };
 
   return (
