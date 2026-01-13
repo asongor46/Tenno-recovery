@@ -64,7 +64,9 @@ export default function CasesTable({ cases, isLoading, showTitle = true }) {
             <h2 className="text-lg font-semibold text-slate-900">Ongoing Cases</h2>
           </div>
         )}
-        <div className="p-8 text-center text-slate-500">Loading cases...</div>
+        <div className="p-8">
+          <LoadingState message="Loading cases..." />
+        </div>
       </div>
     );
   }
