@@ -41,14 +41,20 @@ export default function HowToForm({ article, onSuccess }) {
     e.preventDefault();
     setIsSubmitting(true);
 
-    if (article) {
-      await base44.entities.HowTo.update(article.id, formData);
-    } else {
-      await base44.entities.HowTo.create(formData);
+    try {
+      if (article) {
+        await base44.entities.HowTo.update(article.id, formData);
+      } else {
+        await base44.entities.HowTo.create(formData);
+      }
+      toast.success(article ? "Article updated successfully" : "Article created successfully");
+      onSuccess();
+    } catch (error) {
+      console.error("Error saving article:", error);
+      toast.error("Failed to save article: " + error.message);
+    } finally {
+      setIsSubmitting(false);
     }
-
-    setIsSubmitting(false);
-    onSuccess();
   };
 
   return (
