@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 export default function NewCaseForm({ counties, onSuccess }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -73,10 +74,11 @@ export default function NewCaseForm({ counties, onSuccess }) {
         console.warn("Classification failed:", classifyError);
       }
       
+      toast.success("Case created successfully!");
       onSuccess();
     } catch (error) {
       console.error("Error creating case:", error);
-      alert("Error creating case: " + error.message);
+      toast.error("Error creating case: " + error.message);
     } finally {
       setIsSubmitting(false);
     }

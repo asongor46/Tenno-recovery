@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 const US_STATES = [
   "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
@@ -56,10 +57,11 @@ export default function CountyForm({ county, onSuccess }) {
       } else {
         await base44.entities.County.create(formData);
       }
+      toast.success(county ? "County updated successfully!" : "County created successfully!");
       onSuccess();
     } catch (error) {
       console.error("Error saving county:", error);
-      alert("Error saving county: " + error.message);
+      toast.error("Error saving county: " + error.message);
     } finally {
       setIsSubmitting(false);
     }

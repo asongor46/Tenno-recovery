@@ -4,14 +4,12 @@ import { base44 } from "@/api/base44Client";
 import {
   Briefcase,
   Flame,
-  Clock,
   FileCheck,
   PackageCheck,
-  DollarSign,
-  Target, // ADDED for verification KPI
-  AlertTriangle, // ADDED for identity issues KPI
-  Sparkles, // ADDED: For AI panel
-  Lightbulb, // ADDED: For AI suggestions
+  Target,
+  AlertTriangle,
+  Sparkles,
+  Lightbulb,
 } from "lucide-react";
 import KPICard from "@/components/dashboard/KPICard";
 import CasesTable from "@/components/dashboard/CasesTable";

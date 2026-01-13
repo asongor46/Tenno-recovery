@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Loader2, Copy } from "lucide-react";
+import { toast } from "sonner";
 
 const categories = [
   { value: "phone_script", label: "Phone Script" },
@@ -59,10 +60,11 @@ export default function TemplateForm({ template, category, mergeTags, onSuccess 
       } else {
         await base44.entities.Template.create(formData);
       }
+      toast.success(template ? "Template updated successfully!" : "Template created successfully!");
       onSuccess();
     } catch (error) {
       console.error("Error saving template:", error);
-      alert("Error saving template: " + error.message);
+      toast.error("Error saving template: " + error.message);
     } finally {
       setIsSubmitting(false);
     }
