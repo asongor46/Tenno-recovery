@@ -46,6 +46,8 @@ import {
 } from "@/components/ui/dialog";
 import InvoiceForm from "@/components/invoices/InvoiceForm";
 import { useStandardToast } from "@/components/shared/useStandardToast";
+import LoadingState from "@/components/shared/LoadingState";
+import EmptyState from "@/components/shared/EmptyState";
 
 const statusConfig = {
   draft: { label: "Draft", color: "bg-slate-100 text-slate-700", icon: FileText },
@@ -125,6 +127,10 @@ export default function Invoices() {
   const totalRevenue = invoices.reduce((sum, inv) => sum + (inv.total_amount || 0), 0);
   const totalPaid = invoices.reduce((sum, inv) => sum + (inv.amount_paid || 0), 0);
   const totalOutstanding = invoices.reduce((sum, inv) => sum + (inv.balance_due || 0), 0);
+
+  if (isLoading) {
+    return <LoadingState message="Loading invoices..." />;
+  }
 
   return (
     <div className="space-y-6">
@@ -254,9 +260,21 @@ export default function Invoices() {
               <TableRow>
                 <TableCell colSpan={9} className="text-center py-8">Loading...</TableCell>
               </TableRow>
+            ) : filteredInvoices.length === 0 && searchQuery ? (
+              <TableRow>
+                <TableCell colSpan={9} className="text-center py-8 text-slate-500">No invoices match your search</TableCell>
+              </TableRow>
             ) : filteredInvoices.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={9} className="text-center py-8 text-slate-500">No invoices found</TableCell>
+                <TableCell colSpan={9} className="text-center py-8">
+                  <EmptyState
+                    icon={FileText}
+                    title="No invoices yet"
+                    description="Create your first invoice to get started"
+                    action={() => { setEditingInvoice(null); setShowForm(true); }}
+                    actionLabel="Create Invoice"
+                  />
+                </TableCell>
               </TableRow>
             ) : (
               filteredInvoices.map((invoice) => {

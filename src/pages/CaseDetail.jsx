@@ -71,14 +71,14 @@ import OrderTreasurerPanel from "@/components/case/OrderTreasurerPanel";
 import AgreementPanel from "@/components/case/AgreementPanel";
 import AgentAssistPanel from "@/components/case/AgentAssistPanel";
 import PacketReadinessPanel from "@/components/case/PacketReadinessPanel";
-import EmailFallbackModal from "@/components/communications/EmailFallbackModal";
 import { usePortalLink } from "@/components/shared/usePortalLink";
 import SendEmailPanel from "@/components/case/SendEmailPanel";
-// [NEW - Tier 2]
 import PreCallAssistPanel from "@/components/case/PreCallAssistPanel";
 import CallScriptModal from "@/components/case/CallScriptModal";
-// [NEW - Tier 3]
 import AutoFilingPacketGenerator from "@/components/case/AutoFilingPacketGenerator";
+import LoadingState from "@/components/shared/LoadingState";
+import EmptyState from "@/components/shared/EmptyState";
+import { CASE_STAGES, STAGE_LABELS, STAGE_COLORS } from "@/components/shared/caseConstants";
 
 const stageConfig = {
   imported: { label: "Imported", color: "bg-slate-500" },
@@ -175,23 +175,18 @@ export default function CaseDetail() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
-      </div>
-    );
+    return <LoadingState message="Loading case details..." />;
   }
 
   if (!caseData) {
     return (
-      <div className="text-center py-12">
-        <p className="text-slate-500">Case not found</p>
-        <Link to={createPageUrl("Cases")}>
-          <Button variant="outline" className="mt-4">
-            <ArrowLeft className="w-4 h-4 mr-2" /> Back to Cases
-          </Button>
-        </Link>
-      </div>
+      <EmptyState
+        icon={FileText}
+        title="Case not found"
+        description="The case you're looking for doesn't exist or has been deleted"
+        action={() => window.location.href = createPageUrl("Cases")}
+        actionLabel="Back to Cases"
+      />
     );
   }
 
@@ -260,7 +255,7 @@ export default function CaseDetail() {
                     case_id: caseId,
                     action_type: "link_related_cases"
                   });
-                  alert(`Found ${data.result.related_cases?.length || 0} related case(s)`);
+                  toast.success(`Found ${data.result.related_cases?.length || 0} related case(s)`);
                   queryClient.invalidateQueries({ queryKey: ["activities", caseId] });
                 }}
               >
@@ -273,7 +268,7 @@ export default function CaseDetail() {
                     case_id: caseId,
                     action_type: "suggest_next_steps"
                   });
-                  alert(`Generated ${data.result.next_steps?.length || 0} suggested action(s)`);
+                  toast.success(`Generated ${data.result.next_steps?.length || 0} suggested action(s)`);
                   queryClient.invalidateQueries({ queryKey: ["todos", caseId] });
                   queryClient.invalidateQueries({ queryKey: ["activities", caseId] });
                 }}
@@ -287,7 +282,7 @@ export default function CaseDetail() {
                     case_id: caseId,
                     action_type: "generate_correspondence"
                   });
-                  alert(`Generated correspondence:\n\nSubject: ${data.result.correspondence?.email_subject}\n\n${data.result.correspondence?.email_body?.substring(0, 200)}...`);
+                  toast.success("Correspondence generated successfully");
                 }}
               >
                 <Send className="w-4 h-4 mr-2" />
@@ -300,7 +295,7 @@ export default function CaseDetail() {
                     case_id: caseId,
                     action_type: "all"
                   });
-                  alert(`AI Automation Complete!\n\n- Related Cases: ${data.result.related_cases?.length || 0}\n- Next Steps: ${data.result.next_steps?.length || 0}\n- Correspondence Generated: Yes`);
+                  toast.success(`AI Automation Complete - ${data.result.related_cases?.length || 0} related cases, ${data.result.next_steps?.length || 0} suggestions`);
                   queryClient.invalidateQueries();
                 }}
               >

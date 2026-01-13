@@ -167,10 +167,22 @@ export default function Counties() {
                     Loading counties...
                   </TableCell>
                 </TableRow>
-              ) : filteredCounties.length === 0 ? (
+              ) : filteredCounties.length === 0 && searchQuery ? (
                 <TableRow>
                   <TableCell colSpan={8} className="text-center py-8 text-slate-500">
-                    No counties found
+                    No counties match your search
+                  </TableCell>
+                </TableRow>
+              ) : filteredCounties.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={8} className="text-center py-8">
+                    <EmptyState
+                      icon={Building2}
+                      title="No counties added"
+                      description="Add your first county to get started"
+                      action={() => setShowNewCountyDialog(true)}
+                      actionLabel="Add County"
+                    />
                   </TableCell>
                 </TableRow>
               ) : (

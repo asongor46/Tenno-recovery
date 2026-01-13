@@ -15,6 +15,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
+import RoleGuard from "@/components/rbac/RoleGuard";
 
 export default function OCRExtractor() {
   const [file, setFile] = useState(null);
@@ -66,11 +68,12 @@ export default function OCRExtractor() {
           setExtractedData(result);
           setRawText(result.raw_text || JSON.stringify(result, null, 2));
         }
+        toast.success("Data extracted successfully!");
       } else {
-        alert("Extraction failed: " + (result.details || "Unknown error"));
+        toast.error("Extraction failed: " + (result.details || "Unknown error"));
       }
     } catch (error) {
-      alert("Error: " + error.message);
+      toast.error("Error: " + error.message);
     }
 
     setIsProcessing(false);
@@ -78,9 +81,11 @@ export default function OCRExtractor() {
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
+    toast.success("Copied to clipboard");
   };
 
   return (
+    <RoleGuard allowedRoles={["admin", "agent"]}>
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
@@ -232,7 +237,7 @@ export default function OCRExtractor() {
                       stage: "imported",
                     });
                     
-                    alert("Case created successfully!");
+                    toast.success("Case created successfully!");
                   }}
                 >
                   <CheckCircle className="w-4 h-4 mr-2" />
@@ -265,6 +270,7 @@ export default function OCRExtractor() {
         </Card>
       )}
     </div>
+    </RoleGuard>
   );
 }
 

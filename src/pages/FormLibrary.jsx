@@ -45,6 +45,9 @@ import FormPreviewDialog from "@/components/formLibrary/FormPreviewDialog";
 import PDFViewerDialog from "@/components/pdf/PDFViewerDialog";
 import VisualFieldMapper from "@/components/pdf/VisualFieldMapper";
 import { useStandardToast } from "@/components/shared/useStandardToast";
+import RoleGuard from "@/components/rbac/RoleGuard";
+import LoadingState from "@/components/shared/LoadingState";
+import EmptyState from "@/components/shared/EmptyState";
 
 export default function FormLibrary() {
   const [selectedCounty, setSelectedCounty] = useState("");
@@ -146,6 +149,7 @@ export default function FormLibrary() {
   };
 
   return (
+    <RoleGuard allowedRoles={["admin", "agent"]}>
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -454,5 +458,6 @@ export default function FormLibrary() {
         </DialogContent>
       </Dialog>
     </div>
+    </RoleGuard>
   );
 }

@@ -16,6 +16,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { toast } from "sonner";
+import RoleGuard from "@/components/rbac/RoleGuard";
 
 export default function NotaryValidator() {
   const [file, setFile] = useState(null);
@@ -110,6 +112,7 @@ Return validation assessment.`,
   };
 
   return (
+    <RoleGuard allowedRoles={["admin", "agent"]}>
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
@@ -285,5 +288,6 @@ Return validation assessment.`,
         </Card>
       </div>
     </div>
+    </RoleGuard>
   );
 }
