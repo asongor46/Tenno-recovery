@@ -213,8 +213,8 @@ export default function Cases() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">Cases</h1>
-          <p className="text-sm sm:text-base text-slate-500 mt-1">{filteredCases.length} total cases</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-white">Cases</h1>
+          <p className="text-sm sm:text-base text-slate-400 mt-1">{filteredCases.length} total cases</p>
         </div>
 
         {/* MODIFIED: New Case Dropdown with 6 methods - COMPLETE INGESTION ENGINE */}
@@ -390,7 +390,7 @@ export default function Cases() {
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-2xl border border-slate-100 p-3 sm:p-4"
+        className="bg-slate-800 rounded-2xl border border-slate-700 p-3 sm:p-4"
       >
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
           <div className="relative flex-1">
@@ -399,7 +399,7 @@ export default function Cases() {
               placeholder="Search by owner, case #, county..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
+              className="pl-10 bg-slate-900 border-slate-700 text-white placeholder:text-slate-500"
             />
           </div>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -440,8 +440,8 @@ export default function Cases() {
 
         {/* Bulk Actions */}
         {selectedCases.length > 0 && (
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-4 pt-4 border-t">
-            <span className="text-sm text-slate-600 w-full sm:w-auto">{selectedCases.length} selected</span>
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-4 pt-4 border-t border-slate-700">
+            <span className="text-sm text-slate-300 w-full sm:w-auto">{selectedCases.length} selected</span>
             <Button variant="outline" size="sm" onClick={handleMarkHot} className="flex-1 sm:flex-none">
               <Flame className="w-4 h-4 mr-1" /> <span className="hidden sm:inline">Mark</span> Hot
             </Button>
@@ -457,7 +457,7 @@ export default function Cases() {
 
       {/* PHASE 4+ ENHANCEMENT: View Mode Tabs - Pipeline vs Table */}
       <Tabs value={viewMode} onValueChange={setViewMode} className="w-full">
-        <TabsList className="grid w-full max-w-md grid-cols-2 h-auto">
+        <TabsList className="grid w-full max-w-md grid-cols-2 h-auto bg-slate-800 border-slate-700">
           <TabsTrigger value="pipeline" className="text-xs sm:text-sm py-2">Pipeline View</TabsTrigger>
           <TabsTrigger value="table" className="text-xs sm:text-sm py-2">Table View</TabsTrigger>
         </TabsList>
@@ -467,7 +467,7 @@ export default function Cases() {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-2xl border border-slate-100 p-6"
+            className="bg-slate-800 rounded-2xl border border-slate-700 p-6"
           >
             <CasePipelineKanban cases={filteredCases} />
           </motion.div>
@@ -480,27 +480,27 @@ export default function Cases() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="bg-white rounded-2xl border border-slate-100 overflow-hidden"
+        className="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden"
       >
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow className="bg-slate-50/50">
+              <TableRow className="bg-slate-900/50 border-slate-700">
                 <TableHead className="w-12">
                   <Checkbox 
                     checked={selectedCases.length === paginatedCases.length && paginatedCases.length > 0}
                     onCheckedChange={toggleSelectAll}
                   />
                 </TableHead>
-                <TableHead className="font-semibold">Owner</TableHead>
-                <TableHead className="font-semibold">Case #</TableHead>
-                <TableHead className="font-semibold">County</TableHead>
-                <TableHead className="font-semibold">Property Address</TableHead>{/* ADDED */}
-                <TableHead className="font-semibold text-right">Surplus</TableHead>
-                <TableHead className="font-semibold">Status</TableHead>
-                <TableHead className="font-semibold">Stage</TableHead>
-                <TableHead className="font-semibold">Verified</TableHead>
-                <TableHead className="font-semibold">Updated</TableHead>
+                <TableHead className="font-semibold text-slate-300">Owner</TableHead>
+                <TableHead className="font-semibold text-slate-300">Case #</TableHead>
+                <TableHead className="font-semibold text-slate-300">County</TableHead>
+                <TableHead className="font-semibold text-slate-300">Property Address</TableHead>{/* ADDED */}
+                <TableHead className="font-semibold text-right text-slate-300">Surplus</TableHead>
+                <TableHead className="font-semibold text-slate-300">Status</TableHead>
+                <TableHead className="font-semibold text-slate-300">Stage</TableHead>
+                <TableHead className="font-semibold text-slate-300">Verified</TableHead>
+                <TableHead className="font-semibold text-slate-300">Updated</TableHead>
                 <TableHead className="font-semibold w-10"></TableHead>
                 <TableHead className="font-semibold w-20"></TableHead>
               </TableRow>
@@ -520,7 +520,7 @@ export default function Cases() {
                 </TableRow>
               ) : (
                 paginatedCases.map((caseItem) => (
-                  <TableRow key={caseItem.id} className="group hover:bg-slate-50/50">
+                  <TableRow key={caseItem.id} className="group hover:bg-slate-700/30 border-slate-700">
                     <TableCell>
                       <Checkbox 
                         checked={selectedCases.includes(caseItem.id)}
@@ -534,26 +534,26 @@ export default function Cases() {
                             {caseItem.owner_name?.charAt(0) || "?"}
                           </span>
                         </div>
-                        <span className="font-medium text-slate-900">{caseItem.owner_name}</span>
+                        <span className="font-medium text-white">{caseItem.owner_name}</span>
                       </div>
                     </TableCell>
-                    <TableCell className="font-mono text-sm text-slate-600">
+                    <TableCell className="font-mono text-sm text-slate-400">
                       {caseItem.case_number}
                     </TableCell>
-                    <TableCell className="text-slate-600">
+                    <TableCell className="text-slate-300">
                       {caseItem.county}{caseItem.state ? `, ${caseItem.state}` : ""}
                     </TableCell>
                     {/* ADDED: Property Address column */}
-                    <TableCell className="text-slate-600 text-sm max-w-xs truncate">
+                    <TableCell className="text-slate-300 text-sm max-w-xs truncate">
                       {caseItem.property_address || "—"}
                     </TableCell>
-                    <TableCell className="text-right font-semibold text-slate-900">
+                    <TableCell className="text-right font-semibold text-white">
                       ${caseItem.surplus_amount?.toLocaleString() || "0"}
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <div className={`w-2 h-2 rounded-full ${STATUS_COLORS[caseItem.status]}`} />
-                        <span className="capitalize text-slate-600">{caseItem.status}</span>
+                        <span className="capitalize text-slate-300">{caseItem.status}</span>
                       </div>
                     </TableCell>
                     <TableCell>
@@ -581,7 +581,7 @@ export default function Cases() {
                         </Badge>
                       )}
                     </TableCell>
-                    <TableCell className="text-slate-500 text-sm">
+                    <TableCell className="text-slate-400 text-sm">
                       {caseItem.updated_date
                         ? format(new Date(caseItem.updated_date), "MMM d, yyyy")
                         : "—"}
@@ -636,8 +636,8 @@ export default function Cases() {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between px-6 py-4 border-t">
-            <p className="text-sm text-slate-500">
+          <div className="flex items-center justify-between px-6 py-4 border-t border-slate-700">
+            <p className="text-sm text-slate-400">
               Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, filteredCases.length)} of {filteredCases.length}
             </p>
             <div className="flex items-center gap-2">
@@ -649,7 +649,7 @@ export default function Cases() {
               >
                 <ChevronLeft className="w-4 h-4" />
               </Button>
-              <span className="text-sm text-slate-600">
+              <span className="text-sm text-slate-300">
                 Page {page} of {totalPages}
               </span>
               <Button
