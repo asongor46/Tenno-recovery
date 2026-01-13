@@ -537,10 +537,10 @@ export default function Cases() {
                         <span className="font-medium text-white">{caseItem.owner_name}</span>
                       </div>
                     </TableCell>
-                    <TableCell className="font-mono text-sm text-slate-400">
+                    <TableCell className="font-mono text-sm text-slate-200">
                       {caseItem.case_number}
                     </TableCell>
-                    <TableCell className="text-slate-300">
+                    <TableCell className="text-slate-200">
                       {caseItem.county}{caseItem.state ? `, ${caseItem.state}` : ""}
                     </TableCell>
                     {/* ADDED: Property Address column */}
