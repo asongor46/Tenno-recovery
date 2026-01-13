@@ -134,7 +134,7 @@ export default function Layout({ children, currentPageName }) {
     queryFn: async () => {
       if (!user?.email) return null;
       const profiles = await base44.entities.AgentProfile.filter({ email: user.email });
-      return profiles[0];
+      return profiles[0] || null;
     },
     enabled: !!user?.email && !isPublicPage && !isPortalPage,
   });

@@ -25,18 +25,20 @@ export default function Dashboard() {
   const { data: cases = [], isLoading: casesLoading } = useQuery({
     queryKey: ["cases"],
     queryFn: () => base44.entities.Case.list("-updated_date", 100),
-    refetchInterval: 30000, // Auto-refresh every 30 seconds
+    staleTime: 60000, // Cache for 1 minute
+    refetchInterval: 60000, // Auto-refresh every 60 seconds (reduced frequency)
+    refetchOnWindowFocus: false, // Don't refetch on tab switch
   });
 
   // [ENHANCED - Tier 2] Smart alerts with computed cases needing attention
   const { data: alerts = [], isLoading: alertsLoading } = useQuery({
-    queryKey: ["alerts"],
+    queryKey: ["alerts", cases.length],
     queryFn: async () => {
       // Fetch stored alerts
       const storedAlerts = await base44.entities.Alert.filter({ is_resolved: false }, "-created_date", 10);
       
-      // Compute dynamic alerts from case state
-      const allCases = await base44.entities.Case.list("-updated_date", 100);
+      // Compute dynamic alerts from already-loaded case state (no extra API call)
+      const allCases = cases;
       const computedAlerts = [];
 
       allCases.forEach(c => {
@@ -118,7 +120,10 @@ export default function Dashboard() {
       // Merge stored and computed, limit to 10 most important
       return [...computedAlerts, ...storedAlerts].slice(0, 10);
     },
-    refetchInterval: 60000, // Refresh every minute
+    enabled: cases.length > 0,
+    staleTime: 60000,
+    refetchInterval: 120000, // Refresh every 2 minutes (reduced frequency)
+    refetchOnWindowFocus: false,
   });
 
   const { data: todos = [], isLoading: todosLoading } = useQuery({
