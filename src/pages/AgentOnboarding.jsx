@@ -202,21 +202,26 @@ export default function AgentOnboarding() {
   const handleComplete = async () => {
     if (!profile) return;
     
-    await updateProfileMutation.mutateAsync({
-      ...profile,
-      notes: (profile.notes || "") + "\nCompleted onboarding: " + new Date().toISOString()
-    });
-    
-    await base44.entities.ActivityLog.create({
-      action: "Agent Onboarding Completed",
-      description: `${user.full_name} completed the onboarding wizard`,
-      performed_by: user.email
-    });
+    try {
+      await updateProfileMutation.mutateAsync({
+        ...profile,
+        notes: (profile.notes || "") + "\nCompleted onboarding"
+      });
+      
+      await base44.entities.ActivityLog.create({
+        action: "Agent Onboarding Completed",
+        description: `${user.full_name} completed the onboarding wizard`,
+        performed_by: user.email,
+        is_client_visible: false
+      });
 
-    toast.success("Onboarding complete! Welcome to the team.");
-    setTimeout(() => {
-      window.location.href = createPageUrl("Dashboard");
-    }, 1500);
+      toast.success("Onboarding complete! Welcome to the team.");
+      setTimeout(() => {
+        window.location.href = createPageUrl("Dashboard");
+      }, 1000);
+    } catch (error) {
+      toast.error("Failed to complete onboarding: " + error.message);
+    }
   };
 
   return (

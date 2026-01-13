@@ -60,28 +60,17 @@ const navigation = [
 
   { name: "Reminders", href: "Reminders", icon: Bell },
   { name: "Communications", href: "Communications", icon: Inbox },
-  { name: "Payment Pipeline", href: "PaymentPipeline", icon: DollarSign }, // [NEW - Tier 3]
+  { name: "Payment Pipeline", href: "PaymentPipeline", icon: DollarSign, adminOnly: true },
   { name: "County Directory", href: "Counties", icon: Building2 },
   { name: "User Management", href: "UserManagement", icon: Users, adminOnly: true },
-  {
-    name: "Templates",
-    icon: FileText,
-    children: [
-      { name: "Phone Scripts", href: "Templates?category=phone_script", icon: Phone },
-      { name: "SMS", href: "Templates?category=sms", icon: MessageSquare },
-      { name: "Emails", href: "Templates?category=email", icon: Mail },
-      { name: "Rebuttals", href: "Templates?category=rebuttal", icon: MessageCircle },
-      { name: "Documents", href: "Templates?category=document", icon: FileCode },
-      { name: "Agreements", href: "Templates?category=agreement", icon: FileText },
-      ],
-  },
   { name: "How-To", href: "HowTo", icon: BookOpen },
   {
     name: "System Tools",
     icon: Wrench,
+    adminOnly: true,
     children: [
       { name: "Packet Builder", href: "PacketBuilder", icon: PackageOpen },
-      { name: "Form Library", href: "FormLibrary", icon: FileCode }, // ADDED
+      { name: "Form Library", href: "FormLibrary", icon: FileCode },
       { name: "OCR Extractor", href: "OCRExtractor", icon: ScanText },
       { name: "Notary Validator", href: "NotaryValidator", icon: CheckSquare },
       { name: "People Finder", href: "PeopleFinder", icon: Users },
@@ -196,7 +185,7 @@ export default function Layout({ children, currentPageName }) {
 
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-900">
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div
@@ -408,7 +397,7 @@ export default function Layout({ children, currentPageName }) {
         </header>
 
         {/* Page content */}
-        <main className="p-3 sm:p-4 lg:p-8 pb-20 lg:pb-8">
+        <main className="p-3 sm:p-4 lg:p-8 pb-20 lg:pb-8 bg-slate-900">
           <ErrorBoundary>
             {children}
           </ErrorBoundary>

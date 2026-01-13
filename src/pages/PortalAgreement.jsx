@@ -192,9 +192,9 @@ export default function PortalAgreement() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <Link to={createPageUrl(`PortalWelcome?token=${token}`)}>
+          <Link to={createPageUrl(`PortalDashboard?token=${token}`)}>
             <Button variant="ghost" className="mb-4">
-              <ArrowLeft className="w-4 h-4 mr-2" /> Back
+              <ArrowLeft className="w-4 h-4 mr-2" /> Back to Dashboard
             </Button>
           </Link>
 
