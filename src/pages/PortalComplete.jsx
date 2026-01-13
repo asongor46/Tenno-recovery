@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
 import { CheckCircle, PartyPopper, Clock, Phone, Mail } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import PortalAuthGuard from "@/components/portal/PortalAuthGuard";
 
 export default function PortalComplete() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -34,6 +35,7 @@ export default function PortalComplete() {
   }
 
   return (
+    <PortalAuthGuard>
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-slate-100">
       {/* Header */}
       <header className="bg-white border-b">
@@ -222,6 +224,7 @@ export default function PortalComplete() {
         </div>
       </footer>
     </div>
+    </PortalAuthGuard>
   );
 }
 

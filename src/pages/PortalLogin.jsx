@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { LogIn, Mail, Lock, Key, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,7 @@ async function hashPassword(password) {
 }
 
 export default function PortalLogin() {
+  const navigate = useNavigate();
   const [loginType, setLoginType] = useState("access_code");
   const [email, setEmail] = useState("");
   const [accessCode, setAccessCode] = useState("");
@@ -123,10 +125,9 @@ export default function PortalLogin() {
 
         console.log("💾 Stored in:", rememberMe ? "localStorage" : "sessionStorage");
         
-        const dashboardUrl = createPageUrl("PortalDashboard");
-        console.log("🔗 Redirecting to:", dashboardUrl);
-        
-        window.location.href = dashboardUrl;
+        console.log("🔗 Navigating to dashboard");
+
+          navigate(createPageUrl("PortalDashboard"));
       } else {
         console.log("❌ Setup failed:", data.error);
         setError(data.error || "Account creation failed");
@@ -167,10 +168,9 @@ export default function PortalLogin() {
 
         console.log("💾 Stored in:", rememberMe ? "localStorage" : "sessionStorage");
         
-        const dashboardUrl = createPageUrl("PortalDashboard");
-        console.log("🔗 Redirecting to:", dashboardUrl);
+        console.log("🔗 Navigating to dashboard");
 
-        window.location.href = dashboardUrl;
+        navigate(createPageUrl("PortalDashboard"));
       } else {
         console.log("❌ Login failed:", data.error);
         setError(data.error || "Login failed");

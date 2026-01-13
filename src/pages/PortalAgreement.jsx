@@ -12,8 +12,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import PortalAuthGuard from "@/components/portal/PortalAuthGuard";
 
 export default function PortalAgreement() {
+  const navigate = useNavigate();
   const urlParams = new URLSearchParams(window.location.search);
   const token = urlParams.get("token");
   const [hasRead, setHasRead] = useState(false);
@@ -115,10 +117,11 @@ export default function PortalAgreement() {
         action: "Agreement Signed",
         description: "Homeowner signed the service agreement via portal",
         performed_by: "Homeowner",
+        is_client_visible: true,
       });
 
       toast.success("Agreement signed successfully!");
-      window.location.href = createPageUrl(`PortalInfo?token=${token}`);
+      navigate(createPageUrl(`PortalInfo?token=${token}`));
     } catch (error) {
       toast.error("Failed to sign agreement: " + error.message);
       setIsSubmitting(false);
@@ -160,6 +163,7 @@ export default function PortalAgreement() {
   }
 
   return (
+    <PortalAuthGuard>
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Header */}
       <header className="bg-white border-b">
@@ -374,5 +378,6 @@ export default function PortalAgreement() {
         </motion.div>
       </main>
     </div>
+    </PortalAuthGuard>
   );
 }

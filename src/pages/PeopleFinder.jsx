@@ -148,13 +148,12 @@ export default function PeopleFinder() {
         queryClient.invalidateQueries({ queryKey: ["standalone-queries"] });
         queryClient.invalidateQueries({ queryKey: ["standalone-candidates", data.query_id] });
         
-        // Show success message with AI assessment
-        alert(`AI Skip Trace Complete!\n\nFound ${data.candidates_found} candidate(s)\n\n${data.overall_assessment || ''}\n\n${data.best_match ? `Best Match: ${data.best_match.name}\nScore: ${data.best_match.score}/100\nClassification: ${data.best_match.classification}\n\n${data.best_match.summary}` : ''}`);
+        toast.success(`AI Skip Trace Complete - Found ${data.candidates_found} candidate(s)`);
       } else {
-        alert(`AI Skip Trace failed: ${data.details || 'Unknown error'}`);
+        toast.error(`AI Skip Trace failed: ${data.details || 'Unknown error'}`);
       }
     } catch (error) {
-      alert(`AI Skip Trace error: ${error.message}`);
+      toast.error(`AI Skip Trace error: ${error.message}`);
     } finally {
       setIsRunning(false);
     }
@@ -188,7 +187,7 @@ export default function PeopleFinder() {
       });
     }
 
-    alert(`Person created: ${person.full_name}`);
+    toast.success(`Person created: ${person.full_name}`);
     queryClient.invalidateQueries();
   };
 

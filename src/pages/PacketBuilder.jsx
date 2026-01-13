@@ -203,11 +203,11 @@ export default function PacketBuilder() {
                         case_id: selectedCase.id
                       });
                       if (data.status === 'success') {
-                        alert(`Generated ${data.forms_generated} forms for ${data.county}`);
+                        toast.success(`Generated ${data.forms_generated} forms for ${data.county}`);
                         queryClient.invalidateQueries({ queryKey: ["documents", selectedCase.id] });
                       }
                     } catch (error) {
-                      alert("Error: " + error.message);
+                      toast.error("Error: " + error.message);
                     }
                   }}
                 >

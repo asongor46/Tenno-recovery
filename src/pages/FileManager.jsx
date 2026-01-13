@@ -52,6 +52,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import RoleGuard from "@/components/rbac/RoleGuard";
+import { toast } from "sonner";
 
 // MODIFIED: Expanded category labels to match entity enum
 const categoryLabels = {
@@ -151,7 +152,7 @@ export default function FileManager() {
   // MODIFIED: Upload handler with AI analysis
   const handleUpload = async () => {
     if (!uploadFile || !uploadData.case_id) {
-      alert("Please select a file and case");
+      toast.error("Please select a file and case");
       return;
     }
 
@@ -185,9 +186,9 @@ export default function FileManager() {
       setUploadFile(null);
       setUploadData({ case_id: "", name: "", category: "other", tags: [] });
       setTagInput("");
-      alert("Document uploaded successfully! AI analysis running in background...");
+      toast.success("Document uploaded successfully! AI analysis running in background...");
     } catch (error) {
-      alert(`Upload failed: ${error.message}`);
+      toast.error(`Upload failed: ${error.message}`);
     } finally {
       setIsUploading(false);
     }
@@ -228,9 +229,9 @@ export default function FileManager() {
       await Promise.all(selectedDocs.map(id => base44.entities.Document.delete(id)));
       queryClient.invalidateQueries({ queryKey: ["all-documents"] });
       setSelectedDocs([]);
-      alert("Documents deleted successfully");
+      toast.success("Documents deleted successfully");
     } catch (error) {
-      alert(`Delete failed: ${error.message}`);
+      toast.error(`Delete failed: ${error.message}`);
     }
   };
 

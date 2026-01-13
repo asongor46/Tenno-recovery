@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
@@ -8,8 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import PortalAuthGuard from "@/components/portal/PortalAuthGuard";
+import { toast } from "sonner";
 
 export default function PortalInfo() {
+  const navigate = useNavigate();
   const urlParams = new URLSearchParams(window.location.search);
   const token = urlParams.get("token");
   const [caseData, setCaseData] = useState(null);
@@ -72,15 +75,33 @@ export default function PortalInfo() {
     const reader = new FileReader();
     reader.onload = (e) => {
       if (type === "front") {
+        if (idFrontPreview && idFrontPreview.startsWith('blob:')) {
+          URL.revokeObjectURL(idFrontPreview);
+        }
         setIdFront(file);
         setIdFrontPreview(e.target.result);
       } else {
+        if (idBackPreview && idBackPreview.startsWith('blob:')) {
+          URL.revokeObjectURL(idBackPreview);
+        }
         setIdBack(file);
         setIdBackPreview(e.target.result);
       }
     };
     reader.readAsDataURL(file);
   };
+
+  // Cleanup object URLs on unmount
+  useEffect(() => {
+    return () => {
+      if (idFrontPreview && idFrontPreview.startsWith('blob:')) {
+        URL.revokeObjectURL(idFrontPreview);
+      }
+      if (idBackPreview && idBackPreview.startsWith('blob:')) {
+        URL.revokeObjectURL(idBackPreview);
+      }
+    };
+  }, [idFrontPreview, idBackPreview]);
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
@@ -112,9 +133,11 @@ export default function PortalInfo() {
       action: "Info Completed",
       description: "Homeowner submitted personal information and ID via portal",
       performed_by: "Homeowner",
+      is_client_visible: true,
     });
 
-    window.location.href = createPageUrl(`PortalNotary?token=${token}`);
+    toast.success("Information saved successfully!");
+    navigate(createPageUrl(`PortalNotary?token=${token}`));
   };
 
   if (isLoading) {
@@ -133,6 +156,7 @@ export default function PortalInfo() {
 
   // [ENHANCED - PortalInfo] - Dark theme applied
   return (
+    <PortalAuthGuard>
     <div className="min-h-screen bg-slate-900">
       {/* Header - Dark Theme */}
       <header className="bg-slate-900/80 backdrop-blur-xl border-b border-slate-800">
@@ -423,5 +447,6 @@ export default function PortalInfo() {
         </motion.div>
       </main>
     </div>
+    </PortalAuthGuard>
   );
 }

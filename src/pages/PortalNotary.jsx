@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
@@ -8,8 +8,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
+import PortalAuthGuard from "@/components/portal/PortalAuthGuard";
 
 export default function PortalNotary() {
+  const navigate = useNavigate();
   const urlParams = new URLSearchParams(window.location.search);
   const token = urlParams.get("token");
   const [caseData, setCaseData] = useState(null);
@@ -95,6 +97,13 @@ export default function PortalNotary() {
     });
   };
 
+  // Cleanup object URLs on unmount
+  useEffect(() => {
+    return () => {
+      notaryFiles.forEach(f => URL.revokeObjectURL(f.preview));
+    };
+  }, [notaryFiles]);
+
   const handleSubmitNotary = async () => {
     if (notaryFiles.length === 0) {
       toast.error('Please upload the notarized documents');
@@ -104,20 +113,27 @@ export default function PortalNotary() {
     setIsSubmitting(true);
 
     try {
-      // Upload all files
+      // Upload all files and create Document records
       const uploadedUrls = [];
-      for (const fileObj of notaryFiles) {
-        const { file_url } = await base44.integrations.Core.UploadFile({ file: fileObj.file });
+      for (let i = 0; i < notaryFiles.length; i++) {
+        const { file_url } = await base44.integrations.Core.UploadFile({ file: notaryFiles[i].file });
         uploadedUrls.push(file_url);
+        
+        // Create Document entity for each file
+        await base44.entities.Document.create({
+          case_id: caseData.id,
+          category: "notary_page",
+          file_url,
+          name: `Notarized Document ${i + 1}`,
+          uploaded_by: "homeowner",
+          is_primary: i === 0,
+        });
       }
-
-      // Create a merged document record
-      const mainUploadUrl = uploadedUrls[0]; // Primary upload
 
       await base44.entities.Case.update(caseData.id, {
         notary_type: "in_person",
         notary_packet_uploaded: true,
-        notary_packet_upload_url: mainUploadUrl,
+        notary_packet_upload_url: uploadedUrls[0],
         notary_verified: "pending",
         stage: "notary_completed",
       });
@@ -127,6 +143,7 @@ export default function PortalNotary() {
         action: "Notarization Packet Uploaded",
         description: `Homeowner uploaded ${notaryFiles.length} notarized document(s) via portal`,
         performed_by: "Homeowner",
+        is_client_visible: true,
         metadata: {
           file_count: notaryFiles.length,
           upload_urls: uploadedUrls
@@ -134,7 +151,7 @@ export default function PortalNotary() {
       });
 
       toast.success('Notarization packet submitted successfully!');
-      window.location.href = createPageUrl(`PortalComplete?token=${token}`);
+      navigate(createPageUrl(`PortalComplete?token=${token}`));
     } catch (error) {
       toast.error('Upload failed: ' + error.message);
       setIsSubmitting(false);
@@ -150,6 +167,7 @@ export default function PortalNotary() {
   }
 
   return (
+    <PortalAuthGuard>
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Header */}
       <header className="bg-white border-b">
@@ -425,5 +443,6 @@ export default function PortalNotary() {
         </motion.div>
       </main>
     </div>
+    </PortalAuthGuard>
   );
 }
