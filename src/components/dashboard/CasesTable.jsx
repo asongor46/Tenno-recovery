@@ -107,8 +107,12 @@ export default function CasesTable({ cases, isLoading, showTitle = true }) {
           <TableBody>
             {cases?.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={9} className="text-center py-8 text-slate-500">
-                  No cases found
+                <TableCell colSpan={9} className="py-8">
+                  <EmptyState
+                    icon={Eye}
+                    title="No cases yet"
+                    description="Cases will appear here once created"
+                  />
                 </TableCell>
               </TableRow>
             ) : (

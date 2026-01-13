@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
+import { toast } from "sonner";
+import LoadingState from "@/components/shared/LoadingState";
 
 const priorityColors = {
   low: "border-slate-200 bg-slate-50",
@@ -17,18 +19,24 @@ export default function TodoPanel({ todos, isLoading }) {
   const queryClient = useQueryClient();
 
   const handleComplete = async (todoId) => {
-    await base44.entities.Todo.update(todoId, {
-      is_completed: true,
-      completed_at: new Date().toISOString(),
-    });
-    queryClient.invalidateQueries({ queryKey: ["todos"] });
+    try {
+      await base44.entities.Todo.update(todoId, {
+        is_completed: true,
+        completed_at: new Date().toISOString(),
+      });
+      queryClient.invalidateQueries({ queryKey: ["todos"] });
+      toast.success("Task completed");
+    } catch (error) {
+      console.error("Error completing task:", error);
+      toast.error("Failed to complete task");
+    }
   };
 
   if (isLoading) {
     return (
       <div className="bg-white rounded-2xl border border-slate-100 p-6">
         <h2 className="text-lg font-semibold text-slate-900 mb-4">To-Do</h2>
-        <div className="text-center text-slate-500 py-4">Loading...</div>
+        <LoadingState message="Loading tasks..." />
       </div>
     );
   }

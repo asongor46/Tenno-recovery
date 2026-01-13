@@ -4,6 +4,8 @@ import { AlertTriangle, AlertCircle, Info, XCircle, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
 import { useQueryClient } from "@tanstack/react-query";
+import { createPageUrl } from "@/utils";
+import LoadingState from "@/components/shared/LoadingState";
 
 const severityConfig = {
   info: {
@@ -45,7 +47,7 @@ export default function AlertsPanel({ alerts, isLoading }) {
   const handleQuickAction = async (alert) => {
     // Navigate to case if case_id exists
     if (alert.case_id) {
-      window.location.href = `/case-detail?id=${alert.case_id}`;
+      window.location.href = createPageUrl(`CaseDetail?id=${alert.case_id}`);
     }
   };
 
@@ -53,7 +55,7 @@ export default function AlertsPanel({ alerts, isLoading }) {
     return (
       <div className="bg-white rounded-2xl border border-slate-100 p-6">
         <h2 className="text-lg font-semibold text-slate-900 mb-4">Alerts</h2>
-        <div className="text-center text-slate-500 py-4">Loading...</div>
+        <LoadingState message="Loading alerts..." />
       </div>
     );
   }
