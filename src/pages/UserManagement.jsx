@@ -299,10 +299,10 @@ export default function UserManagement() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {isLoading ? (
+                {filteredUsers.length === 0 && searchQuery ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center py-8">
-                      Loading...
+                    <TableCell colSpan={5} className="text-center py-8 text-slate-500">
+                      No users match your search
                     </TableCell>
                   </TableRow>
                 ) : filteredUsers.length === 0 ? (

@@ -29,6 +29,8 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { useStandardToast } from "@/components/shared/useStandardToast";
 import RoleGuard from "@/components/rbac/RoleGuard";
+import LoadingState from "@/components/shared/LoadingState";
+import EmptyState from "@/components/shared/EmptyState";
 
 export default function PaymentPipeline() {
   const [filter, setFilter] = useState("all");
@@ -81,9 +83,9 @@ export default function PaymentPipeline() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
-      </div>
+      <RoleGuard allowedRoles={["admin", "agent"]}>
+        <LoadingState message="Loading payment pipeline..." />
+      </RoleGuard>
     );
   }
 
@@ -202,9 +204,11 @@ export default function PaymentPipeline() {
         </CardHeader>
         <CardContent>
           {filteredCases.length === 0 ? (
-            <div className="text-center py-12 text-slate-500">
-              No cases match the selected filter
-            </div>
+            <EmptyState
+              icon={DollarSign}
+              title="No payment cases"
+              description="Cases will appear here once they're approved for payment"
+            />
           ) : (
             <div className="divide-y">
               {filteredCases.map((caseItem) => {

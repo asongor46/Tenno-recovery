@@ -163,8 +163,8 @@ export default function Counties() {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-8 text-slate-500">
-                    Loading counties...
+                  <TableCell colSpan={8} className="text-center py-8">
+                    <LoadingState message="Loading counties..." />
                   </TableCell>
                 </TableRow>
               ) : filteredCounties.length === 0 && searchQuery ? (

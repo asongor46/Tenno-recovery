@@ -57,7 +57,8 @@ export default function LandingPage() {
       } else if (profile.status === "pending") {
         window.location.href = createPageUrl("AgentPending");
       } else if (profile.status === "rejected") {
-        alert("Your application has been rejected. Please contact support for more information.");
+        // Silent redirect - Layout already handles rejection message
+        return;
       }
     } catch {
       // Not authenticated - trigger Base44 login, will check profile after

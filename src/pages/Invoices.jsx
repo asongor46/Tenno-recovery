@@ -258,7 +258,9 @@ export default function Invoices() {
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={9} className="text-center py-8">Loading...</TableCell>
+                <TableCell colSpan={9} className="text-center py-8">
+                  <LoadingState message="Loading invoices..." />
+                </TableCell>
               </TableRow>
             ) : filteredInvoices.length === 0 && searchQuery ? (
               <TableRow>

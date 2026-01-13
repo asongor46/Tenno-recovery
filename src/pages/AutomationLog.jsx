@@ -24,6 +24,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import RoleGuard from "@/components/rbac/RoleGuard";
+import LoadingState from "@/components/shared/LoadingState";
+import EmptyState from "@/components/shared/EmptyState";
 
 export default function AutomationLog() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -157,14 +159,13 @@ export default function AutomationLog() {
 
       {/* Activity Timeline */}
       {isLoading ? (
-        <div className="text-center py-12 text-slate-500">Loading activities...</div>
+        <LoadingState message="Loading activity log..." />
       ) : Object.keys(groupedActivities).length === 0 ? (
-        <Card>
-          <CardContent className="pt-6 text-center py-12">
-            <Activity className="w-12 h-12 mx-auto mb-3 text-slate-300" />
-            <p className="text-slate-500">No activity recorded yet</p>
-          </CardContent>
-        </Card>
+        <EmptyState
+          icon={Activity}
+          title="No activity recorded"
+          description="System events will appear here as they occur"
+        />
       ) : (
         <div className="space-y-6">
           {Object.entries(groupedActivities).map(([date, dayActivities]) => (

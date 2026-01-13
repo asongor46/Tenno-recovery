@@ -14,6 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import LoadingState from "@/components/shared/LoadingState";
 
 export default function Profile() {
   const { data: user, isLoading } = useQuery({
@@ -22,11 +23,7 @@ export default function Profile() {
   });
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
-      </div>
-    );
+    return <LoadingState message="Loading profile..." />;
   }
 
   return (

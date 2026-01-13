@@ -34,6 +34,8 @@ import CountyForm from "@/components/counties/CountyForm";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useStandardToast } from "@/components/shared/useStandardToast";
+import LoadingState from "@/components/shared/LoadingState";
+import EmptyState from "@/components/shared/EmptyState";
 
 const filingMethodColors = {
   mail: "bg-blue-100 text-blue-700",
@@ -96,23 +98,18 @@ export default function CountyDetail() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
-      </div>
-    );
+    return <LoadingState message="Loading county details..." />;
   }
 
   if (!county) {
     return (
-      <div className="text-center py-12">
-        <p className="text-slate-500">County not found</p>
-        <Link to={createPageUrl("Counties")}>
-          <Button variant="outline" className="mt-4">
-            <ArrowLeft className="w-4 h-4 mr-2" /> Back to Counties
-          </Button>
-        </Link>
-      </div>
+      <EmptyState
+        icon={Building2}
+        title="County not found"
+        description="The county you're looking for doesn't exist"
+        action={() => window.location.href = createPageUrl("Counties")}
+        actionLabel="Back to Counties"
+      />
     );
   }
 
