@@ -19,7 +19,6 @@ export default function PortalNotary() {
   const [isGeneratingPacket, setIsGeneratingPacket] = useState(false);
   const [selectedOption, setSelectedOption] = useState("in_person");
   const [packetInfo, setPacketInfo] = useState(null);
-  const [packetError, setPacketError] = useState("");
 
   useEffect(() => {
     async function loadCase() {
@@ -46,7 +45,6 @@ export default function PortalNotary() {
 
   const handleGeneratePacket = async () => {
     setIsGeneratingPacket(true);
-    setPacketError("");
     try {
       const { data } = await base44.functions.invoke("generateNotarizationPacket", {
         case_id: caseData.id
@@ -58,7 +56,6 @@ export default function PortalNotary() {
           document_count: data.document_count,
           generated_at: new Date().toISOString()
         });
-        setPacketError("");
         toast.success(`Notarization packet generated with ${data.document_count} documents`);
         
         // Refresh case data
@@ -67,18 +64,10 @@ export default function PortalNotary() {
           setCaseData(cases[0]);
         }
       } else {
-        const errorMsg = data.error || 'Failed to generate packet';
-        setPacketError(errorMsg);
-        if (data.missing_forms) {
-          toast.error("County forms are being prepared");
-        } else {
-          toast.error(errorMsg);
-        }
+        toast.error(data.error || 'Failed to generate packet');
       }
     } catch (error) {
-      const errorMsg = 'Error generating packet: ' + error.message;
-      setPacketError(errorMsg);
-      toast.error(errorMsg);
+      toast.error('Error generating packet: ' + error.message);
     } finally {
       setIsGeneratingPacket(false);
     }
@@ -257,23 +246,6 @@ export default function PortalNotary() {
                       </p>
                     </div>
 
-                    {packetError && (
-                      <div className="p-4 bg-red-50 border border-red-200 rounded-lg mb-3">
-                        <div className="flex items-start gap-2">
-                          <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
-                          <div>
-                            <p className="text-red-700 font-medium">Unable to Generate Packet</p>
-                            <p className="text-sm text-red-600 mt-1">{packetError}</p>
-                            {packetError.includes("No notarization forms") && (
-                              <p className="text-sm text-red-600 mt-2">
-                                We'll notify you when the forms are ready. This typically takes 1-2 business days.
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
                     {packetInfo ? (
                       <div className="space-y-3">
                         <div className="flex items-center justify-between p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
@@ -434,61 +406,17 @@ export default function PortalNotary() {
                     <div className="p-4 border rounded-xl">
                       <p className="font-medium">How it works:</p>
                       <ol className="mt-2 space-y-2 text-sm text-slate-600">
-                        <li>1. Choose an online notary service below</li>
+                        <li>1. Click the button below to connect with an online notary</li>
                         <li>2. Verify your identity via video call</li>
                         <li>3. Sign electronically in front of the notary</li>
-                        <li>4. Download your notarized documents</li>
-                        <li>5. Upload them using the "In-Person Notary" tab's upload section</li>
+                        <li>4. Receive your notarized document instantly</li>
                       </ol>
                     </div>
 
-                    <div className="space-y-3">
-                      <p className="font-medium text-sm text-slate-700">Choose an online notary service:</p>
-                      
-                      <Button 
-                        variant="outline" 
-                        className="w-full justify-between hover:bg-slate-50"
-                        onClick={() => window.open("https://www.notarize.com/", "_blank")}
-                      >
-                        <span className="flex items-center gap-2">
-                          <Globe className="w-4 h-4" />
-                          Notarize.com
-                        </span>
-                        <span className="text-sm text-slate-500">~$25</span>
-                      </Button>
-                      
-                      <Button 
-                        variant="outline" 
-                        className="w-full justify-between hover:bg-slate-50"
-                        onClick={() => window.open("https://www.signnow.com/", "_blank")}
-                      >
-                        <span className="flex items-center gap-2">
-                          <Globe className="w-4 h-4" />
-                          SignNow
-                        </span>
-                        <span className="text-sm text-slate-500">~$25</span>
-                      </Button>
-                      
-                      <Button 
-                        variant="outline" 
-                        className="w-full justify-between hover:bg-slate-50"
-                        onClick={() => window.open("https://www.onenotary.us/", "_blank")}
-                      >
-                        <span className="flex items-center gap-2">
-                          <Globe className="w-4 h-4" />
-                          OneNotary
-                        </span>
-                        <span className="text-sm text-slate-500">~$30</span>
-                      </Button>
-                    </div>
-
-                    <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm mt-4">
-                      <p className="font-medium text-blue-800">After completing online notarization:</p>
-                      <p className="text-blue-700 mt-1">
-                        Download your notarized documents and upload them using the "In-Person Notary" 
-                        tab's upload section above.
-                      </p>
-                    </div>
+                    <Button className="w-full" variant="outline">
+                      <Globe className="w-4 h-4 mr-2" />
+                      Connect to Online Notary Service
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
