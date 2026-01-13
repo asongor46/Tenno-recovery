@@ -254,7 +254,7 @@ export default function HowTo() {
                             className="text-red-500"
                             onClick={(e) => {
                               e.stopPropagation();
-                              if (window.confirm("Delete this article?")) {
+                              if (window.confirm(`Delete "${article.title}"? This cannot be undone.`)) {
                                 deleteMutation.mutate(article.id);
                               }
                             }}

@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Plus, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 export default function InvoiceForm({ invoice, onSuccess, onCancel }) {
   const [formData, setFormData] = useState({
@@ -101,7 +102,14 @@ export default function InvoiceForm({ invoice, onSuccess, onCancel }) {
 
       return invoiceId;
     },
-    onSuccess: onSuccess,
+    onSuccess: () => {
+      toast.success(invoice ? "Invoice updated successfully" : "Invoice created successfully");
+      onSuccess();
+    },
+    onError: (error) => {
+      console.error("Error saving invoice:", error);
+      toast.error("Failed to save invoice: " + error.message);
+    },
   });
 
   const addItem = () => {

@@ -569,8 +569,14 @@ export default function CaseDetail() {
                           className="text-red-500"
                           onClick={async () => {
                             if (window.confirm("Delete this document?")) {
-                              await base44.entities.Document.delete(doc.id);
-                              queryClient.invalidateQueries({ queryKey: ["documents", caseId] });
+                              try {
+                                await base44.entities.Document.delete(doc.id);
+                                queryClient.invalidateQueries({ queryKey: ["documents", caseId] });
+                                toast.success("Document deleted");
+                              } catch (error) {
+                                console.error("Error deleting document:", error);
+                                toast.error("Failed to delete document");
+                              }
                             }
                           }}
                         >

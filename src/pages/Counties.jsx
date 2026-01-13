@@ -252,7 +252,7 @@ export default function Counties() {
                             <DropdownMenuItem 
                               className="text-red-600"
                               onClick={() => {
-                                if (window.confirm("Delete this county?")) {
+                                if (window.confirm(`Delete ${county.name} County? This cannot be undone.`)) {
                                   deleteMutation.mutate(county.id);
                                 }
                               }}

@@ -311,7 +311,7 @@ export default function FormLibrary() {
                             variant="ghost"
                             size="icon"
                             onClick={() => {
-                              if (window.confirm("Delete this form?")) {
+                              if (window.confirm(`Delete "${form.form_name}"? This cannot be undone.`)) {
                                 deleteMutation.mutate(form.id);
                               }
                             }}
