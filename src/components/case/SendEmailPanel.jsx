@@ -33,13 +33,49 @@ export default function SendEmailPanel({ caseId, caseData }) {
 
   const generatePortal = useMutation({
     mutationFn: async () => {
-      await base44.functions.invoke('generatePortalLink', { case_id: caseId });
+      const { data } = await base44.functions.invoke('generatePortalInvite', { case_id: caseId });
+      return data;
     },
-    onSuccess: async () => {
-      if (selectedTemplateId) await fillMutation.mutateAsync(selectedTemplateId);
-      toast.success('Portal link generated');
+    onSuccess: async (data) => {
+      // Check if owner email is a base44 user
+      const isBase44User = await checkIfBase44User(data.owner_email);
+      
+      if (isBase44User) {
+        // Send via Base44 email system
+        try {
+          await base44.integrations.Core.SendEmail({
+            to: data.owner_email,
+            subject: data.email_subject,
+            body: data.email_body,
+            from_name: "TENNO Recovery"
+          });
+          toast.success('Portal invite sent via email!');
+          
+          // Update filled state with sent confirmation
+          setFilled({
+            subject: data.email_subject + " (Sent via Base44)",
+            body: data.email_body + "\n\n✅ Email sent successfully via Base44 system",
+            recipient: data.owner_email
+          });
+        } catch (emailError) {
+          toast.error('Failed to send email: ' + emailError.message);
+        }
+      } else {
+        // Open in default email client
+        if (selectedTemplateId) await fillMutation.mutateAsync(selectedTemplateId);
+        toast.success('Portal link generated - opening email client');
+      }
     }
   });
+
+  const checkIfBase44User = async (email) => {
+    try {
+      const users = await base44.entities.User.filter({ email });
+      return users.length > 0;
+    } catch (e) {
+      return false;
+    }
+  };
 
   const createFollowUp = useMutation({
     mutationFn: async () => {
