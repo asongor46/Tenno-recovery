@@ -8,9 +8,11 @@ import { Clock, Mail, LogOut, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { format } from "date-fns";
+import { toast } from "sonner";
 
 export default function AgentPending() {
   const navigate = useNavigate();
+  const [isChecking, setIsChecking] = React.useState(false);
   
   const { data: user } = useQuery({
     queryKey: ["currentUser"],
@@ -38,6 +40,19 @@ export default function AgentPending() {
     base44.auth.logout();
   };
 
+  const handleCheckStatus = async () => {
+    setIsChecking(true);
+    const result = await refetchProfile();
+    setIsChecking(false);
+    
+    if (result.data?.status === "approved") {
+      toast.success("You've been approved! Redirecting...");
+      setTimeout(() => window.location.reload(), 1000);
+    } else {
+      toast.info("Still pending review. We'll notify you when approved.");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-900">
       <header className="bg-slate-900/80 backdrop-blur-xl border-b border-slate-800">
@@ -50,10 +65,12 @@ export default function AgentPending() {
           <div className="flex gap-2">
             <Button 
               variant="ghost" 
-              onClick={() => refetchProfile()} 
+              onClick={handleCheckStatus} 
+              disabled={isChecking}
               className="text-slate-300"
             >
-              <RefreshCw className="w-4 h-4 mr-2" /> Check Status
+              <RefreshCw className={`w-4 h-4 mr-2 ${isChecking ? 'animate-spin' : ''}`} /> 
+              {isChecking ? 'Checking...' : 'Check Status'}
             </Button>
             <Button variant="ghost" onClick={handleLogout} className="text-slate-300">
               <LogOut className="w-4 h-4 mr-2" /> Logout
