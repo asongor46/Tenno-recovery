@@ -51,6 +51,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import RoleGuard from "@/components/rbac/RoleGuard";
 
 // MODIFIED: Expanded category labels to match entity enum
 const categoryLabels = {
@@ -234,6 +235,7 @@ export default function FileManager() {
   };
 
   return (
+    <RoleGuard allowedRoles={["admin", "agent"]}>
     <div className="space-y-6">
       {/* Header - MODIFIED: Added upload button */}
       <div className="flex items-center justify-between">
@@ -670,5 +672,6 @@ export default function FileManager() {
         </DialogContent>
       </Dialog>
     </div>
+    </RoleGuard>
   );
 }

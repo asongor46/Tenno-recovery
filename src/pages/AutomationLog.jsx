@@ -23,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import RoleGuard from "@/components/rbac/RoleGuard";
 
 export default function AutomationLog() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -76,6 +77,7 @@ export default function AutomationLog() {
   }, {});
 
   return (
+    <RoleGuard allowedRoles={["admin", "agent"]}>
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -215,5 +217,6 @@ export default function AutomationLog() {
         </div>
       )}
     </div>
+    </RoleGuard>
   );
 }

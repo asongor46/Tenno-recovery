@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import CustomStageEditor from "@/components/workflow/CustomStageEditor";
+import RoleGuard from "@/components/rbac/RoleGuard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -82,12 +83,16 @@ export default function Settings() {
           <TabsTrigger value="notifications" className="gap-2">
             <Bell className="w-4 h-4" /> Notifications
           </TabsTrigger>
-          <TabsTrigger value="workflow" className="gap-2">
-            <Workflow className="w-4 h-4" /> Workflow
-          </TabsTrigger>
-          <TabsTrigger value="company" className="gap-2">
-            <Building2 className="w-4 h-4" /> Company
-          </TabsTrigger>
+          {user?.role === "admin" && (
+            <TabsTrigger value="workflow" className="gap-2">
+              <Workflow className="w-4 h-4" /> Workflow
+            </TabsTrigger>
+          )}
+          {user?.role === "admin" && (
+            <TabsTrigger value="company" className="gap-2">
+              <Building2 className="w-4 h-4" /> Company
+            </TabsTrigger>
+          )}
         </TabsList>
 
         {/* Profile Tab */}
@@ -186,8 +191,9 @@ export default function Settings() {
           </Card>
         </TabsContent>
 
-        {/* Workflow Tab */}
+        {/* Workflow Tab - Admin Only */}
         <TabsContent value="workflow" className="mt-6">
+        <RoleGuard allowedRoles={["admin"]}>
           <Card>
             <CardHeader>
               <CardTitle>Custom Workflow Stages</CardTitle>
@@ -215,10 +221,12 @@ export default function Settings() {
               </Dialog>
             </CardContent>
           </Card>
+          </RoleGuard>
         </TabsContent>
 
-        {/* Company Tab */}
+        {/* Company Tab - Admin Only */}
         <TabsContent value="company" className="mt-6">
+        <RoleGuard allowedRoles={["admin"]}>
           <Card>
             <CardHeader>
               <CardTitle>Company Information</CardTitle>
@@ -256,6 +264,7 @@ export default function Settings() {
               </div>
             </CardContent>
           </Card>
+          </RoleGuard>
         </TabsContent>
       </Tabs>
     </div>

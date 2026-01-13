@@ -133,6 +133,32 @@ export default function PortalAgreement() {
     );
   }
 
+  // Prevent re-signing if already signed
+  if (caseData?.agreement_status === 'signed') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center max-w-md"
+        >
+          <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Check className="w-8 h-8 text-emerald-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-slate-900 mb-2">Agreement Already Signed</h2>
+          <p className="text-slate-600 mb-6">
+            This agreement was signed on {caseData.agreement_signed_at && new Date(caseData.agreement_signed_at).toLocaleDateString()}
+          </p>
+          <Link to={createPageUrl(`PortalInfo?token=${token}`)}>
+            <Button className="bg-emerald-600 hover:bg-emerald-700">
+              Continue to Next Step
+            </Button>
+          </Link>
+        </motion.div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Header */}

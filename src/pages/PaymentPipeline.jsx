@@ -28,6 +28,7 @@ import { format } from "date-fns";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { useStandardToast } from "@/components/shared/useStandardToast";
+import RoleGuard from "@/components/rbac/RoleGuard";
 
 export default function PaymentPipeline() {
   const [filter, setFilter] = useState("all");
@@ -87,6 +88,7 @@ export default function PaymentPipeline() {
   }
 
   return (
+    <RoleGuard allowedRoles={["admin", "agent"]}>
     <div className="space-y-6">
       {/* Header */}
       <div>
@@ -323,5 +325,6 @@ export default function PaymentPipeline() {
         </Card>
       )}
     </div>
+    </RoleGuard>
   );
 }

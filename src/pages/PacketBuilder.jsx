@@ -31,6 +31,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Checkbox } from "@/components/ui/checkbox";
 import BulkPacketGenerator from "@/components/packet/BulkPacketGenerator";
 
+import RoleGuard from "@/components/rbac/RoleGuard";
+
 export default function PacketBuilder() {
   const [selectedCaseId, setSelectedCaseId] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -90,6 +92,7 @@ export default function PacketBuilder() {
   };
 
   return (
+    <RoleGuard allowedRoles={["admin", "agent"]}>
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -325,5 +328,6 @@ export default function PacketBuilder() {
         </DialogContent>
       </Dialog>
     </div>
+    </RoleGuard>
   );
 }

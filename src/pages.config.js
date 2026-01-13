@@ -31,7 +31,6 @@ import PortalIntake from './pages/PortalIntake';
 import PortalLogin from './pages/PortalLogin';
 import PortalLostLink from './pages/PortalLostLink';
 import PortalNotary from './pages/PortalNotary';
-import PortalRegister from './pages/PortalRegister';
 import PortalWelcome from './pages/PortalWelcome';
 import Profile from './pages/Profile';
 import Reminders from './pages/Reminders';
@@ -75,7 +74,6 @@ export const PAGES = {
     "PortalLogin": PortalLogin,
     "PortalLostLink": PortalLostLink,
     "PortalNotary": PortalNotary,
-    "PortalRegister": PortalRegister,
     "PortalWelcome": PortalWelcome,
     "Profile": Profile,
     "Reminders": Reminders,

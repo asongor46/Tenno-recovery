@@ -42,6 +42,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import TemplateForm from "@/components/templates/TemplateForm";
+import RoleGuard from "@/components/rbac/RoleGuard";
 
 const categoryConfig = {
   phone_script: { label: "Phone Scripts", icon: Phone, color: "bg-blue-500" },
@@ -101,6 +102,7 @@ export default function Templates() {
   ];
 
   return (
+    <RoleGuard allowedRoles={["admin", "agent"]}>
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -347,5 +349,6 @@ export default function Templates() {
         </DialogContent>
       </Dialog>
     </div>
+    </RoleGuard>
   );
 }
