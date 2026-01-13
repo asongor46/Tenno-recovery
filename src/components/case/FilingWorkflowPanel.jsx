@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
+import { toast } from "sonner";
 
 /**
  * Filing Workflow Panel - Manage filing, waiting period, and court decisions
@@ -71,7 +72,11 @@ export default function FilingWorkflowPanel({ caseId, caseData }) {
       queryClient.invalidateQueries({ queryKey: ["activities", caseId] });
       queryClient.invalidateQueries({ queryKey: ["todos", caseId] });
       setShowFilingDialog(false);
-      alert("Case filed successfully!");
+      toast.success("Case filed successfully!");
+    },
+    onError: (error) => {
+      console.error("Error filing case:", error);
+      toast.error("Failed to file case: " + error.message);
     },
   });
 
@@ -90,7 +95,11 @@ export default function FilingWorkflowPanel({ caseId, caseData }) {
       queryClient.invalidateQueries({ queryKey: ["activities", caseId] });
       queryClient.invalidateQueries({ queryKey: ["todos", caseId] });
       setShowDecisionDialog(false);
-      alert("Decision recorded successfully!");
+      toast.success("Decision recorded successfully!");
+    },
+    onError: (error) => {
+      console.error("Error recording decision:", error);
+      toast.error("Failed to record decision: " + error.message);
     },
   });
 
@@ -108,7 +117,11 @@ export default function FilingWorkflowPanel({ caseId, caseData }) {
       queryClient.invalidateQueries({ queryKey: ["activities", caseId] });
       queryClient.invalidateQueries({ queryKey: ["todos", caseId] });
       setShowPaymentDialog(false);
-      alert("Payment recorded successfully!");
+      toast.success("Payment recorded successfully!");
+    },
+    onError: (error) => {
+      console.error("Error recording payment:", error);
+      toast.error("Failed to record payment: " + error.message);
     },
   });
 
