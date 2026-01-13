@@ -18,6 +18,8 @@ import {
   User,
 } from "lucide-react";
 import { format } from "date-fns";
+import LoadingState from "@/components/shared/LoadingState";
+import EmptyState from "@/components/shared/EmptyState";
 
 export default function CommunicationsHub() {
   const [activeTab, setActiveTab] = useState("all");
@@ -159,10 +161,11 @@ export default function CommunicationsHub() {
 
         <TabsContent value="all" className="space-y-3 mt-6">
           {allCommunications.length === 0 ? (
-            <div className="text-center py-12 text-slate-500">
-              <MessageSquare className="w-12 h-12 mx-auto mb-3 text-slate-300" />
-              <p>No communications found</p>
-            </div>
+            <EmptyState
+              icon={MessageSquare}
+              title="No communications yet"
+              description="Communications will appear here as you contact clients"
+            />
           ) : (
             allCommunications.map((item) => (
               <Card key={item.id}>
@@ -202,7 +205,14 @@ export default function CommunicationsHub() {
         </TabsContent>
 
         <TabsContent value="attempts" className="space-y-3 mt-6">
-          {filteredAttempts.map((attempt) => (
+          {filteredAttempts.length === 0 ? (
+            <EmptyState
+              icon={Phone}
+              title="No contact attempts"
+              description="Contact attempts will appear here"
+            />
+          ) : (
+          filteredAttempts.map((attempt) => (
             <Card key={attempt.id}>
               <CardContent className="pt-6">
                 <div className="flex items-start gap-4">
@@ -224,11 +234,19 @@ export default function CommunicationsHub() {
                 </div>
               </CardContent>
             </Card>
-          ))}
+          ))
+          )}
         </TabsContent>
 
         <TabsContent value="messages" className="space-y-3 mt-6">
-          {filteredMessages.map((message) => (
+          {filteredMessages.length === 0 ? (
+            <EmptyState
+              icon={MessageSquare}
+              title="No portal messages"
+              description="Messages from clients will appear here"
+            />
+          ) : (
+          filteredMessages.map((message) => (
             <Card key={message.id} className={!message.is_read ? "border-blue-200 bg-blue-50" : ""}>
               <CardContent className="pt-6">
                 <div className="flex items-start gap-4">
@@ -252,7 +270,8 @@ export default function CommunicationsHub() {
                 </div>
               </CardContent>
             </Card>
-          ))}
+          ))
+          )}
         </TabsContent>
       </Tabs>
     </div>
