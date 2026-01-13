@@ -201,6 +201,27 @@ export default function PortalAgreement() {
           <h1 className="text-2xl font-bold text-slate-900 mb-2">Service Agreement</h1>
           <p className="text-slate-500 mb-6">Please review and sign the agreement below</p>
 
+          {/* Digital Signature Notice */}
+          <Card className="mb-6 bg-blue-50 border-blue-200">
+            <CardContent className="pt-6">
+              <div className="flex items-start gap-3">
+                <FileText className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                <div>
+                  <h3 className="font-semibold text-blue-900 mb-1">Digital Signature - No Notary Needed</h3>
+                  <p className="text-sm text-blue-700">
+                    This is a private service agreement between you and TENNO Recovery. Your digital 
+                    signature below is legally binding under the E-SIGN Act - just like accepting terms 
+                    of service online. <strong>Notarization is NOT required for this agreement.</strong>
+                  </p>
+                  <p className="text-sm text-blue-700 mt-2">
+                    <em>Note: The county claim forms will require notarization, but we'll guide you through 
+                    that simple process later.</em>
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Agreement Content */}
           <Card className="mb-6">
             <CardContent className="pt-6">
@@ -280,7 +301,8 @@ export default function PortalAgreement() {
                 />
                 <Label htmlFor="hasRead" className="text-sm text-slate-700 leading-relaxed cursor-pointer">
                   I have read and understand the Service Agreement above. I agree to the terms and conditions 
-                  outlined, including the contingency fee structure.
+                  outlined, including the contingency fee structure. I understand that my digital signature 
+                  is legally binding and no notarization is required for this agreement.
                 </Label>
               </div>
             </CardContent>
@@ -371,10 +393,16 @@ export default function PortalAgreement() {
               onClick={handleSubmit}
               className="bg-emerald-600 hover:bg-emerald-700 px-6 sm:px-8 w-full sm:w-auto"
             >
-              {isSubmitting ? "Signing..." : "Sign Agreement"}
+              {isSubmitting ? "Signing..." : "Sign Agreement & Continue"}
               <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />
             </Button>
           </div>
+
+          {/* Legal Notice */}
+          <p className="text-xs text-center text-slate-400 mt-6">
+            By clicking "Sign Agreement & Continue", you are providing your electronic signature, 
+            which is legally binding under the Electronic Signatures in Global and National Commerce Act (E-SIGN Act).
+          </p>
         </motion.div>
       </main>
     </div>
