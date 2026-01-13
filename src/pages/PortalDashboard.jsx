@@ -38,18 +38,19 @@ function PortalDashboardContent() {
   });
 
   const { data: activities = [] } = useQuery({
-    queryKey: ["portalActivities", userEmail],
+    queryKey: ["portalActivities", cases.map(c => c.id).join(',')],
     queryFn: async () => {
-      if (!userEmail || cases.length === 0) return [];
+      if (!cases || cases.length === 0) return [];
+      // Fetch all activity logs and filter client-visible ones in memory
+      const allActivities = await base44.entities.ActivityLog.list("-created_date", 50);
       const caseIds = cases.map(c => c.id);
-      const allActivities = await Promise.all(
-        caseIds.map(id => base44.entities.ActivityLog.filter({ case_id: id }, "-created_date", 5))
-      );
-      return allActivities.flat().sort((a, b) => 
-        new Date(b.created_date) - new Date(a.created_date)
-      ).slice(0, 10);
+      return allActivities
+        .filter(a => caseIds.includes(a.case_id) && a.is_client_visible)
+        .slice(0, 10);
     },
-    enabled: !!userEmail && cases.length > 0,
+    enabled: cases.length > 0,
+    staleTime: 60000,
+    refetchOnWindowFocus: false,
   });
 
   const handleLogout = () => {
