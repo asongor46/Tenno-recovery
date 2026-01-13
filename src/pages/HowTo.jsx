@@ -36,6 +36,9 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import HowToForm from "@/components/howto/HowToForm";
+import { toast } from "sonner";
+import LoadingState from "@/components/shared/LoadingState";
+import EmptyState from "@/components/shared/EmptyState";
 
 const categoryConfig = {
   surplus_basics: { label: "Surplus Basics", icon: GraduationCap, color: "bg-blue-500" },
@@ -62,7 +65,11 @@ export default function HowTo() {
 
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.HowTo.delete(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["howto"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["howto"] });
+      toast.success("Article deleted successfully");
+    },
+    onError: () => toast.error("Failed to delete article"),
   });
 
   const filteredArticles = articles.filter(a => {
@@ -182,20 +189,15 @@ export default function HowTo() {
 
       {/* Content */}
       {isLoading ? (
-        <div className="text-center py-12 text-slate-500">Loading articles...</div>
+        <LoadingState message="Loading articles..." />
       ) : Object.keys(groupedArticles).length === 0 ? (
-        <div className="text-center py-12">
-          <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <BookOpen className="w-8 h-8 text-slate-400" />
-          </div>
-          <p className="text-slate-500">No articles found</p>
-          <Button 
-            className="mt-4"
-            onClick={() => setShowNewDialog(true)}
-          >
-            <Plus className="w-4 h-4 mr-2" /> Create First Article
-          </Button>
-        </div>
+        <EmptyState
+          icon={BookOpen}
+          title="No articles found"
+          description="Get started by creating your first how-to article"
+          action={() => setShowNewDialog(true)}
+          actionLabel="Create First Article"
+        />
       ) : (
         <div className="space-y-8">
           {Object.entries(groupedArticles).map(([category, categoryArticles]) => {

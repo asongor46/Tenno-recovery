@@ -63,6 +63,8 @@ import AdvancedCaseBuilder from "@/components/cases/AdvancedCaseBuilder"; // ADD
 import AdvancedSearchPanel from "@/components/cases/AdvancedSearchPanel";
 import BulkActionsToolbar from "@/components/cases/BulkActionsToolbar";
 import { useStandardToast } from "@/components/shared/useStandardToast";
+import LoadingState from "@/components/shared/LoadingState";
+import EmptyState from "@/components/shared/EmptyState";
 
 // PHASE 4+ ENHANCEMENTS: Dashboard components
 import CasesKPICards from "@/components/dashboard/CasesKPICards";

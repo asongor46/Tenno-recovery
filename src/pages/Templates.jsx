@@ -43,6 +43,9 @@ import {
 } from "@/components/ui/dialog";
 import TemplateForm from "@/components/templates/TemplateForm";
 import RoleGuard from "@/components/rbac/RoleGuard";
+import { toast } from "sonner";
+import LoadingState from "@/components/shared/LoadingState";
+import EmptyState from "@/components/shared/EmptyState";
 
 const categoryConfig = {
   phone_script: { label: "Phone Scripts", icon: Phone, color: "bg-blue-500" },
@@ -75,7 +78,11 @@ export default function Templates() {
 
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.Template.delete(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["templates"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["templates"] });
+      toast.success("Template deleted successfully");
+    },
+    onError: () => toast.error("Failed to delete template"),
   });
 
   const filteredTemplates = templates.filter(t => {
@@ -86,6 +93,7 @@ export default function Templates() {
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
+    toast.success("Copied to clipboard");
   };
 
   const mergeTags = [
@@ -178,20 +186,15 @@ export default function Templates() {
         {/* Content */}
         <TabsContent value={activeCategory} className="mt-6">
           {isLoading ? (
-            <div className="text-center py-12 text-slate-500">Loading templates...</div>
+            <LoadingState message="Loading templates..." />
           ) : filteredTemplates.length === 0 ? (
-            <div className="text-center py-12">
-              <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <FileText className="w-8 h-8 text-slate-400" />
-              </div>
-              <p className="text-slate-500">No templates in this category</p>
-              <Button 
-                className="mt-4"
-                onClick={() => setShowNewDialog(true)}
-              >
-                <Plus className="w-4 h-4 mr-2" /> Create First Template
-              </Button>
-            </div>
+            <EmptyState
+              icon={FileText}
+              title="No templates in this category"
+              description="Create your first template to get started"
+              action={() => setShowNewDialog(true)}
+              actionLabel="Create First Template"
+            />
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredTemplates.map((template) => {

@@ -42,8 +42,9 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import CountyForm from "@/components/counties/CountyForm";
-// ADDED: Import for uploading county packets
-import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+import LoadingState from "@/components/shared/LoadingState";
+import EmptyState from "@/components/shared/EmptyState";
 
 const filingMethodColors = {
   mail: "bg-blue-100 text-blue-700",
@@ -71,13 +72,21 @@ export default function Counties() {
 
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.County.delete(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["counties"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["counties"] });
+      toast.success("County deleted successfully");
+    },
+    onError: () => toast.error("Failed to delete county"),
   });
 
   const filteredCounties = counties.filter(c =>
     c.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     c.state?.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  if (isLoading) {
+    return <LoadingState message="Loading counties..." />;
+  }
 
   return (
     <div className="space-y-6">

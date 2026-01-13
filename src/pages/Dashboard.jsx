@@ -18,7 +18,8 @@ import TodoPanel from "@/components/dashboard/TodoPanel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import LoadingState from "@/components/shared/LoadingState";
 
 export default function Dashboard() {
   const { data: cases = [], isLoading: casesLoading } = useQuery({
@@ -282,6 +283,10 @@ export default function Dashboard() {
     );
   }
 
+  if (casesLoading) {
+    return <LoadingState message="Loading dashboard..." />;
+  }
+
   return (
     <div className="space-y-6 sm:space-y-8">
       {/* Header */}
@@ -304,7 +309,7 @@ export default function Dashboard() {
           title="Hot Cases"
           value={hotCases}
           icon={Flame}
-          href="HotCases"
+          href="Cases"
           color="orange"
           delay={0.05}
         />

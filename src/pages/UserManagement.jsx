@@ -41,6 +41,7 @@ import RoleGuard from "@/components/rbac/RoleGuard";
 import PermissionBadge from "@/components/rbac/PermissionBadge";
 import { useStandardToast } from "@/components/shared/useStandardToast";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
+import LoadingState from "@/components/shared/LoadingState";
 
 export default function UserManagement() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -132,6 +133,14 @@ export default function UserManagement() {
 
   const adminCount = users.filter(u => u.role === "admin").length;
   const userCount = users.filter(u => u.role === "user").length;
+
+  if (isLoading) {
+    return (
+      <RoleGuard allowedRoles={["admin"]}>
+        <LoadingState message="Loading users..." />
+      </RoleGuard>
+    );
+  }
 
   return (
     <RoleGuard allowedRoles={["admin"]}>
