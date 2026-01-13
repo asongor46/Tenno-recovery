@@ -57,7 +57,7 @@ const navigation = [
     icon: Briefcase,
     subtitle: "All imported, scanned, and manually entered cases"
   },
-  { name: "Hot Cases", href: "HotCases", icon: Flame },
+
   { name: "Reminders", href: "Reminders", icon: Bell },
   { name: "Communications", href: "Communications", icon: Inbox },
   { name: "Payment Pipeline", href: "PaymentPipeline", icon: DollarSign }, // [NEW - Tier 3]
@@ -67,13 +67,13 @@ const navigation = [
     name: "Templates",
     icon: FileText,
     children: [
-      { name: "Agreements", href: "AgreementTemplates", icon: FileText },
       { name: "Phone Scripts", href: "Templates?category=phone_script", icon: Phone },
       { name: "SMS", href: "Templates?category=sms", icon: MessageSquare },
       { name: "Emails", href: "Templates?category=email", icon: Mail },
       { name: "Rebuttals", href: "Templates?category=rebuttal", icon: MessageCircle },
       { name: "Documents", href: "Templates?category=document", icon: FileCode },
-    ],
+      { name: "Agreements", href: "Templates?category=agreement", icon: FileText },
+      ],
   },
   { name: "How-To", href: "HowTo", icon: BookOpen },
   {

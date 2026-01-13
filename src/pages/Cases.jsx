@@ -110,6 +110,7 @@ export default function Cases() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [stageFilter, setStageFilter] = useState("all");
+  const [hotFilter, setHotFilter] = useState(false);
   const [selectedCases, setSelectedCases] = useState([]);
   const [showNewCaseDialog, setShowNewCaseDialog] = useState(false);
   const [importMethod, setImportMethod] = useState(null); // ADDED: "manual" | "pdf" | "url"
@@ -168,6 +169,7 @@ export default function Cases() {
     
     const matchesStatus = statusFilter === "all" || c.status === statusFilter;
     const matchesStage = stageFilter === "all" || c.stage === stageFilter;
+    const matchesHot = !hotFilter || (c.surplus_amount >= 30000 || c.is_hot);
 
     // Advanced filters
     if (advancedFilters) {
@@ -188,7 +190,7 @@ export default function Cases() {
       return true;
     }
 
-    return matchesSearch && matchesStatus && matchesStage;
+    return matchesSearch && matchesStatus && matchesStage && matchesHot;
   });
 
   // Pagination
@@ -458,7 +460,14 @@ export default function Cases() {
               ))}
             </SelectContent>
           </Select>
-          {/* ADDED: Additional filter for county (optional enhancement) */}
+          <Button
+            variant={hotFilter ? "default" : "outline"}
+            onClick={() => setHotFilter(!hotFilter)}
+            className={hotFilter ? "bg-orange-500 hover:bg-orange-600" : ""}
+          >
+            <Flame className="w-4 h-4 mr-2" />
+            Hot Cases
+          </Button>
         </div>
 
         {/* Bulk Actions */}
