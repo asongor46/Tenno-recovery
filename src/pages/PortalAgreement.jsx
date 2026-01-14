@@ -172,7 +172,7 @@ export default function PortalAgreement() {
             <div className="flex justify-center w-full sm:w-auto">
               <img 
                 src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6935380f41db07237f45b1db/11ed7b05d_Screenshot_20251213_181447_Chrome.jpg" 
-                alt="TENNO RECOVERY" 
+                alt="Tenno Recovery" 
                 className="h-10 w-auto"
               />
             </div>
@@ -207,11 +207,9 @@ export default function PortalAgreement() {
               <div className="flex items-start gap-3">
                 <FileText className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
                 <div>
-                  <h3 className="font-semibold text-blue-900 mb-1">Digital Signature - No Notary Needed</h3>
                   <p className="text-sm text-blue-700">
-                    This is a private service agreement between you and TENNO Recovery. Your digital 
-                    signature below is legally binding under the E-SIGN Act - just like accepting terms 
-                    of service online. <strong>Notarization is NOT required for this agreement.</strong>
+                    This is a private service agreement between you and Tenno Recovery. Your digital 
+                    signature below is legally binding under the E-SIGN Act.
                   </p>
                   <p className="text-sm text-blue-700 mt-2">
                     <em>Note: The county claim forms will require notarization, but we'll guide you through 
@@ -243,7 +241,7 @@ export default function PortalAgreement() {
                 <h2 className="font-bold text-lg mb-4">SURPLUS RECOVERY SERVICE AGREEMENT</h2>
                 
                 <p className="mb-4">
-                  This Agreement is entered into by and between TENNO RECOVERY ("Company") and the property owner 
+                  This Agreement is entered into by and between Tenno Recovery ("Company") and the property owner 
                   identified below ("Client") regarding surplus funds recovery services.
                 </p>
 
@@ -257,7 +255,7 @@ export default function PortalAgreement() {
 
                 <h3 className="font-semibold mt-6 mb-2">2. COMPENSATION</h3>
                 <p className="mb-4">
-                  Client agrees to pay Company a contingency fee within the agreement of any surplus funds recovered. This fee is due and payable only upon successful recovery of surplus funds. If no funds are recovered, Client owes nothing.
+                  Client agrees to pay Company a contingency fee of <strong>{caseData?.fee_percent || 20}%</strong> of any surplus funds recovered. This fee is due and payable only upon successful recovery of surplus funds. If no funds are recovered, Client owes nothing.
                 </p>
 
                 <h3 className="font-semibold mt-6 mb-2">3. CLIENT RESPONSIBILITIES</h3>
@@ -302,7 +300,7 @@ export default function PortalAgreement() {
                 <Label htmlFor="hasRead" className="text-sm text-slate-700 leading-relaxed cursor-pointer">
                   I have read and understand the Service Agreement above. I agree to the terms and conditions 
                   outlined, including the contingency fee structure. I understand that my digital signature 
-                  is legally binding and no notarization is required for this agreement.
+                  is legally binding.
                 </Label>
               </div>
             </CardContent>
