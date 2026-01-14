@@ -81,12 +81,45 @@ Deno.serve(async (req) => {
       console.log('Activity log failed:', e.message);
     }
 
+    // Check if user is registered in Base44
+    const existingUsers = await base44.asServiceRole.entities.User.filter({ email: caseData.owner_email });
+    const userExists = existingUsers.length > 0;
+
+    // Generate email content
+    const { data: emailData } = await base44.functions.invoke('fillEmailTemplate', {
+      case_id,
+      template_id: 'portal_invitation',
+      portal_link: portalUrl,
+      access_code: accessCode
+    });
+
+    // If user doesn't exist, return mailto link
+    if (!userExists) {
+      console.log(`[generatePortalInvite] User not in Base44, returning mailto link`);
+      return Response.json({
+        success: true,
+        user_exists: false,
+        access_code: accessCode,
+        portal_link: portalUrl,
+        portal_url: portalUrl,
+        owner_email: caseData.owner_email,
+        owner_name: caseData.owner_name,
+        mailto_link: emailData.mailto_link,
+        outlook_link: emailData.outlook_link
+      });
+    }
+
+    // User exists in Base44, can send via platform
     return Response.json({
       success: true,
+      user_exists: true,
       access_code: accessCode,
       portal_link: portalUrl,
+      portal_url: portalUrl,
       owner_email: caseData.owner_email,
-      owner_name: caseData.owner_name
+      owner_name: caseData.owner_name,
+      mailto_link: emailData.mailto_link,
+      outlook_link: emailData.outlook_link
     });
 
   } catch (error) {

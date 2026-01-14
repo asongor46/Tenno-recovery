@@ -10,6 +10,7 @@ import Counties from './pages/Counties';
 import CountyDetail from './pages/CountyDetail';
 import Dashboard from './pages/Dashboard';
 import FileManager from './pages/FileManager';
+import FormLibrary from './pages/FormLibrary';
 import HowItWorks from './pages/HowItWorks';
 import HowTo from './pages/HowTo';
 import Invoices from './pages/Invoices';
@@ -31,7 +32,6 @@ import Reminders from './pages/Reminders';
 import Settings from './pages/Settings';
 import Templates from './pages/Templates';
 import UserManagement from './pages/UserManagement';
-import FormLibrary from './pages/FormLibrary';
 import __Layout from './Layout.jsx';
 
 
@@ -48,6 +48,7 @@ export const PAGES = {
     "CountyDetail": CountyDetail,
     "Dashboard": Dashboard,
     "FileManager": FileManager,
+    "FormLibrary": FormLibrary,
     "HowItWorks": HowItWorks,
     "HowTo": HowTo,
     "Invoices": Invoices,
@@ -69,7 +70,6 @@ export const PAGES = {
     "Settings": Settings,
     "Templates": Templates,
     "UserManagement": UserManagement,
-    "FormLibrary": FormLibrary,
 }
 
 export const pagesConfig = {

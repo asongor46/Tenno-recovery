@@ -315,11 +315,17 @@ export default function CaseDetail() {
                 const { data } = await base44.functions.invoke("generatePortalInvite", {
                   case_id: caseId
                 });
-                if (data.mailto_link) {
-                  window.location.href = data.mailto_link;
-                  queryClient.invalidateQueries({ queryKey: ["case", caseId] });
-                  queryClient.invalidateQueries({ queryKey: ["activities", caseId] });
-                  toast.success("Opening email client...");
+                if (data.success) {
+                  if (data.user_exists) {
+                    // User is registered, can send via Base44
+                    toast.success("Portal invite ready - user can be contacted via platform");
+                  }
+                  // Always open mailto as fallback/option
+                  if (data.mailto_link) {
+                    window.location.href = data.mailto_link;
+                    queryClient.invalidateQueries({ queryKey: ["case", caseId] });
+                    queryClient.invalidateQueries({ queryKey: ["activities", caseId] });
+                  }
                 } else {
                   toast.error("Failed to generate invite");
                 }
@@ -619,7 +625,7 @@ export default function CaseDetail() {
                     const { data } = await base44.functions.invoke("generatePortalInvite", {
                       case_id: caseId
                     });
-                    if (data.mailto_link) {
+                    if (data.success && data.mailto_link) {
                       window.location.href = data.mailto_link;
                       queryClient.invalidateQueries({ queryKey: ["case", caseId] });
                       toast.success("Opening email client...");
@@ -693,7 +699,7 @@ export default function CaseDetail() {
                             const { data } = await base44.functions.invoke("generatePortalInvite", {
                               case_id: caseId
                             });
-                            if (data.mailto_link) {
+                            if (data.success && data.mailto_link) {
                               window.location.href = data.mailto_link;
                               queryClient.invalidateQueries({ queryKey: ["case", caseId] });
                               toast.success("New code generated, opening email...");
