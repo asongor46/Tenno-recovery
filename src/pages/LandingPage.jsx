@@ -14,70 +14,70 @@ import {
   Map,
   FileText,
   Users,
-  Package,
-} from "lucide-react";
+  Package } from
+"lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+  AccordionTrigger } from
+"@/components/ui/accordion";
 import { base44 } from "@/api/base44Client";
 import FeatureSlideshow from "@/components/landing/FeatureSlideshow";
 
 const LOGO = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6935380f41db07237f45b1db/11ed7b05d_Screenshot_20251213_181447_Chrome.jpg";
 
 const features = [
-  { icon: FileText, title: "CRM + Pipeline", description: "Manage every case from import to payment in a structured visual pipeline." },
-  { icon: Map, title: "State Compliance Engine", description: "Fee caps, registration rules, waiting periods — all 50 states + DC built in." },
-  { icon: Users, title: "Homeowner Portal", description: "Homeowners sign, upload IDs, and complete notary through a self-serve portal." },
-  { icon: Package, title: "Packet Builder", description: "Generate county-specific filing packets with one click." },
-  { icon: Zap, title: "Lead Import Tools", description: "Import from county PDFs, screenshots, manual entry, or CSV." },
-  { icon: Shield, title: "Secure by Default", description: "Row-level security — each agent sees only their own cases and homeowners." },
-];
+{ icon: FileText, title: "CRM + Pipeline", description: "Manage every case from import to payment in a structured visual pipeline." },
+{ icon: Map, title: "State Compliance Engine", description: "Fee caps, registration rules, waiting periods — all 50 states + DC built in." },
+{ icon: Users, title: "Homeowner Portal", description: "Homeowners sign, upload IDs, and complete notary through a self-serve portal." },
+{ icon: Package, title: "Packet Builder", description: "Generate county-specific filing packets with one click." },
+{ icon: Zap, title: "Lead Import Tools", description: "Import from county PDFs, screenshots, manual entry, or CSV." },
+{ icon: Shield, title: "Secure by Default", description: "Row-level security — each agent sees only their own cases and homeowners." }];
+
 
 const comparisonRows = [
-  { feature: "CRM + Pipeline", tenno: true, excessElite: true, surplusSystems: true, spreadsheet: false },
-  { feature: "Lead Import Tools", tenno: true, excessElite: true, surplusSystems: true, spreadsheet: false },
-  { feature: "Skip Tracing", tenno: "Links to free tools", excessElite: "Included", surplusSystems: "Included", spreadsheet: false },
-  { feature: "Homeowner Portal", tenno: true, excessElite: false, surplusSystems: false, spreadsheet: false },
-  { feature: "State Compliance Engine", tenno: true, excessElite: false, surplusSystems: false, spreadsheet: false },
-  { feature: "Packet Builder", tenno: true, excessElite: false, surplusSystems: "Partial", spreadsheet: false },
-  { feature: "Power Dialer", tenno: false, excessElite: true, surplusSystems: true, spreadsheet: false },
-  { feature: "Monthly Price", tenno: "$50", excessElite: "$200–400+", surplusSystems: "$197–497", spreadsheet: "Free" },
-];
+{ feature: "CRM + Pipeline", tenno: true, excessElite: true, surplusSystems: true, spreadsheet: false },
+{ feature: "Lead Import Tools", tenno: true, excessElite: true, surplusSystems: true, spreadsheet: false },
+{ feature: "Skip Tracing", tenno: "Links to free tools", excessElite: "Included", surplusSystems: "Included", spreadsheet: false },
+{ feature: "Homeowner Portal", tenno: true, excessElite: false, surplusSystems: false, spreadsheet: false },
+{ feature: "State Compliance Engine", tenno: true, excessElite: false, surplusSystems: false, spreadsheet: false },
+{ feature: "Packet Builder", tenno: true, excessElite: false, surplusSystems: "Partial", spreadsheet: false },
+{ feature: "Power Dialer", tenno: false, excessElite: true, surplusSystems: true, spreadsheet: false },
+{ feature: "Monthly Price", tenno: "$50", excessElite: "$200–400+", surplusSystems: "$197–497", spreadsheet: "Free" }];
+
 
 const faqs = [
-  {
-    question: "Can I try before I subscribe?",
-    answer: "Watch our platform walkthrough above — every feature is shown. Subscribe and cancel within 7 days for a full refund. No questions asked.",
-  },
-  {
-    question: "Is there a per-case or per-lead fee?",
-    answer: "No. $50/month, unlimited cases, unlimited homeowners. No per-lead fees, no credits, no surprises.",
-  },
-  {
-    question: "How does the state compliance engine work?",
-    answer: "When you create a case or select a state, TENNO automatically shows you the fee cap, registration requirements, waiting periods, and PI/attorney rules for that state. You get a color-coded warning if your fee exceeds the cap.",
-  },
-  {
-    question: "What is the homeowner portal?",
-    answer: "A TENNO-branded web portal where homeowners sign agreements, upload ID, complete intake forms, and track their case. Fully self-serve — no phone calls needed for these steps.",
-  },
-  {
-    question: "Can I cancel anytime?",
-    answer: "Yes. Cancel from Settings → Manage Subscription. Your account stays read-only for 90 days so your data isn't lost.",
-  },
-  {
-    question: "Do homeowners pay anything?",
-    answer: "No. The portal is free for homeowners. Your contingency fee is handled outside TENNO — we just give you the tools to manage it.",
-  },
-  {
-    question: "Is my data private from other agents?",
-    answer: "Yes — row-level security means each agent sees only their own cases and homeowners. Even admin staff at TENNO can't see your clients without explicitly querying them.",
-  },
-];
+{
+  question: "Can I try before I subscribe?",
+  answer: "Watch our platform walkthrough above — every feature is shown. Subscribe and cancel within 7 days for a full refund. No questions asked."
+},
+{
+  question: "Is there a per-case or per-lead fee?",
+  answer: "No. $50/month, unlimited cases, unlimited homeowners. No per-lead fees, no credits, no surprises."
+},
+{
+  question: "How does the state compliance engine work?",
+  answer: "When you create a case or select a state, TENNO automatically shows you the fee cap, registration requirements, waiting periods, and PI/attorney rules for that state. You get a color-coded warning if your fee exceeds the cap."
+},
+{
+  question: "What is the homeowner portal?",
+  answer: "A TENNO-branded web portal where homeowners sign agreements, upload ID, complete intake forms, and track their case. Fully self-serve — no phone calls needed for these steps."
+},
+{
+  question: "Can I cancel anytime?",
+  answer: "Yes. Cancel from Settings → Manage Subscription. Your account stays read-only for 90 days so your data isn't lost."
+},
+{
+  question: "Do homeowners pay anything?",
+  answer: "No. The portal is free for homeowners. Your contingency fee is handled outside TENNO — we just give you the tools to manage it."
+},
+{
+  question: "Is my data private from other agents?",
+  answer: "Yes — row-level security means each agent sees only their own cases and homeowners. Even admin staff at TENNO can't see your clients without explicitly querying them."
+}];
+
 
 function CellValue({ val }) {
   if (val === true) return <CheckCircle2 className="w-5 h-5 text-emerald-400 mx-auto" />;
@@ -127,20 +127,20 @@ export default function LandingPage() {
             </nav>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden text-slate-400 hover:text-white"
-            >
+              className="md:hidden text-slate-400 hover:text-white">
+              
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
-          {mobileMenuOpen && (
-            <div className="md:hidden py-4 border-t border-slate-800 flex flex-col gap-3 text-sm">
+          {mobileMenuOpen &&
+          <div className="md:hidden py-4 border-t border-slate-800 flex flex-col gap-3 text-sm">
               <a href="#features" className="text-slate-300" onClick={() => setMobileMenuOpen(false)}>Features</a>
               <a href="#pricing" className="text-slate-300" onClick={() => setMobileMenuOpen(false)}>Pricing</a>
               <a href="#faq" className="text-slate-300" onClick={() => setMobileMenuOpen(false)}>FAQ</a>
               <button onClick={handleAgentLogin} className="text-slate-300 text-left">Agent Login</button>
               <Link to={createPageUrl("PortalLogin")} className="text-slate-300">Homeowner Portal</Link>
             </div>
-          )}
+          }
         </div>
       </header>
 
@@ -149,9 +149,9 @@ export default function LandingPage() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(16,185,129,0.12)_0%,_transparent_60%)]" />
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <span className="inline-block bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold px-4 py-1.5 rounded-full mb-6 tracking-wide uppercase">
-              Surplus Recovery SaaS — $50/month
-            </span>
+            
+
+            
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold leading-tight tracking-tight">
               Tenno Recovery
             </h1>
@@ -162,8 +162,8 @@ export default function LandingPage() {
               <Button
                 size="lg"
                 className="bg-emerald-600 hover:bg-emerald-500 text-base px-8 h-12 font-semibold"
-                onClick={() => window.location.href = createPageUrl("AgentApply")}
-              >
+                onClick={() => window.location.href = createPageUrl("AgentApply")}>
+                
                 Subscribe — $50/month <ArrowRight className="w-5 h-5 ml-1" />
               </Button>
               <a href="#slideshow">
@@ -172,7 +172,7 @@ export default function LandingPage() {
                 </Button>
               </a>
             </div>
-            <p className="mt-5 text-sm text-slate-500">Unlimited cases · No per-lead fees · Cancel anytime</p>
+            
           </motion.div>
         </div>
       </section>
@@ -195,22 +195,22 @@ export default function LandingPage() {
             <h2 className="text-3xl sm:text-4xl font-bold">Built for Agents, Not Spreadsheets</h2>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {features.map((f, i) => (
-              <motion.div
-                key={f.title}
-                initial={{ opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.07 }}
-                viewport={{ once: true }}
-                className="bg-slate-800/60 border border-slate-700/50 rounded-2xl p-6 hover:border-emerald-500/30 transition-colors"
-              >
+            {features.map((f, i) =>
+            <motion.div
+              key={f.title}
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.07 }}
+              viewport={{ once: true }}
+              className="bg-slate-800/60 border border-slate-700/50 rounded-2xl p-6 hover:border-emerald-500/30 transition-colors">
+              
                 <div className="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center mb-4">
                   <f.icon className="w-5 h-5 text-emerald-400" />
                 </div>
                 <h3 className="font-semibold text-white mb-2">{f.title}</h3>
                 <p className="text-slate-400 text-sm">{f.description}</p>
               </motion.div>
-            ))}
+            )}
           </div>
         </div>
       </section>
@@ -243,15 +243,15 @@ export default function LandingPage() {
                 </tr>
               </thead>
               <tbody>
-                {comparisonRows.map((row, i) => (
-                  <tr key={row.feature} className={`border-b border-slate-800 ${i % 2 === 0 ? "bg-slate-900/40" : ""}`}>
+                {comparisonRows.map((row, i) =>
+                <tr key={row.feature} className={`border-b border-slate-800 ${i % 2 === 0 ? "bg-slate-900/40" : ""}`}>
                     <td className="px-5 py-3.5 text-slate-300 font-medium">{row.feature}</td>
                     <td className="px-5 py-3.5 text-center"><CellValue val={row.tenno} /></td>
                     <td className="px-5 py-3.5 text-center"><CellValue val={row.excessElite} /></td>
                     <td className="px-5 py-3.5 text-center"><CellValue val={row.surplusSystems} /></td>
                     <td className="px-5 py-3.5 text-center"><CellValue val={row.spreadsheet} /></td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>
@@ -275,26 +275,26 @@ export default function LandingPage() {
             </div>
             <ul className="space-y-3 text-sm text-slate-300 mb-8 text-left">
               {[
-                "Unlimited cases",
-                "Full CRM & pipeline",
-                "Homeowner portal (TENNO-branded)",
-                "State compliance engine — all 50 states",
-                "Packet builder & form library",
-                "Lead import (PDF, screenshot, manual, CSV)",
-                "Email templates & contact logging",
-                "No per-lead fees, no credits",
-              ].map((item) => (
-                <li key={item} className="flex items-center gap-3">
+              "Unlimited cases",
+              "Full CRM & pipeline",
+              "Homeowner portal (TENNO-branded)",
+              "State compliance engine — all 50 states",
+              "Packet builder & form library",
+              "Lead import (PDF, screenshot, manual, CSV)",
+              "Email templates & contact logging",
+              "No per-lead fees, no credits"].
+              map((item) =>
+              <li key={item} className="flex items-center gap-3">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
                   {item}
                 </li>
-              ))}
+              )}
             </ul>
             <Button
               size="lg"
               className="w-full bg-emerald-600 hover:bg-emerald-500 text-base font-semibold h-12"
-              onClick={() => window.location.href = createPageUrl("AgentApply")}
-            >
+              onClick={() => window.location.href = createPageUrl("AgentApply")}>
+              
               Subscribe — $50/month <ArrowRight className="w-5 h-5 ml-1" />
             </Button>
             <p className="mt-4 text-xs text-slate-500">7-day money-back guarantee · Cancel anytime</p>
@@ -309,12 +309,12 @@ export default function LandingPage() {
             <h2 className="text-3xl sm:text-4xl font-bold">Frequently Asked Questions</h2>
           </div>
           <Accordion type="single" collapsible className="space-y-3">
-            {faqs.map((faq, i) => (
-              <AccordionItem
-                key={i}
-                value={`item-${i}`}
-                className="bg-slate-800/60 border border-slate-700/50 rounded-xl px-6"
-              >
+            {faqs.map((faq, i) =>
+            <AccordionItem
+              key={i}
+              value={`item-${i}`}
+              className="bg-slate-800/60 border border-slate-700/50 rounded-xl px-6">
+              
                 <AccordionTrigger className="text-left font-semibold text-white hover:no-underline py-4">
                   {faq.question}
                 </AccordionTrigger>
@@ -322,7 +322,7 @@ export default function LandingPage() {
                   {faq.answer}
                 </AccordionContent>
               </AccordionItem>
-            ))}
+            )}
           </Accordion>
         </div>
       </section>
@@ -335,8 +335,8 @@ export default function LandingPage() {
           <Button
             size="lg"
             className="bg-emerald-600 hover:bg-emerald-500 text-base px-10 h-12 font-semibold"
-            onClick={() => window.location.href = createPageUrl("AgentApply")}
-          >
+            onClick={() => window.location.href = createPageUrl("AgentApply")}>
+            
             Subscribe — $50/month <ArrowRight className="w-5 h-5 ml-1" />
           </Button>
           <p className="mt-4 text-sm text-slate-500">No contracts · Cancel anytime</p>
@@ -387,6 +387,6 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
-    </div>
-  );
+    </div>);
+
 }
