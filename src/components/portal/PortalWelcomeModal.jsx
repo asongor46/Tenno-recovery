@@ -16,7 +16,7 @@ const steps = [
       { icon: FileText, label: "Sign the recovery agreement (digital signature)" },
       { icon: Upload, label: "Upload a photo of your government ID (front and back)" },
       { icon: CheckCircle2, label: "Complete a short intake form with your information" },
-      { icon: Stamp, label: "Get your documents notarized (we'll guide you step by step)" },
+      { icon: ScrollText, label: "Get your documents notarized (we'll guide you step by step)" },
     ]
   },
   {
