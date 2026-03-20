@@ -76,6 +76,7 @@ import SendEmailPanel from "@/components/case/SendEmailPanel";
 import PreCallAssistPanel from "@/components/case/PreCallAssistPanel";
 import CallScriptModal from "@/components/case/CallScriptModal";
 import AutoFilingPacketGenerator from "@/components/case/AutoFilingPacketGenerator";
+import ContactLogger from "@/components/case/ContactLogger";
 import LoadingState from "@/components/shared/LoadingState";
 import EmptyState from "@/components/shared/EmptyState";
 import { CASE_STAGES, STAGE_LABELS, STAGE_COLORS } from "@/components/shared/caseConstants";
