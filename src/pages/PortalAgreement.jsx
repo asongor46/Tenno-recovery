@@ -427,5 +427,6 @@ export default function PortalAgreement() {
       </main>
     </div>
     </PortalAuthGuard>
+    </PortalErrorBoundary>
   );
 }
