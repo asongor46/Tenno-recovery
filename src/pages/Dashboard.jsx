@@ -184,7 +184,7 @@ export default function Dashboard() {
       c.paid_at.startsWith(dateStr)
     );
     const revenue = paidCases.reduce((sum, c) => 
-      sum + ((c.surplus_amount || 0) * ((c.fee_percentage || 20) / 100)), 0
+      sum + ((c.surplus_amount || 0) * ((c.fee_percent || 20) / 100)), 0
     );
     return {
       date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),

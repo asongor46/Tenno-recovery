@@ -77,7 +77,7 @@ async function autoGenerateInvoice(base44, case_id, user) {
   const invoiceNumber = `INV-${String(lastNumber + 1).padStart(5, '0')}`;
 
   // Calculate amounts
-  const feePercentage = caseData.fee_percentage || 20;
+  const feePercentage = caseData.fee_percent || 20;
   const subtotal = (caseData.surplus_amount || 0) * (feePercentage / 100);
   const taxRate = 0; // No tax by default
   const taxAmount = subtotal * (taxRate / 100);

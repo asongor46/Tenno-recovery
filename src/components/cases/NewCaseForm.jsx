@@ -30,7 +30,7 @@ export default function NewCaseForm({ counties, onSuccess }) {
     sale_amount: "",
     judgment_amount: "",
     internal_notes: "",
-    fee_percentage: 20, // ADDED: Default 20% fee
+    fee_percent: 20,
   });
 
   const handleChange = (field, value) => {
@@ -226,15 +226,15 @@ export default function NewCaseForm({ counties, onSuccess }) {
 
       {/* ADDED: Fee Percentage Selector */}
       <div>
-        <Label htmlFor="fee_percentage">Finder Fee Percentage *</Label>
+        <Label htmlFor="fee_percent">Finder Fee Percentage *</Label>
         <div className="grid grid-cols-4 gap-3 mt-2">
           {[15, 20, 25, 30].map((fee) => (
             <button
               key={fee}
               type="button"
-              onClick={() => handleChange("fee_percentage", fee)}
+              onClick={() => handleChange("fee_percent", fee)}
               className={`p-3 border-2 rounded-lg font-semibold transition-all ${
-                formData.fee_percentage === fee
+                formData.fee_percent === fee
                   ? "border-emerald-600 bg-emerald-50 text-emerald-700"
                   : "border-slate-200 hover:border-slate-300 text-slate-600"
               }`}
@@ -244,8 +244,8 @@ export default function NewCaseForm({ counties, onSuccess }) {
           ))}
         </div>
         <p className="text-xs text-slate-500 mt-2">
-          Selected fee: {formData.fee_percentage}% of ${formData.surplus_amount || 0} = $
-          {((parseFloat(formData.surplus_amount) || 0) * (formData.fee_percentage / 100)).toFixed(2)}
+          Selected fee: {formData.fee_percent}% of ${formData.surplus_amount || 0} = $
+          {((parseFloat(formData.surplus_amount) || 0) * (formData.fee_percent / 100)).toFixed(2)}
         </p>
       </div>
 

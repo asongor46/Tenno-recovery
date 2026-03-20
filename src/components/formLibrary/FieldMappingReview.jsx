@@ -58,7 +58,7 @@ export default function FieldMappingReview({ formTemplate, onClose }) {
     "owner_name", "owner_email", "owner_phone", "owner_address",
     "property_address", "county", "state", "parcel_number",
     "surplus_amount", "sale_date", "sale_amount", "judgment_amount",
-    "case_number", "fee_percentage"
+    "case_number", "fee_percent"
   ];
 
   return (

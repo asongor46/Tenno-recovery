@@ -39,7 +39,7 @@ Deno.serve(async (req) => {
       return Response.json({
         status: 'success',
         message: 'Fee already locked',
-        fee_percentage: caseData.fee_percentage,
+        fee_percent: caseData.fee_percent,
         locked: true,
       });
     }
@@ -55,22 +55,22 @@ Deno.serve(async (req) => {
     await base44.entities.ActivityLog.create({
       case_id,
       action: 'fee_locked',
-      description: `Fee locked at ${caseData.fee_percentage}% after agreement signed`,
+      description: `Fee locked at ${caseData.fee_percent}% after agreement signed`,
       performed_by: user.email,
       metadata: { 
-        fee_percentage: caseData.fee_percentage,
+        fee_percent: caseData.fee_percent,
         surplus_amount: caseData.surplus_amount,
-        fee_amount: (caseData.surplus_amount || 0) * ((caseData.fee_percentage || 20) / 100)
+        fee_amount: (caseData.surplus_amount || 0) * ((caseData.fee_percent || 20) / 100)
       }
     });
 
     return Response.json({
       status: 'success',
       message: 'Fee locked successfully',
-      fee_percentage: caseData.fee_percentage,
+      fee_percent: caseData.fee_percent,
       locked: true,
       surplus_amount: caseData.surplus_amount,
-      fee_amount: (caseData.surplus_amount || 0) * ((caseData.fee_percentage || 20) / 100),
+      fee_amount: (caseData.surplus_amount || 0) * ((caseData.fee_percent || 20) / 100),
     });
 
   } catch (error) {
