@@ -103,15 +103,25 @@ export default function PortalAgreement() {
       signature = canvas.toDataURL();
     }
 
+    // Validate fee is set before locking
+    if (!caseData.fee_percent || caseData.fee_percent <= 0) {
+      toast.error("Fee not set. Contact your agent.");
+      return;
+    }
+
     setIsSubmitting(true);
+
+    const signedAt = new Date().toISOString();
 
     try {
       await base44.entities.Case.update(caseData.id, {
-        agreement_signed_at: new Date().toISOString(),
+        agreement_signed_at: signedAt,
         agreement_signature: signature,
         agreement_status: "signed",
         stage: "agreement_signed",
         fee_locked: true,
+        fee_locked_at: signedAt,
+        fee_percent_at_signing: caseData.fee_percent,
       });
 
       await base44.entities.HomeownerTaskEvent.create({

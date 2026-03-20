@@ -128,17 +128,46 @@ async function getProgress(base44, caseData) {
   };
 }
 
+// Map step_key → case stage value. Only advance forward, never backward.
+const STEP_TO_STAGE = {
+  agreement: 'agreement_signed',
+  intake: 'info_completed',
+  notary: 'notary_completed',
+  packet_generated: 'packet_ready',
+  filed: 'filed',
+  decision: 'approved',
+  paid: 'paid',
+};
+
+const STAGE_ORDER = [
+  'imported', 'agreement_signed', 'info_completed', 'notary_completed',
+  'packet_ready', 'filed', 'approved', 'paid', 'closed'
+];
+
+function stageIndex(stage) {
+  const idx = STAGE_ORDER.indexOf(stage);
+  return idx === -1 ? 0 : idx;
+}
+
 async function checkAdvancement(base44, caseData) {
   const steps = await base44.entities.HomeownerStep.filter({ case_id: caseData.id }, 'order');
   const advancements = [];
+  let highestStage = caseData.stage || 'imported';
 
   for (const step of steps) {
-    if (step.status === 'completed') continue;
+    if (step.status === 'completed') {
+      // Track highest stage from already-completed steps
+      const mapped = STEP_TO_STAGE[step.step_key];
+      if (mapped && stageIndex(mapped) > stageIndex(highestStage)) {
+        highestStage = mapped;
+      }
+      continue;
+    }
 
     const canAdvance = checkStepEligibility(step.step_key, caseData);
     
-    if (canAdvance.ready && step.status !== 'completed') {
-      // Auto-advance
+    if (canAdvance.ready) {
+      // Auto-advance step
       await base44.entities.HomeownerStep.update(step.id, {
         status: 'completed',
         completed_at: new Date().toISOString(),
@@ -153,12 +182,24 @@ async function checkAdvancement(base44, caseData) {
       });
 
       advancements.push(step.step_key);
+
+      // Track if this step maps to a higher stage
+      const mapped = STEP_TO_STAGE[step.step_key];
+      if (mapped && stageIndex(mapped) > stageIndex(highestStage)) {
+        highestStage = mapped;
+      }
     }
+  }
+
+  // Advance case stage if it moved forward (never go backward)
+  if (stageIndex(highestStage) > stageIndex(caseData.stage || 'imported')) {
+    await base44.entities.Case.update(caseData.id, { stage: highestStage });
   }
 
   return {
     advancements,
-    count: advancements.length
+    count: advancements.length,
+    new_stage: highestStage
   };
 }
 

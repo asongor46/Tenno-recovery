@@ -127,7 +127,15 @@ export default function PortalInfo() {
     }
 
     await base44.entities.Case.update(caseData.id, {
-      ...formData,
+      owner_name: formData.owner_name,
+      owner_address: formData.owner_address,
+      owner_city: formData.owner_city,
+      owner_state: formData.owner_state,
+      owner_zip: formData.owner_zip,
+      owner_phone: formData.owner_phone,
+      owner_email: formData.owner_email,
+      owner_dob: formData.owner_dob,
+      owner_ssn_last_four: formData.owner_ssn_last_four,
       id_front_url,
       id_back_url,
       stage: "info_completed",

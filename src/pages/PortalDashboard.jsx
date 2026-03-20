@@ -25,39 +25,38 @@ import PortalAuthGuard from "@/components/portal/PortalAuthGuard";
 import ClientAIAssistant from "@/components/portal/ClientAIAssistant";
 
 function PortalDashboardContent() {
-  const userEmail = sessionStorage.getItem("portal_user_email") || localStorage.getItem("portal_user_email");
+  const sessionToken = localStorage.getItem("portal_session_token") || sessionStorage.getItem("portal_session_token");
 
-  // [ENHANCED - Tier 2] Fetch cases and activities
-  const { data: cases = [], isLoading } = useQuery({
-    queryKey: ["portal-cases", userEmail],
+  // 2A: Use secure server-side portal data endpoint
+  const { data: portalData, isLoading, error } = useQuery({
+    queryKey: ["portal-data", sessionToken],
     queryFn: async () => {
-      const allCases = await base44.entities.Case.filter({ owner_email: userEmail });
-      return allCases;
+      const { data } = await base44.functions.invoke("getPortalData", { session_token: sessionToken });
+      if (!data.success) throw new Error(data.error || "Unauthorized");
+      return data;
     },
-    enabled: !!userEmail,
+    enabled: !!sessionToken,
+    retry: false,
   });
 
-  const { data: activities = [] } = useQuery({
-    queryKey: ["portalActivities", cases.map(c => c.id).join(',')],
-    queryFn: async () => {
-      if (!cases || cases.length === 0) return [];
-      // Fetch all activity logs and filter client-visible ones in memory
-      const allActivities = await base44.entities.ActivityLog.list("-created_date", 50);
-      const caseIds = cases.map(c => c.id);
-      return allActivities
-        .filter(a => caseIds.includes(a.case_id) && a.is_client_visible)
-        .slice(0, 10);
-    },
-    enabled: cases.length > 0,
-    staleTime: 60000,
-    refetchOnWindowFocus: false,
-  });
+  const cases = portalData?.cases || [];
+  const activities = portalData?.activities || [];
+  const userEmail = portalData?.email || "";
+
+  // Force logout if session is invalid
+  React.useEffect(() => {
+    if (error || (!isLoading && !sessionToken)) {
+      handleLogout();
+    }
+  }, [error, isLoading, sessionToken]);
 
   const handleLogout = () => {
-    sessionStorage.clear();
     localStorage.removeItem("portal_session_token");
     localStorage.removeItem("portal_user_email");
     localStorage.removeItem("portal_session_expires");
+    sessionStorage.removeItem("portal_session_token");
+    sessionStorage.removeItem("portal_user_email");
+    sessionStorage.removeItem("portal_session_expires");
     window.location.href = createPageUrl("PortalLogin");
   };
 
