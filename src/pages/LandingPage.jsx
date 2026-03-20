@@ -135,25 +135,11 @@ export default function LandingPage() {
               </nav>
             </div>
             <div className="flex items-center gap-3">
-              <div className="hidden md:block">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="border-slate-600 bg-slate-800 text-white hover:bg-slate-700 hover:border-slate-500">
-                      Sign In
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="bg-slate-800 border-slate-700">
-                    <DropdownMenuItem onClick={handleAgentLogin} className="text-slate-200 hover:text-white focus:bg-slate-700 focus:text-white">
-                      Agent Login
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to={createPageUrl("PortalLogin")} className="text-slate-200 hover:text-white">
-                        Client Portal
-                      </Link>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
+              <Link to={createPageUrl("PortalLogin")}>
+                <Button className="bg-emerald-600 hover:bg-emerald-700">
+                  Access Your Case
+                </Button>
+              </Link>
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 className="md:hidden text-slate-300 hover:text-white"
@@ -172,12 +158,9 @@ export default function LandingPage() {
                 <a href="mailto:tennoassetrecovery@gmail.com" className="text-slate-300 hover:text-white transition-colors">
                   Contact
                 </a>
-                <Button variant="outline" onClick={handleAgentLogin} className="justify-start border-slate-700 text-white hover:bg-slate-800">
-                  Agent Login
-                </Button>
                 <Link to={createPageUrl("PortalLogin")}>
                   <Button className="w-full bg-emerald-600 hover:bg-emerald-700">
-                    Client Portal
+                    Access Your Case
                   </Button>
                 </Link>
               </nav>
