@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import PortalAuthGuard from "@/components/portal/PortalAuthGuard";
+import PortalErrorBoundary from "@/components/portal/PortalErrorBoundary";
 
 export default function PortalAgreement() {
   const navigate = useNavigate();
