@@ -172,6 +172,7 @@ export default function PortalInfo() {
 
   // [ENHANCED - PortalInfo] - Dark theme applied
   return (
+    <PortalErrorBoundary>
     <PortalAuthGuard>
     <div className="min-h-screen bg-slate-900">
       {/* Header - Dark Theme */}
