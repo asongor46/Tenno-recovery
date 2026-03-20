@@ -3,56 +3,56 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const slides = [
-  {
-    title: "Command Center Dashboard",
-    description: "Pipeline value, active cases, daily tasks, and alerts — everything at a glance.",
-    screenshot: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&q=80",
-    tag: "Dashboard",
-    color: "from-emerald-500/20 to-teal-500/20",
-  },
-  {
-    title: "Lead Import & Case Management",
-    description: "Import leads from county PDFs, screenshots, or manual entry. All in one place.",
-    screenshot: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&q=80",
-    tag: "Cases",
-    color: "from-blue-500/20 to-indigo-500/20",
-  },
-  {
-    title: "Full Case Detail View",
-    description: "Owner info, portal status, documents, filing workflow — every case detail in one screen.",
-    screenshot: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1200&q=80",
-    tag: "Case Detail",
-    color: "from-purple-500/20 to-pink-500/20",
-  },
-  {
-    title: "State Compliance Engine",
-    description: "Fee caps, registration requirements, waiting periods — all 50 states + DC, always current.",
-    screenshot: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=1200&q=80",
-    tag: "Compliance",
-    color: "from-amber-500/20 to-orange-500/20",
-  },
-  {
-    title: "Homeowner Portal",
-    description: "Homeowners sign agreements, upload IDs, and complete notary — entirely self-serve.",
-    screenshot: "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=1200&q=80",
-    tag: "Homeowner Portal",
-    color: "from-cyan-500/20 to-blue-500/20",
-  },
-  {
-    title: "Packet Builder",
-    description: "Assemble and generate county-specific filing packets with one click.",
-    screenshot: "https://images.unsplash.com/photo-1568992688065-536aad8a12f6?w=1200&q=80",
-    tag: "Packet Builder",
-    color: "from-rose-500/20 to-red-500/20",
-  },
-  {
-    title: "Kanban Pipeline",
-    description: "Drag cases through stages. Imported → Signed → Filed → Paid. Visual, fast, clear.",
-    screenshot: "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=1200&q=80",
-    tag: "Pipeline",
-    color: "from-green-500/20 to-emerald-500/20",
-  },
-];
+{
+  title: "Command Center Dashboard",
+  description: "Pipeline value, active cases, daily tasks, and alerts — everything at a glance.",
+  screenshot: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&q=80",
+  tag: "Dashboard",
+  color: "from-emerald-500/20 to-teal-500/20"
+},
+{
+  title: "Lead Import & Case Management",
+  description: "Import leads from county PDFs, screenshots, or manual entry. All in one place.",
+  screenshot: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&q=80",
+  tag: "Cases",
+  color: "from-blue-500/20 to-indigo-500/20"
+},
+{
+  title: "Full Case Detail View",
+  description: "Owner info, portal status, documents, filing workflow — every case detail in one screen.",
+  screenshot: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1200&q=80",
+  tag: "Case Detail",
+  color: "from-purple-500/20 to-pink-500/20"
+},
+{
+  title: "State Compliance Engine",
+  description: "Fee caps, registration requirements, waiting periods — all 50 states + DC, always current.",
+  screenshot: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=1200&q=80",
+  tag: "Compliance",
+  color: "from-amber-500/20 to-orange-500/20"
+},
+{
+  title: "Homeowner Portal",
+  description: "Homeowners sign agreements, upload IDs, and complete notary — entirely self-serve.",
+  screenshot: "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=1200&q=80",
+  tag: "Homeowner Portal",
+  color: "from-cyan-500/20 to-blue-500/20"
+},
+{
+  title: "Packet Builder",
+  description: "Assemble and generate county-specific filing packets with one click.",
+  screenshot: "https://images.unsplash.com/photo-1568992688065-536aad8a12f6?w=1200&q=80",
+  tag: "Packet Builder",
+  color: "from-rose-500/20 to-red-500/20"
+},
+{
+  title: "Kanban Pipeline",
+  description: "Drag cases through stages. Imported → Signed → Filed → Paid. Visual, fast, clear.",
+  screenshot: "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=1200&q=80",
+  tag: "Pipeline",
+  color: "from-green-500/20 to-emerald-500/20"
+}];
+
 
 export default function FeatureSlideshow() {
   const [current, setCurrent] = useState(0);
@@ -78,21 +78,21 @@ export default function FeatureSlideshow() {
     <div
       className="relative w-full max-w-5xl mx-auto"
       onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-    >
+      onMouseLeave={() => setPaused(false)}>
+      
       {/* Browser frame mockup */}
       <div className="rounded-2xl overflow-hidden shadow-2xl border border-slate-700 bg-slate-800">
         {/* Browser chrome */}
-        <div className="bg-slate-900 px-4 py-3 flex items-center gap-3 border-b border-slate-700">
-          <div className="flex gap-1.5">
-            <div className="w-3 h-3 rounded-full bg-red-500/80" />
-            <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
-            <div className="w-3 h-3 rounded-full bg-green-500/80" />
-          </div>
-          <div className="flex-1 bg-slate-700/60 rounded-md px-3 py-1 text-xs text-slate-400 text-center">
-            app.tennorecovery.com
-          </div>
-        </div>
+        
+
+
+
+
+
+
+
+
+        
 
         {/* Slide content */}
         <div className="relative aspect-[16/9] overflow-hidden">
@@ -103,14 +103,14 @@ export default function FeatureSlideshow() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -40 }}
               transition={{ duration: 0.4, ease: "easeInOut" }}
-              className="absolute inset-0"
-            >
+              className="absolute inset-0">
+              
               {/* Screenshot */}
               <img
                 src={slide.screenshot}
                 alt={slide.title}
-                className="w-full h-full object-cover"
-              />
+                className="w-full h-full object-cover" />
+              
               {/* Gradient overlay */}
               <div className={`absolute inset-0 bg-gradient-to-br ${slide.color} opacity-60`} />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
@@ -131,29 +131,29 @@ export default function FeatureSlideshow() {
       {/* Navigation arrows */}
       <button
         onClick={prev}
-        className="absolute left-3 top-1/2 -translate-y-1/2 mt-3 w-9 h-9 rounded-full bg-black/50 hover:bg-black/80 border border-slate-600 flex items-center justify-center text-white transition-all"
-      >
+        className="absolute left-3 top-1/2 -translate-y-1/2 mt-3 w-9 h-9 rounded-full bg-black/50 hover:bg-black/80 border border-slate-600 flex items-center justify-center text-white transition-all">
+        
         <ChevronLeft className="w-4 h-4" />
       </button>
       <button
         onClick={next}
-        className="absolute right-3 top-1/2 -translate-y-1/2 mt-3 w-9 h-9 rounded-full bg-black/50 hover:bg-black/80 border border-slate-600 flex items-center justify-center text-white transition-all"
-      >
+        className="absolute right-3 top-1/2 -translate-y-1/2 mt-3 w-9 h-9 rounded-full bg-black/50 hover:bg-black/80 border border-slate-600 flex items-center justify-center text-white transition-all">
+        
         <ChevronRight className="w-4 h-4" />
       </button>
 
       {/* Dots */}
       <div className="flex justify-center gap-2 mt-5">
-        {slides.map((_, i) => (
-          <button
-            key={i}
-            onClick={() => setCurrent(i)}
-            className={`h-1.5 rounded-full transition-all duration-300 ${
-              i === current ? "bg-emerald-400 w-8" : "bg-slate-600 w-2 hover:bg-slate-400"
-            }`}
-          />
-        ))}
+        {slides.map((_, i) =>
+        <button
+          key={i}
+          onClick={() => setCurrent(i)}
+          className={`h-1.5 rounded-full transition-all duration-300 ${
+          i === current ? "bg-emerald-400 w-8" : "bg-slate-600 w-2 hover:bg-slate-400"}`
+          } />
+
+        )}
       </div>
-    </div>
-  );
+    </div>);
+
 }
