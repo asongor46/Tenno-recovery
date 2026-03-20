@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import PortalAuthGuard from "@/components/portal/PortalAuthGuard";
+import PortalErrorBoundary from "@/components/portal/PortalErrorBoundary";
 
 export default function PortalNotary() {
   const navigate = useNavigate();
