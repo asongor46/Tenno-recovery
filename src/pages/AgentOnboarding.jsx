@@ -138,6 +138,44 @@ const modules = [
         content: "Use AI Pre-Call Assistant before calls, AI Case Automation for finding related cases, and the chatbot for quick questions."
       }
     ]
+  },
+  {
+    id: "first_case",
+    title: "Create Your First Case",
+    icon: PlayCircle,
+    sections: [
+      {
+        title: "Navigate to Cases",
+        content: "Click 'Cases' in the left sidebar. This is your main workspace. Click the '+ New Case' or 'Import Case' button at the top right. You'll see options: Manual Entry, PDF Import, Screenshot, or Text Paste."
+      },
+      {
+        title: "Fill In the Fields",
+        content: "Key fields: Case Number (use the county's reference), Owner Name (exactly as on records), Property Address, County, State, and Surplus Amount. Set Classification to VIABLE_CASE if you've confirmed there's a surplus. Save — your case is now in the pipeline at stage 'Imported'."
+      },
+      {
+        title: "Send the Portal Link",
+        content: "Open your new case → go to the 'Overview' tab → find the 'Portal Access' card → click 'Generate Portal Link'. This creates an 8-character access code. Click 'Send Portal Invite' to email it. The homeowner uses this to log in and start their tasks."
+      }
+    ]
+  },
+  {
+    id: "homeowner_journey",
+    title: "What Happens Next",
+    icon: Users,
+    sections: [
+      {
+        title: "Homeowner's Steps (1–3)",
+        content: "1. They receive your email with a portal link and access code. 2. They create a password and log into their case portal. 3. They review and digitally sign the fee agreement — this locks your fee percentage. Your case moves to 'Agreement Signed'."
+      },
+      {
+        title: "Homeowner's Steps (4–5)",
+        content: "4. They fill in their personal info and upload front + back of their government ID. Case moves to 'Info Completed'. 5. If the county requires notarization, they download the packet, find a notary (bank, UPS store), get it stamped, and upload photos. Case moves to 'Notary Completed'."
+      },
+      {
+        title: "You File → Wait → Get Paid",
+        content: "Once all docs are in, you generate the filing packet and file with the county. There's typically a 45–90 day waiting period. After the court approves, you submit to the county treasurer. When the check arrives, you invoice the homeowner for your fee and send them their portion. Case closes."
+      }
+    ]
   }
 ];
 
