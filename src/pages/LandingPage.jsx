@@ -179,21 +179,22 @@ export default function LandingPage() {
               transition={{ duration: 0.6 }}
             >
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight">
-                Tax Sale Surplus Recovery{" "}
-                <span className="text-emerald-400">Made Simple</span>
+                You May Have{" "}
+                <span className="text-emerald-400">Unclaimed Money</span>
+                {" "}from Your Property
               </h1>
               <p className="mt-6 text-lg sm:text-xl text-slate-300">
-                The complete platform for surplus recovery professionals. Manage cases, 
-                automate workflows, and help homeowners recover their funds—all in one place.
+                We help former property owners recover surplus funds from foreclosure and tax sales. No upfront cost. You only pay if we recover money for you.
               </p>
               <div className="mt-8 flex flex-col sm:flex-row gap-4">
-                <Button 
-                  size="lg"
-                  onClick={handleAgentLogin}
-                  className="bg-emerald-600 hover:bg-emerald-700 text-lg px-8"
-                >
-                  Join Our Team <ArrowRight className="w-5 h-5 ml-2" />
-                </Button>
+                <Link to={createPageUrl("PortalLogin")}>
+                  <Button 
+                    size="lg"
+                    className="bg-emerald-600 hover:bg-emerald-700 text-lg px-8"
+                  >
+                    Access Your Case Portal <ArrowRight className="w-5 h-5 ml-2" />
+                  </Button>
+                </Link>
                 <Link to={createPageUrl("HowItWorks")}>
                   <Button size="lg" className="text-lg px-8 bg-slate-800 text-white hover:bg-slate-700 border border-slate-600">
                     See How It Works
@@ -210,8 +211,8 @@ export default function LandingPage() {
                   ))}
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-white">Trusted by 100+ agents</p>
-                  <p className="text-xs text-slate-400">Processing millions in recoveries</p>
+                  <p className="text-sm font-semibold text-white">Families helped across multiple states</p>
+                  <p className="text-xs text-slate-400">Millions in surplus funds recovered</p>
                 </div>
               </div>
             </motion.div>
