@@ -373,7 +373,7 @@ export default function LandingPage() {
                 className="h-8 w-auto mb-4 brightness-200"
               />
               <p className="text-sm">
-                Professional surplus recovery platform for tax sale professionals.
+                Helping former property owners recover the surplus funds that belong to them.
               </p>
             </div>
             <div>
@@ -392,7 +392,12 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="mt-8 pt-8 border-t border-slate-800 text-center text-sm">
-            <p>&copy; 2025 TENNO Asset Recovery. All rights reserved.</p>
+            <p>&copy; 2026 TENNO Asset Recovery. All rights reserved.</p>
+            <p className="mt-2">
+              <button onClick={handleAgentLogin} className="text-slate-600 hover:text-slate-400 text-xs underline">
+                Agent Login
+              </button>
+            </p>
           </div>
         </div>
       </footer>
