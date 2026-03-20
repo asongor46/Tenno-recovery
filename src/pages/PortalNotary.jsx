@@ -618,7 +618,7 @@ export default function PortalNotary() {
               {/* Upload zone */}
               <Card className="mb-6">
                 <CardContent className="pt-6">
-                  <label className="border-2 border-dashed rounded-xl p-8 text-center block cursor-pointer hover:border-blue-400 transition">
+                  <label className="border-2 border-dashed rounded-xl p-8 text-center block cursor-pointer hover:border-blue-400 transition min-h-[200px] flex flex-col items-center justify-center">
                     <input
                       type="file"
                       accept="image/*,application/pdf"
