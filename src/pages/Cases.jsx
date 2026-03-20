@@ -456,9 +456,6 @@ export default function Cases() {
             <Button variant="outline" size="sm" onClick={handleMarkHot} className="flex-1 sm:flex-none">
               <Flame className="w-4 h-4 mr-1" /> <span className="hidden sm:inline">Mark</span> Hot
             </Button>
-            <Button variant="outline" size="sm" onClick={handleBulkArchive} className="flex-1 sm:flex-none">
-              <Archive className="w-4 h-4 mr-1" /> Archive
-            </Button>
             <Button variant="outline" size="sm" onClick={() => archiveMutation.mutate(selectedCases)} className="flex-1 sm:flex-none">
               <Archive className="w-4 h-4 mr-1" /> Archive
             </Button>
