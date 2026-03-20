@@ -346,6 +346,18 @@ function PortalDashboardContent() {
 
       {/* [NEW - Tier 3] AI Assistant */}
       <ClientAIAssistant caseId={cases[0]?.id} userEmail={userEmail} />
+
+      {/* Welcome Modal */}
+      <PortalWelcomeModal open={showWelcome} onClose={handleWelcomeClose} />
+
+      {/* Need Help? floating button */}
+      <a
+        href="mailto:tennoassetrecovery@gmail.com"
+        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-3 rounded-full shadow-lg transition-colors text-sm font-medium"
+      >
+        <HelpCircle className="w-4 h-4" />
+        <span className="hidden sm:inline">Need Help?</span>
+      </a>
     </div>
   );
 }
