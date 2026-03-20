@@ -428,7 +428,7 @@ export default function PortalLogin() {
         </Dialog>
 
         <p className="text-center text-xs text-slate-500 mt-6">
-          © 2025 TENNO Asset Recovery
+          © 2026 TENNO Asset Recovery
         </p>
       </motion.div>
     </div>
