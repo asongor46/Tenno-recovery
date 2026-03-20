@@ -237,8 +237,16 @@ export default function AgentOnboarding() {
     }
   };
 
+  const allModulesViewed = modules.every(m => 
+    completedModules.includes(m.id) || modules.indexOf(m) < currentModule
+  );
+
   const handleComplete = async () => {
     if (!profile) return;
+    if (!allModulesViewed) {
+      toast.error("Please complete all modules before finishing onboarding.");
+      return;
+    }
     
     try {
       await updateProfileMutation.mutateAsync({
