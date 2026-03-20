@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, FileText, Upload, Stamp, ChevronRight } from "lucide-react";
+import { CheckCircle2, FileText, Upload, ScrollText, ChevronRight } from "lucide-react";
 
 const steps = [
   {
