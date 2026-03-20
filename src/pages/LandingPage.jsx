@@ -336,19 +336,20 @@ export default function LandingPage() {
       <section className="py-20 bg-slate-900">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
-            Ready to Transform Your Recovery Business?
+            Have Questions About Your Surplus Funds?
           </h2>
           <p className="text-xl text-slate-300 mb-8">
-            Join hundreds of professionals already using TENNO Asset Recovery
+            Contact us to learn if you have unclaimed money from a property sale.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button 
-              size="lg"
-              onClick={handleAgentLogin}
-              className="bg-emerald-600 hover:bg-emerald-700 text-lg px-8"
-            >
-              Join Our Team <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
+            <a href="mailto:tennoassetrecovery@gmail.com">
+              <Button 
+                size="lg"
+                className="bg-emerald-600 hover:bg-emerald-700 text-lg px-8"
+              >
+                Contact Us <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+            </a>
             <Link to={createPageUrl("PortalLogin")}>
               <Button 
                 size="lg" 
