@@ -31,7 +31,9 @@ Deno.serve(async (req) => {
     });
 
     const session_token = crypto.randomUUID();
-    const session_expires_at = remember_me ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() : null;
+    const session_expires_at = remember_me
+      ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+      : new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
 
     await base44.asServiceRole.entities.PortalUser.update(portalUser.id, {
       session_token,

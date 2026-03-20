@@ -1,113 +1,93 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.4';
-
-/**
- * RESEND PORTAL LINK
- * Rotates token and resends portal link via email
- * Preserves all case data
- * No authentication required (email-based verification)
- */
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.21';
 
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
+    const { email, owner_email } = await req.json();
+    const lookupEmail = (email || owner_email)?.trim().toLowerCase();
 
-    const { email } = await req.json();
-
-    if (!email) {
-      return Response.json({ 
-        status: 'error',
-        details: 'Email required' 
-      }, { status: 400 });
+    if (!lookupEmail) {
+      return Response.json({ status: 'error', details: 'Email required' }, { status: 400 });
     }
 
-    // Find case by owner email
-    const cases = await base44.asServiceRole.entities.Case.filter({ 
-      owner_email: email.trim().toLowerCase() 
+    // Find all cases for this email
+    const cases = await base44.asServiceRole.entities.Case.filter({
+      owner_email: lookupEmail
     });
 
     if (cases.length === 0) {
-      // Don't reveal if email exists or not (security)
+      // Don't reveal if email exists (security)
       return Response.json({
         status: 'success',
-        message: 'If this email is associated with a case, a link has been sent.'
+        message: 'If this email is associated with a case, a new access code has been sent.'
+      });
+    }
+
+    // Generate a new crypto-secure access code
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    const array = new Uint8Array(8);
+    crypto.getRandomValues(array);
+    let newCode = '';
+    for (let i = 0; i < 8; i++) {
+      newCode += chars[array[i] % chars.length];
+    }
+
+    const appUrl = Deno.env.get('BASE44_APP_URL') || 'https://your-app.base44.com';
+    const portalUrl = `${appUrl}/PortalLogin`;
+
+    // Update ALL cases for this email with the new code
+    for (const c of cases) {
+      await base44.asServiceRole.entities.Case.update(c.id, {
+        portal_access_code: newCode,
+        portal_code_generated_at: new Date().toISOString(),
+        portal_code_used: false,
       });
     }
 
     const caseData = cases[0];
 
-    // Generate NEW token (rotate for security)
-    const newToken = generateUniqueToken();
-
-    // Update case with new token
-    await base44.asServiceRole.entities.Case.update(caseData.id, { 
-      portal_token: newToken 
-    });
-
-    // Build new portal URL
-    const portalUrl = `${Deno.env.get('BASE44_APP_URL') || 'https://your-app.base44.com'}/PortalWelcome?token=${newToken}`;
-
-    // Send email with new link
+    // Send email with access code
     await base44.asServiceRole.integrations.Core.SendEmail({
-      to: caseData.owner_email,
-      subject: `Your Surplus Recovery Portal Access - ${caseData.case_number}`,
-      body: `Dear ${caseData.owner_name},
+      to: lookupEmail,
+      subject: 'TENNO Recovery – Your New Portal Access Code',
+      body: `Hello ${caseData.owner_name || 'there'},
 
-Here is your secure portal access link:
+You requested a new access code for your surplus funds recovery portal.
 
-${portalUrl}
+Your access code: ${newCode}
 
-This link has been updated for security. Your previous link is no longer valid.
+Visit: ${portalUrl}
 
-Case Details:
-- Case #: ${caseData.case_number}
-- Property: ${caseData.property_address || 'N/A'}
-- County: ${caseData.county}, ${caseData.state}
-- Surplus Amount: $${caseData.surplus_amount?.toLocaleString() || '0'}
+Enter your email (${lookupEmail}) and the access code above to log in.
 
-If you did not request this link, please ignore this email.
+If you did not request this, please ignore this email.
 
-Questions? Reply to this email.
-
-Best regards,
-TENNO Recovery Team
+— TENNO Recovery
 tennoassetrecovery@gmail.com`
     });
 
-    // Log activity
-    await base44.asServiceRole.entities.ActivityLog.create({
-      case_id: caseData.id,
-      action: 'portal_link_resent',
-      description: 'Portal link resent with new token',
-      performed_by: 'system',
-      metadata: { email }
-    });
-
-    await base44.asServiceRole.entities.HomeownerTaskEvent.create({
-      case_id: caseData.id,
-      event_type: 'portal_invited',
-      performed_by: 'system',
-      details: { reason: 'link_recovery' }
-    });
+    // Log activity (non-blocking)
+    try {
+      await base44.asServiceRole.entities.ActivityLog.create({
+        case_id: caseData.id,
+        action: 'portal_code_resent',
+        description: 'Portal access code resent via lost link flow',
+        performed_by: 'system',
+        metadata: { email: lookupEmail }
+      });
+    } catch (e) {
+      console.log('Activity log failed:', e.message);
+    }
 
     return Response.json({
       status: 'success',
-      message: 'If this email is associated with a case, a link has been sent.'
+      message: 'If this email is associated with a case, a new access code has been sent.'
     });
 
   } catch (error) {
-    return Response.json({ 
+    return Response.json({
       status: 'error',
-      details: error.message,
-      stack: error.stack,
+      details: error.message
     }, { status: 500 });
   }
 });
-
-function generateUniqueToken() {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let token = '';
-  for (let i = 0; i < 32; i++) {
-    token += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return token;
-}

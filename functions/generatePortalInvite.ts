@@ -46,16 +46,13 @@ Deno.serve(async (req) => {
       }, { status: 400 });
     }
 
-    // Fetch company settings for email template
-    const settings = await fetchCompanySettings(base44);
-
     // [CRYPTO-SECURE CODE GENERATION]
     const accessCode = generateSecureAccessCode();
     console.log(`[generatePortalInvite] Secure access code generated: ${accessCode}`);
 
     // Get portal URL
     const appUrl = Deno.env.get('BASE44_APP_URL') || 'https://your-app.base44.com';
-    const portalUrl = `${appUrl}/PortalRegister`;
+    const portalUrl = `${appUrl}/PortalLogin`;
 
     // Update case with access code
     await base44.entities.Case.update(case_id, {
@@ -81,45 +78,48 @@ Deno.serve(async (req) => {
       console.log('Activity log failed:', e.message);
     }
 
-    // Check if user is registered in Base44
-    const existingUsers = await base44.asServiceRole.entities.User.filter({ email: caseData.owner_email });
-    const userExists = existingUsers.length > 0;
+    // Always send via Base44 SendEmail
+    let emailSent = false;
+    const emailSubject = 'TENNO Asset Recovery – Your Portal Access Code';
+    const emailBody = `Hello ${caseData.owner_name},
 
-    // Generate email content
-    const { data: emailData } = await base44.functions.invoke('fillEmailTemplate', {
-      case_id,
-      template_id: 'portal_invitation',
-      portal_link: portalUrl,
-      access_code: accessCode
-    });
+We are assisting you with the recovery of surplus funds related to your property.
 
-    // If user doesn't exist, return mailto link
-    if (!userExists) {
-      console.log(`[generatePortalInvite] User not in Base44, returning mailto link`);
-      return Response.json({
-        success: true,
-        user_exists: false,
-        access_code: accessCode,
-        portal_link: portalUrl,
-        portal_url: portalUrl,
-        owner_email: caseData.owner_email,
-        owner_name: caseData.owner_name,
-        mailto_link: emailData.mailto_link,
-        outlook_link: emailData.outlook_link
+To access your secure case portal, please use the following access code:
+
+ACCESS CODE: ${accessCode}
+
+Visit this link to log in:
+${portalUrl}
+
+Enter your email (${caseData.owner_email}) and the access code above to set up your account.
+
+If you have any questions, you may reply directly to this email.
+
+— TENNO Recovery
+tennoassetrecovery@gmail.com`;
+
+    try {
+      await base44.integrations.Core.SendEmail({
+        to: caseData.owner_email,
+        subject: emailSubject,
+        body: emailBody
       });
+      emailSent = true;
+      console.log(`[generatePortalInvite] Email sent to ${caseData.owner_email}`);
+    } catch (emailError) {
+      console.log('[generatePortalInvite] Email send failed:', emailError.message);
     }
 
-    // User exists in Base44, can send via platform
     return Response.json({
       success: true,
-      user_exists: true,
+      email_sent: emailSent,
       access_code: accessCode,
       portal_link: portalUrl,
       portal_url: portalUrl,
       owner_email: caseData.owner_email,
       owner_name: caseData.owner_name,
-      mailto_link: emailData.mailto_link,
-      outlook_link: emailData.outlook_link
+      email_content: { subject: emailSubject, body: emailBody }
     });
 
   } catch (error) {

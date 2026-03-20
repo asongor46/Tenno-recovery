@@ -67,7 +67,7 @@ Deno.serve(async (req) => {
     if (!Deno.env.get('BASE44_APP_URL')) {
       console.log('[generatePortalLink] WARNING: BASE44_APP_URL not set, using fallback URL');
     }
-    const portalUrl = `${appUrl}/PortalRegister`;
+    const portalUrl = `${appUrl}/PortalLogin`;
     console.log(`[generatePortalLink] Portal URL: ${portalUrl}`);
 
     // Update case with access code
@@ -81,10 +81,24 @@ Deno.serve(async (req) => {
       portal_last_resent_at: caseData.portal_sent_at ? new Date().toISOString() : null,
     });
 
-    // Generate email content (do NOT send via Base44)
+    // Build email content
     diagnostics.step = 'build_email';
     const emailSubject = 'TENNO Asset Recovery – Your Access Code for Surplus Funds Case';
     const emailBody = generateEmailBody(caseData, portalUrl, accessCode);
+
+    // Always attempt to send via Base44 SendEmail
+    let emailSent = false;
+    try {
+      await base44.integrations.Core.SendEmail({
+        to: caseData.owner_email,
+        subject: emailSubject,
+        body: emailBody
+      });
+      emailSent = true;
+      console.log(`[generatePortalLink] Email sent to ${caseData.owner_email}`);
+    } catch (emailError) {
+      console.log('[generatePortalLink] Email send failed:', emailError.message);
+    }
 
     // Log activity (non-blocking)
     try {
@@ -102,6 +116,7 @@ Deno.serve(async (req) => {
     return Response.json({
       status: 'success',
       success: true,
+      email_sent: emailSent,
       portal_url: portalUrl,
       access_code: accessCode,
       email_content: {
