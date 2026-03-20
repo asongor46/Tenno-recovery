@@ -27,12 +27,53 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 export default function Settings() {
   const [isSaving, setIsSaving] = useState(false);
   const [showWorkflowEditor, setShowWorkflowEditor] = useState(false);
+  const [companySettings, setCompanySettings] = useState({
+    company_name: '',
+    company_address: '',
+    company_phone: '',
+    company_email: '',
+    default_fee_percent: 20,
+  });
   const queryClient = useQueryClient();
 
   const { data: user } = useQuery({
     queryKey: ["currentUser"],
     queryFn: () => base44.auth.me(),
   });
+
+  const { data: existingSettings } = useQuery({
+    queryKey: ["appSettings"],
+    queryFn: () => base44.entities.AppSettings.list(),
+    enabled: user?.role === 'admin',
+  });
+
+  React.useEffect(() => {
+    if (existingSettings && existingSettings.length > 0) {
+      const s = existingSettings[0];
+      setCompanySettings({
+        company_name: s.company_name || '',
+        company_address: s.company_address || '',
+        company_phone: s.company_phone || '',
+        company_email: s.company_email || '',
+        default_fee_percent: s.default_fee_percent || 20,
+      });
+    }
+  }, [existingSettings]);
+
+  const handleCompanySave = async () => {
+    setIsSaving(true);
+    try {
+      if (existingSettings && existingSettings.length > 0) {
+        await base44.entities.AppSettings.update(existingSettings[0].id, companySettings);
+      } else {
+        await base44.entities.AppSettings.create(companySettings);
+      }
+      queryClient.invalidateQueries({ queryKey: ["appSettings"] });
+    } catch (e) {
+      console.error("Failed to save company settings:", e);
+    }
+    setIsSaving(false);
+  };
 
   const [profile, setProfile] = useState({
     full_name: "",
@@ -235,30 +276,52 @@ export default function Settings() {
             <CardContent className="space-y-4">
               <div>
                 <Label>Company Name</Label>
-                <Input placeholder="Your Company LLC" />
+                <Input 
+                  placeholder="Your Company LLC" 
+                  value={companySettings.company_name}
+                  onChange={(e) => setCompanySettings({...companySettings, company_name: e.target.value})}
+                />
               </div>
               <div>
                 <Label>Business Address</Label>
-                <Textarea placeholder="123 Main St, City, State ZIP" rows={2} />
+                <Textarea 
+                  placeholder="123 Main St, City, State ZIP" 
+                  rows={2}
+                  value={companySettings.company_address}
+                  onChange={(e) => setCompanySettings({...companySettings, company_address: e.target.value})}
+                />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label>Phone</Label>
-                  <Input placeholder="(555) 123-4567" />
+                  <Input 
+                    placeholder="(555) 123-4567"
+                    value={companySettings.company_phone}
+                    onChange={(e) => setCompanySettings({...companySettings, company_phone: e.target.value})}
+                  />
                 </div>
                 <div>
                   <Label>Email</Label>
-                  <Input placeholder="contact@yourcompany.com" />
+                  <Input 
+                    placeholder="contact@yourcompany.com"
+                    value={companySettings.company_email}
+                    onChange={(e) => setCompanySettings({...companySettings, company_email: e.target.value})}
+                  />
                 </div>
               </div>
               <div>
                 <Label>Contingency Fee (%)</Label>
-                <Input type="number" placeholder="35" />
+                <Input 
+                  type="number" 
+                  placeholder="20"
+                  value={companySettings.default_fee_percent}
+                  onChange={(e) => setCompanySettings({...companySettings, default_fee_percent: Number(e.target.value)})}
+                />
                 <p className="text-xs text-slate-500 mt-1">Default fee percentage for agreements</p>
               </div>
               <div className="pt-4">
-                <Button className="bg-emerald-600 hover:bg-emerald-700">
-                  <Save className="w-4 h-4 mr-2" />
+                <Button onClick={handleCompanySave} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700">
+                  {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
                   Save Company Info
                 </Button>
               </div>

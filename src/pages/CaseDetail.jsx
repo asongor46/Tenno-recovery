@@ -313,22 +313,22 @@ export default function CaseDetail() {
                 return;
               }
               try {
-                const { data } = await base44.functions.invoke("generatePortalInvite", {
+                const { data } = await base44.functions.invoke("generatePortalLink", {
                   case_id: caseId
                 });
-                if (data.success) {
-                  if (data.user_exists) {
-                    // User is registered, can send via Base44
-                    toast.success("Portal invite ready - user can be contacted via platform");
-                  }
-                  // Always open mailto as fallback/option
-                  if (data.mailto_link) {
-                    window.location.href = data.mailto_link;
-                    queryClient.invalidateQueries({ queryKey: ["case", caseId] });
-                    queryClient.invalidateQueries({ queryKey: ["activities", caseId] });
+                if (data.success || data.status === 'success') {
+                  queryClient.invalidateQueries({ queryKey: ["case", caseId] });
+                  queryClient.invalidateQueries({ queryKey: ["activities", caseId] });
+                  if (data.email_sent) {
+                    toast.success("Portal link emailed to homeowner");
+                  } else {
+                    const email = data.email_content || {};
+                    const mailto = `mailto:${encodeURIComponent(email.to || '')}?subject=${encodeURIComponent(email.subject || '')}&body=${encodeURIComponent(email.body || '')}`;
+                    window.location.href = mailto;
+                    toast.success("Opening email client...");
                   }
                 } else {
-                  toast.error("Failed to generate invite");
+                  toast.error(data.details || "Failed to generate portal link");
                 }
               } catch (err) {
                 toast.error("Error: " + err.message);
@@ -626,13 +626,19 @@ export default function CaseDetail() {
                     return;
                   }
                   try {
-                    const { data } = await base44.functions.invoke("generatePortalInvite", {
+                    const { data } = await base44.functions.invoke("generatePortalLink", {
                       case_id: caseId
                     });
-                    if (data.success && data.mailto_link) {
-                      window.location.href = data.mailto_link;
+                    if (data.success || data.status === 'success') {
                       queryClient.invalidateQueries({ queryKey: ["case", caseId] });
-                      toast.success("Opening email client...");
+                      if (data.email_sent) {
+                        toast.success("Portal link emailed to homeowner");
+                      } else {
+                        const email = data.email_content || {};
+                        const mailto = `mailto:${encodeURIComponent(email.to || '')}?subject=${encodeURIComponent(email.subject || '')}&body=${encodeURIComponent(email.body || '')}`;
+                        window.location.href = mailto;
+                        toast.success("Opening email client...");
+                      }
                     }
                   } catch (err) {
                     toast.error("Error: " + err.message);
@@ -700,13 +706,19 @@ export default function CaseDetail() {
                       onClick={async () => {
                         if (window.confirm("Regenerate access code? The old code will no longer work.")) {
                           try {
-                            const { data } = await base44.functions.invoke("generatePortalInvite", {
+                            const { data } = await base44.functions.invoke("generatePortalLink", {
                               case_id: caseId
                             });
-                            if (data.success && data.mailto_link) {
-                              window.location.href = data.mailto_link;
+                            if (data.success || data.status === 'success') {
                               queryClient.invalidateQueries({ queryKey: ["case", caseId] });
-                              toast.success("New code generated, opening email...");
+                              if (data.email_sent) {
+                                toast.success("New code generated, portal link emailed");
+                              } else {
+                                const email = data.email_content || {};
+                                const mailto = `mailto:${encodeURIComponent(email.to || '')}?subject=${encodeURIComponent(email.subject || '')}&body=${encodeURIComponent(email.body || '')}`;
+                                window.location.href = mailto;
+                                toast.success("New code generated, opening email...");
+                              }
                             }
                           } catch (err) {
                             toast.error("Error: " + err.message);

@@ -45,23 +45,34 @@ Deno.serve(async (req) => {
       countyData = counties[0];
     }
 
+    // Fetch company settings
+    let appSettings = {};
+    try {
+      const settingsList = await base44.entities.AppSettings.list();
+      appSettings = settingsList[0] || {};
+    } catch (e) {
+      console.log('AppSettings not available:', e.message);
+    }
+
     // Build merge data from case and county
-    const mergeData = buildMergeData(caseData, countyData, custom_fields);
+    const mergeData = buildMergeData(caseData, countyData, custom_fields, appSettings);
 
     // Find appropriate template
     let template = null;
     if (template_id) {
-      const templates = await base44.entities.FormTemplate.filter({ id: template_id });
+      const templates = await base44.entities.CountyFormTemplate.filter({ id: template_id });
       template = templates[0];
     } else {
       // Auto-select template based on document type and county
-      const templates = await base44.entities.FormTemplate.filter({ 
+      const templates = await base44.entities.CountyFormTemplate.filter({ 
         form_type: document_type,
         is_active: true
       });
       
       // Prioritize county-specific templates
-      template = templates.find(t => t.county_id === countyData?.id) || templates[0];
+      template = templates.find(t => 
+        t.county === caseData.county || t.county_name === caseData.county || t.county_id === countyData?.id
+      ) || templates[0];
     }
 
     if (!template) {
@@ -122,7 +133,7 @@ Deno.serve(async (req) => {
 /**
  * Build merge data object from case and county information
  */
-function buildMergeData(caseData, countyData, customFields = {}) {
+function buildMergeData(caseData, countyData, customFields = {}, appSettings = {}) {
   const today = new Date();
   
   return {
@@ -153,11 +164,11 @@ function buildMergeData(caseData, countyData, customFields = {}) {
     TODAY_FULL: formatDateFull(today),
     CURRENT_YEAR: today.getFullYear().toString(),
     
-    // Claimant fields (our company)
-    CLAIMANT_NAME: 'TENNO Recovery LLC',
-    CLAIMANT_ADDRESS: '123 Recovery Drive, Suite 100, Philadelphia, PA 19103',
-    CLAIMANT_PHONE: '(215) 555-0100',
-    CLAIMANT_EMAIL: 'claims@tennorecovery.com',
+    // Claimant fields (from AppSettings)
+    CLAIMANT_NAME: appSettings.company_name || 'TENNO Asset Recovery',
+    CLAIMANT_ADDRESS: appSettings.company_address || '[UPDATE YOUR ADDRESS IN SETTINGS]',
+    CLAIMANT_PHONE: appSettings.company_phone || '[UPDATE YOUR PHONE IN SETTINGS]',
+    CLAIMANT_EMAIL: appSettings.company_email || 'tennoassetrecovery@gmail.com',
     
     // Custom fields override
     ...customFields

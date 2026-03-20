@@ -61,9 +61,12 @@ async function checkOverdueInvoices(base44) {
 }
 
 async function sendWorkflowReminders(base44) {
-  const cases = await base44.entities.Case.filter({ 
-    status: 'active' 
-  });
+  const allCases = await base44.entities.Case.list("-updated_date", 500);
+  const cases = allCases.filter(c => 
+    !c.is_archived && 
+    c.stage !== 'closed' && 
+    c.stage !== 'paid'
+  );
   
   let remindersSent = 0;
   
@@ -90,9 +93,12 @@ async function sendWorkflowReminders(base44) {
 }
 
 async function autoAdvanceCases(base44) {
-  const cases = await base44.entities.Case.filter({ 
-    status: 'active' 
-  });
+  const allCases = await base44.entities.Case.list("-updated_date", 500);
+  const cases = allCases.filter(c => 
+    !c.is_archived && 
+    c.stage !== 'closed' && 
+    c.stage !== 'paid'
+  );
   
   let advanced = 0;
   

@@ -1,7 +1,8 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 
 /**
- * Send email directly via Base44 Core.SendEmail (for existing Base44 users)
+ * Send email directly via Base44 Core.SendEmail
+ * Sends to any email address — no user check needed
  */
 
 Deno.serve(async (req) => {
@@ -21,25 +22,14 @@ Deno.serve(async (req) => {
       }, { status: 400 });
     }
 
-    // Check if recipient is a Base44 user
-    const isBase44User = await checkIfBase44User(base44, to);
-    
-    if (!isBase44User) {
-      return Response.json({
-        success: false,
-        should_use_mailto: true,
-        reason: 'Recipient is not a Base44 user'
-      });
-    }
-
-    // Send via Base44 Core.SendEmail
+    // Send email directly — no user check needed
     await base44.integrations.Core.SendEmail({
       to: to,
       subject: subject,
       body: body_html || body_text
     });
 
-    // Log activity
+    // Log activity if case_id provided
     if (case_id) {
       try {
         await base44.entities.ActivityLog.create({
@@ -52,21 +42,12 @@ Deno.serve(async (req) => {
       } catch (e) {
         console.log('Activity log failed:', e.message);
       }
-
-      // Update case
-      try {
-        await base44.entities.Case.update(case_id, {
-          portal_sent_at: new Date().toISOString()
-        });
-      } catch (e) {
-        console.log('Case update failed:', e.message);
-      }
     }
 
     return Response.json({
       success: true,
       method: 'direct',
-      message: 'Email sent successfully via Base44'
+      message: 'Email sent successfully'
     });
 
   } catch (error) {
@@ -77,19 +58,3 @@ Deno.serve(async (req) => {
     }, { status: 500 });
   }
 });
-
-/**
- * Check if email belongs to a Base44 user
- */
-async function checkIfBase44User(base44, email) {
-  try {
-    const users = await base44.asServiceRole.entities.User.filter({
-      email: email
-    });
-    return users && users.length > 0;
-  } catch (e) {
-    // If we can't check, assume not a user (safer for cold outreach)
-    console.log('User check failed:', e.message);
-    return false;
-  }
-}

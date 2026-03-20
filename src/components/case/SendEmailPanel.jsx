@@ -30,13 +30,13 @@ export default function SendEmailPanel({ caseId, caseData }) {
 
   const generatePortal = useMutation({
     mutationFn: async () => {
-      const { data } = await base44.functions.invoke('generatePortalInvite', { case_id: caseId });
+      const { data } = await base44.functions.invoke('generatePortalLink', { case_id: caseId });
       return data;
     },
     onSuccess: (data) => {
       setPortalInfo({
-        portal_link: data.portal_url || data.portal_link,
-        access_code: data.access_code
+        portal_link: data.portal_url || data.data?.portalUrl,
+        access_code: data.access_code || data.data?.accessCode
       });
     }
   });
