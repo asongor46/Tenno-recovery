@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
-import { Flame, Eye, MoreHorizontal, ArrowUpRight } from "lucide-react";
+import { Flame, Eye, MoreHorizontal, ArrowUpRight, FolderOpen } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
