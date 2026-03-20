@@ -465,5 +465,6 @@ export default function PortalInfo() {
       </main>
     </div>
     </PortalAuthGuard>
+    </PortalErrorBoundary>
   );
 }
