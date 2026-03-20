@@ -20,19 +20,11 @@ import {
   User,
   Menu,
   X,
-  Phone,
-  MessageSquare,
-  Mail,
-  MessageCircle,
+  FileText,
   FileCode,
   PackageOpen,
-  ScanText,
-  CheckSquare,
   Users,
   FolderOpen,
-  Activity,
-  Trash2,
-  Inbox,
   DollarSign
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
