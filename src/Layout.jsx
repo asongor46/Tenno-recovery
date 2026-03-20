@@ -57,26 +57,26 @@ const navigation = [
     icon: Briefcase,
     subtitle: "All imported, scanned, and manually entered cases"
   },
-
-  { name: "Reminders", href: "Reminders", icon: Bell },
-  { name: "Communications", href: "Communications", icon: Inbox },
-  { name: "Payment Pipeline", href: "PaymentPipeline", icon: DollarSign, adminOnly: true },
   { name: "County Directory", href: "Counties", icon: Building2 },
-  { name: "User Management", href: "UserManagement", icon: Users, adminOnly: true },
+  { name: "Templates", href: "Templates", icon: FileText },
   { name: "How-To", href: "HowTo", icon: BookOpen },
   {
-    name: "System Tools",
+    name: "Tools",
     icon: Wrench,
-    adminOnly: true,
     children: [
       { name: "Packet Builder", href: "PacketBuilder", icon: PackageOpen },
       { name: "Form Library", href: "FormLibrary", icon: FileCode },
-      { name: "OCR Extractor", href: "OCRExtractor", icon: ScanText },
-      { name: "Notary Validator", href: "NotaryValidator", icon: CheckSquare },
-      { name: "People Finder", href: "PeopleFinder", icon: Users },
       { name: "File Manager", href: "FileManager", icon: FolderOpen },
-      { name: "Automation Log", href: "AutomationLog", icon: Activity },
-      { name: "Cleanup Tools", href: "CleanupTools", icon: Trash2 },
+    ],
+  },
+  {
+    name: "Admin",
+    icon: Users,
+    adminOnly: true,
+    children: [
+      { name: "User Management", href: "UserManagement", icon: Users },
+      { name: "Invoices", href: "Invoices", icon: DollarSign },
+      { name: "Payment Pipeline", href: "PaymentPipeline", icon: DollarSign },
     ],
   },
 ];
