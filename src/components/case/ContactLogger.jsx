@@ -237,10 +237,10 @@ export default function ContactLogger({ caseId, caseData }) {
                   <SelectValue placeholder="Select outcome..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {OUTCOMES.map(({ value, label, icon: Icon, color }) => (
+                  {OUTCOMES.map(({ value, label, icon: OutcomeIcon, color }) => (
                     <SelectItem key={value} value={value}>
                       <div className="flex items-center gap-2">
-                        <Icon className={`w-4 h-4 ${color}`} />
+                        <OutcomeIcon className={`w-4 h-4 ${color}`} />
                         {label}
                       </div>
                     </SelectItem>
