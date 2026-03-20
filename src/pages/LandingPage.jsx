@@ -36,8 +36,34 @@ import { base44 } from "@/api/base44Client";
 export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
-  const handleAgentLogin = () => {
-    base44.auth.redirectToLogin(createPageUrl("Dashboard"));
+  const handleAgentLogin = async () => {
+    try {
+      // Check if already authenticated
+      const user = await base44.auth.me();
+      
+      // Check if user has an AgentProfile
+      const profiles = await base44.entities.AgentProfile.filter({ email: user.email });
+      const profile = profiles[0];
+
+      if (!profile) {
+        // No profile - redirect to application
+        window.location.href = createPageUrl("AgentApply");
+        return;
+      }
+
+      // Route based on status
+      if (profile.status === "approved") {
+        window.location.href = createPageUrl("Dashboard");
+      } else if (profile.status === "pending") {
+        window.location.href = createPageUrl("AgentPending");
+      } else if (profile.status === "rejected") {
+        // Silent redirect - Layout already handles rejection message
+        return;
+      }
+    } catch {
+      // Not authenticated - trigger Base44 login, will check profile after
+      base44.auth.redirectToLogin(window.location.pathname);
+    }
   };
 
   const howItWorksSteps = [
