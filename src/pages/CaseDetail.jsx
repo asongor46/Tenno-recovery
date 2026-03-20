@@ -459,6 +459,9 @@ export default function CaseDetail() {
               </CardContent>
             </Card>
 
+            {/* Contact Logger */}
+            <ContactLogger caseId={caseId} caseData={caseData} />
+
             {/* Internal Notes */}
             <Card>
               <CardHeader>
