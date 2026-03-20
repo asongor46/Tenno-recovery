@@ -100,7 +100,7 @@ export default function PortalNotary() {
         });
         toast.success(`Notarization packet generated with ${data.document_count} documents`);
         
-        const cases = await base44.entities.Case.filter({ portal_token: token });
+        const cases = await base44.entities.Case.filter({ id: caseId });
         if (cases.length > 0) {
           setCaseData(cases[0]);
         }
