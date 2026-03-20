@@ -564,21 +564,21 @@ function getStatusInfo(caseData) {
     };
   }
   
-  if (caseData.status === 'approved') {
+  if (caseData.stage === 'approved') {
     return {
       label: 'APPROVED',
       className: 'bg-emerald-100 text-emerald-700 border-0'
     };
   }
   
-  if (caseData.status === 'paid' || caseData.stage === 'paid') {
+  if (caseData.stage === 'paid') {
     return {
       label: 'PAID',
       className: 'bg-green-100 text-green-700 border-0'
     };
   }
   
-  if (caseData.status === 'closed' || caseData.stage === 'closed') {
+  if (caseData.stage === 'closed') {
     return {
       label: 'CLOSED',
       className: 'bg-green-100 text-green-700 border-0'
