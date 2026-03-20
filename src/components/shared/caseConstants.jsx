@@ -51,22 +51,4 @@ export const STAGE_PROGRESS = {
   [CASE_STAGES.CLOSED]: 100,
 };
 
-export const CASE_STATUS = {
-  ACTIVE: 'active',
-  PENDING: 'pending',
-  FILED: 'filed',
-  APPROVED: 'approved',
-  PAID: 'paid',
-  CLOSED: 'closed',
-  ARCHIVED: 'archived',
-};
-
-export const STATUS_COLORS = {
-  [CASE_STATUS.ACTIVE]: "bg-emerald-500",
-  [CASE_STATUS.PENDING]: "bg-amber-500",
-  [CASE_STATUS.FILED]: "bg-blue-500",
-  [CASE_STATUS.APPROVED]: "bg-green-500",
-  [CASE_STATUS.PAID]: "bg-teal-500",
-  [CASE_STATUS.CLOSED]: "bg-slate-400",
-  [CASE_STATUS.ARCHIVED]: "bg-slate-300",
-};
+// STATUS_COLORS and CASE_STATUS removed — use stage only (3A)

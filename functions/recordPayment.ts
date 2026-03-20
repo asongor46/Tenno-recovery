@@ -46,7 +46,6 @@ Deno.serve(async (req) => {
     // Update case
     await base44.entities.Case.update(case_id, {
       stage: 'paid',
-      status: 'paid',
       paid_at: paidAt,
       payment_amount,
       internal_notes: (caseData.internal_notes || '') + 
