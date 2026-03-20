@@ -153,10 +153,7 @@ export default function LandingPage() {
               Surplus Recovery SaaS — $50/month
             </span>
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold leading-tight tracking-tight">
-              The{" "}
-              <span className="text-emerald-400">$50/Month</span>
-              <br />
-              Surplus Recovery Platform
+              Tenno Recovery
             </h1>
             <p className="mt-6 text-xl text-slate-400 max-w-2xl mx-auto">
               Import leads. Manage cases. Stay compliant. Close deals.
