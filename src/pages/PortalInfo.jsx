@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import PortalAuthGuard from "@/components/portal/PortalAuthGuard";
+import PortalErrorBoundary from "@/components/portal/PortalErrorBoundary";
 import { toast } from "sonner";
 
 export default function PortalInfo() {
