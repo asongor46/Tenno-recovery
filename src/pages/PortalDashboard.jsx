@@ -181,7 +181,7 @@ function PortalDashboardContent() {
                     </div>
 
                     {/* Financial Summary */}
-                    <div className="grid grid-cols-3 gap-3 py-3 border-y border-slate-700">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 py-3 border-y border-slate-700">
                       <div>
                         <p className="text-xs text-slate-400">Estimated Surplus</p>
                         <p className="text-lg font-bold text-white">
