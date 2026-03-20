@@ -521,13 +521,13 @@ export default function Cases() {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={11} className="text-center py-8 text-slate-500">{/* MODIFIED: colspan */}
+                  <TableCell colSpan={10} className="text-center py-8 text-slate-500">
                     Loading cases...
                   </TableCell>
                 </TableRow>
               ) : paginatedCases.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={11} className="text-center py-8 text-slate-500">{/* MODIFIED: colspan */}
+                  <TableCell colSpan={10} className="text-center py-8 text-slate-500">
                     No cases found
                   </TableCell>
                 </TableRow>
