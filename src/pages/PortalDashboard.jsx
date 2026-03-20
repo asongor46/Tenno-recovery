@@ -28,6 +28,20 @@ import PortalWelcomeModal from "@/components/portal/PortalWelcomeModal";
 
 function PortalDashboardContent() {
   const sessionToken = localStorage.getItem("portal_session_token") || sessionStorage.getItem("portal_session_token");
+  const [showWelcome, setShowWelcome] = React.useState(false);
+
+  // Check if homeowner has seen welcome modal
+  React.useEffect(() => {
+    const hasSeen = localStorage.getItem("portal_welcome_seen");
+    if (!hasSeen) {
+      setShowWelcome(true);
+    }
+  }, []);
+
+  const handleWelcomeClose = () => {
+    localStorage.setItem("portal_welcome_seen", "true");
+    setShowWelcome(false);
+  };
 
   // 2A: Use secure server-side portal data endpoint
   const { data: portalData, isLoading, error } = useQuery({
