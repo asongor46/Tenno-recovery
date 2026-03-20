@@ -132,7 +132,7 @@ export default function Dashboard() {
   });
 
   // Calculate KPIs
-  const activeCases = cases.filter(c => c.status === "active").length;
+  const activeCases = cases.filter(c => !c.is_archived && c.stage !== 'closed' && c.stage !== 'paid').length;
   const hotCases = cases.filter(c => c.is_hot || c.surplus_amount >= 30000).length;
   const awaitingHomeowner = cases.filter(c => 
     ["imported", "agreement_signed"].includes(c.stage)
@@ -202,7 +202,7 @@ export default function Dashboard() {
       try {
         // Get top 3 cases needing attention
         const priorityCases = cases
-          .filter(c => c.status === "active" && !c.verification_status)
+          .filter(c => !c.is_archived && c.stage === 'imported' && !c.verification_status)
           .slice(0, 3);
 
         const allSuggestions = [];

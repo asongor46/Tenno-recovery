@@ -72,11 +72,10 @@ import TodayTasksPanel from "@/components/dashboard/TodayTasksPanel";
 import CasePipelineKanban from "@/components/dashboard/CasePipelineKanban";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import { STAGE_COLORS, STAGE_LABELS, STATUS_COLORS } from "@/components/shared/caseConstants";
+import { STAGE_COLORS, STAGE_LABELS } from "@/components/shared/caseConstants";
 
 export default function Cases() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
   const [stageFilter, setStageFilter] = useState("all");
   const [hotFilter, setHotFilter] = useState(false);
   const [selectedCases, setSelectedCases] = useState([]);
@@ -155,17 +154,15 @@ export default function Cases() {
       c.county?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       c.property_address?.toLowerCase().includes(searchQuery.toLowerCase());
     
-    const matchesStatus = statusFilter === "all" || c.status === statusFilter;
     const matchesStage = stageFilter === "all" || c.stage === stageFilter;
     const matchesHot = !hotFilter || (c.surplus_amount >= 30000 || c.is_hot);
 
     // Advanced filters
     if (advancedFilters) {
-      const af = advancedFilters;
-      
-      if (af.search && !matchesSearch) return false;
-      if (af.status && c.status !== af.status) return false;
-      if (af.stage && c.stage !== af.stage) return false;
+    const af = advancedFilters;
+
+    if (af.search && !matchesSearch) return false;
+    if (af.stage && c.stage !== af.stage) return false;
       if (af.county && !c.county?.toLowerCase().includes(af.county.toLowerCase())) return false;
       if (af.notaryStatus && c.notary_status !== af.notaryStatus) return false;
       if (af.isHot && af.isHot === "true" && !c.is_hot) return false;
@@ -178,7 +175,7 @@ export default function Cases() {
       return true;
     }
 
-    return matchesSearch && matchesStatus && matchesStage && matchesHot;
+    return matchesSearch && matchesStage && matchesHot;
   });
 
   // Pagination
@@ -422,21 +419,6 @@ export default function Cases() {
               className="pl-10 bg-slate-900 border-slate-700 text-white placeholder:text-slate-500"
             />
           </div>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-full sm:w-40">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="pending">Pending</SelectItem>
-              <SelectItem value="filed">Filed</SelectItem>
-              <SelectItem value="approved">Approved</SelectItem>
-              <SelectItem value="paid">Paid</SelectItem>
-              <SelectItem value="closed">Closed</SelectItem>
-              <SelectItem value="archived">Archived</SelectItem>
-            </SelectContent>
-          </Select>
           <Select value={stageFilter} onValueChange={setStageFilter}>
             <SelectTrigger className="w-full sm:w-48">
               <SelectValue placeholder="Stage" />
@@ -529,7 +511,6 @@ export default function Cases() {
                 <TableHead className="font-semibold text-slate-300">County</TableHead>
                 <TableHead className="font-semibold text-slate-300">Property Address</TableHead>{/* ADDED */}
                 <TableHead className="font-semibold text-right text-slate-300">Surplus</TableHead>
-                <TableHead className="font-semibold text-slate-300">Status</TableHead>
                 <TableHead className="font-semibold text-slate-300">Stage</TableHead>
                 <TableHead className="font-semibold text-slate-300">Verified</TableHead>
                 <TableHead className="font-semibold text-slate-300">Updated</TableHead>
@@ -581,12 +562,6 @@ export default function Cases() {
                     </TableCell>
                     <TableCell className="text-right font-semibold text-white">
                       ${caseItem.surplus_amount?.toLocaleString() || "0"}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <div className={`w-2 h-2 rounded-full ${STATUS_COLORS[caseItem.status]}`} />
-                        <span className="capitalize text-slate-300">{caseItem.status}</span>
-                      </div>
                     </TableCell>
                     <TableCell>
                       <Badge className={`${STAGE_COLORS[caseItem.stage]} border-0 font-medium`}>
