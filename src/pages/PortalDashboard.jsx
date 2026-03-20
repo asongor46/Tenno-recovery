@@ -365,9 +365,11 @@ function PortalDashboardContent() {
 
 export default function PortalDashboard() {
   return (
-    <PortalAuthGuard>
-      <PortalDashboardContent />
-    </PortalAuthGuard>
+    <PortalErrorBoundary>
+      <PortalAuthGuard>
+        <PortalDashboardContent />
+      </PortalAuthGuard>
+    </PortalErrorBoundary>
   );
 }
 
