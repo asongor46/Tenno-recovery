@@ -59,9 +59,23 @@ Deno.serve(async (req) => {
       }, { status: 400 });
     }
 
-    // Generate access code (8 characters)
-    diagnostics.step = 'generate_access_code';
-    const accessCode = generateAccessCode();
+    // Idempotency: reuse existing code if unused and < 72 hours old
+    diagnostics.step = 'check_existing_code';
+    let accessCode;
+    if (
+      caseData.portal_access_code &&
+      caseData.portal_code_used === false &&
+      caseData.portal_code_generated_at &&
+      (Date.now() - new Date(caseData.portal_code_generated_at).getTime()) < 72 * 60 * 60 * 1000
+    ) {
+      accessCode = caseData.portal_access_code;
+      console.log(`[generatePortalLink] Reusing existing valid code for case_id=${case_id}`);
+      diagnostics.step = 'reused_existing_code';
+    } else {
+      // Generate access code (8 characters)
+      diagnostics.step = 'generate_access_code';
+      accessCode = generateAccessCode();
+    }
     console.log(`[generatePortalLink] Access code generated: ${accessCode}`);
     const appUrl = Deno.env.get('BASE44_APP_URL') || 'https://your-app.base44.com';
     if (!Deno.env.get('BASE44_APP_URL')) {
@@ -70,11 +84,13 @@ Deno.serve(async (req) => {
     const portalUrl = `${appUrl}/PortalLogin`;
     console.log(`[generatePortalLink] Portal URL: ${portalUrl}`);
 
-    // Update case with access code
+    // Update case with access code (only update timestamps if generating fresh)
     diagnostics.step = 'update_case';
     await base44.entities.Case.update(case_id, {
       portal_access_code: accessCode,
-      portal_code_generated_at: new Date().toISOString(),
+      portal_code_generated_at: caseData.portal_code_used === false && caseData.portal_access_code === accessCode
+        ? caseData.portal_code_generated_at
+        : new Date().toISOString(),
       portal_code_used: false,
       portal_link: portalUrl,
       portal_sent_at: caseData.portal_sent_at || new Date().toISOString(),

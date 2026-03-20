@@ -35,6 +35,21 @@ Deno.serve(async (req) => {
       }, { status: 404 });
     }
 
+    // Idempotency: block if already signed, delete old unsigned doc before regenerating
+    const existingDocs = await base44.entities.Document.filter({ case_id, category: 'agreement', is_primary: true });
+    if (existingDocs.length > 0) {
+      if (caseData.agreement_status === 'signed') {
+        return Response.json({
+          status: 'error',
+          details: 'Agreement already signed. Cannot regenerate a signed agreement.'
+        }, { status: 409 });
+      }
+      // Delete old unsigned agreement doc(s)
+      for (const doc of existingDocs) {
+        await base44.entities.Document.delete(doc.id);
+      }
+    }
+
     // Fetch template (use default if not specified)
     let template;
     if (template_id) {

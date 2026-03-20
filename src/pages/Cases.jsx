@@ -88,6 +88,7 @@ export default function Cases() {
   // PHASE 4+ ENHANCEMENT: View mode toggle
   const [viewMode, setViewMode] = useState("table"); // "pipeline" | "table"
   const [advancedFilters, setAdvancedFilters] = useState(null);
+  const [showArchived, setShowArchived] = useState(false);
 
   const queryClient = useQueryClient();
   const toast = useStandardToast();
@@ -106,14 +107,31 @@ export default function Cases() {
     cacheTime: 600000, // Keep in cache for 10 minutes
   });
 
+  const archiveMutation = useMutation({
+    mutationFn: (ids) => Promise.all(ids.map(id => base44.entities.Case.update(id, { is_archived: true }))),
+    onSuccess: (_, ids) => {
+      queryClient.invalidateQueries({ queryKey: ["cases"] });
+      setSelectedCases([]);
+      toast.success(`Archived ${ids.length} case(s)`);
+    },
+    onError: () => toast.error("Failed to archive cases")
+  });
+
   const deleteMutation = useMutation({
-    mutationFn: (ids) => Promise.all(ids.map(id => base44.entities.Case.delete(id))),
+    mutationFn: async (ids) => {
+      const casesToDelete = cases.filter(c => ids.includes(c.id));
+      const blocked = casesToDelete.filter(c => c.stage && c.stage !== 'imported');
+      if (blocked.length > 0) {
+        throw new Error(`Cannot delete cases past import stage. Archive instead.`);
+      }
+      return Promise.all(ids.map(id => base44.entities.Case.delete(id)));
+    },
     onSuccess: (_, ids) => {
       queryClient.invalidateQueries({ queryKey: ["cases"] });
       setSelectedCases([]);
       toast.success(`Deleted ${ids.length} case(s)`);
     },
-    onError: () => toast.error("Failed to delete cases")
+    onError: (err) => toast.error(err.message || "Failed to delete cases")
   });
 
   const updateMutation = useMutation({
@@ -128,6 +146,8 @@ export default function Cases() {
 
   // Filter cases with advanced search support
   const filteredCases = cases.filter(c => {
+    // Hide archived unless toggled
+    if (!showArchived && c.is_archived) return false;
     // Basic filters
     const matchesSearch = 
       c.owner_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -436,6 +456,15 @@ export default function Cases() {
             <Flame className="w-4 h-4 mr-2" />
             Hot Cases
           </Button>
+          <Button
+            variant={showArchived ? "default" : "outline"}
+            size="sm"
+            onClick={() => setShowArchived(!showArchived)}
+            className={showArchived ? "bg-slate-600" : ""}
+          >
+            <Archive className="w-4 h-4 mr-2" />
+            {showArchived ? "Hide Archived" : "Show Archived"}
+          </Button>
         </div>
 
         {/* Bulk Actions */}
@@ -446,6 +475,9 @@ export default function Cases() {
               <Flame className="w-4 h-4 mr-1" /> <span className="hidden sm:inline">Mark</span> Hot
             </Button>
             <Button variant="outline" size="sm" onClick={handleBulkArchive} className="flex-1 sm:flex-none">
+              <Archive className="w-4 h-4 mr-1" /> Archive
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => archiveMutation.mutate(selectedCases)} className="flex-1 sm:flex-none">
               <Archive className="w-4 h-4 mr-1" /> Archive
             </Button>
             <Button variant="outline" size="sm" className="text-red-600 flex-1 sm:flex-none" onClick={handleBulkDelete}>
@@ -617,12 +649,21 @@ export default function Cases() {
                             </DropdownMenuItem>
                             <DropdownMenuItem>Send Portal Link</DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem 
-                              className="text-red-600"
-                              onClick={() => deleteMutation.mutate([caseItem.id])}
-                            >
-                              Delete
-                            </DropdownMenuItem>
+                            {caseItem.stage === 'imported' ? (
+                              <DropdownMenuItem 
+                                className="text-red-600"
+                                onClick={() => deleteMutation.mutate([caseItem.id])}
+                              >
+                                Delete
+                              </DropdownMenuItem>
+                            ) : (
+                              <DropdownMenuItem
+                                onClick={() => archiveMutation.mutate([caseItem.id])}
+                              >
+                                <Archive className="w-4 h-4 mr-2" />
+                                Archive
+                              </DropdownMenuItem>
+                            )}
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </div>
