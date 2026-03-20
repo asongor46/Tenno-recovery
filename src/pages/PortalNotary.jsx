@@ -697,5 +697,6 @@ export default function PortalNotary() {
       </main>
     </div>
     </PortalAuthGuard>
+    </PortalErrorBoundary>
   );
 }
