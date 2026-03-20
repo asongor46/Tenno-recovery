@@ -372,7 +372,7 @@ function getNextActionEnhanced(caseData) {
       title: "Sign Your Agreement",
       description: "Please review and sign the fee agreement to get started.",
       action: "Sign Agreement",
-      route: `PortalAgreement?token=${caseData.portal_token}`,
+      route: `PortalAgreement?id=${caseData.id}`,
       urgent: true
     };
   }
@@ -382,7 +382,7 @@ function getNextActionEnhanced(caseData) {
       title: "Complete Your Information",
       description: "We need a few more details and ID photos to proceed.",
       action: "Complete Info",
-      route: `PortalInfo?token=${caseData.portal_token}`,
+      route: `PortalInfo?id=${caseData.id}`,
       urgent: true
     };
   }
@@ -392,7 +392,7 @@ function getNextActionEnhanced(caseData) {
       title: "Upload Notarized Authorization",
       description: "Download, sign with a notary, and upload the authorization form.",
       action: "Complete Notary",
-      route: `PortalNotary?token=${caseData.portal_token}`,
+      route: `PortalNotary?id=${caseData.id}`,
       urgent: true
     };
   }

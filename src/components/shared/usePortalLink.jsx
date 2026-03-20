@@ -24,38 +24,25 @@ export function usePortalLink() {
         return { success: false };
       }
 
-      // Prefer Outlook deeplink with filled template
-      try {
-        const tplResp = await base44.entities.EmailTemplate.filter({ name: 'Portal Link', is_active: true });
-        if (tplResp && tplResp.length > 0) {
-          const tpl = tplResp[0];
-          const filled = await base44.functions.invoke('fillEmailTemplate', { template_id: tpl.id, case_id: caseId });
-          const out = filled.data || {};
-          if (out.outlook_link) {
-            window.open(out.outlook_link, '_blank');
-            toast.success(`Outlook opened for ${out.recipient || ownerEmail}`);
-            return { success: true, data: out };
-          }
-        }
-      } catch (e) {
-        console.warn('Outlook deeplink fallback to mailto:', e?.message);
+      // If email was sent directly by backend, show success
+      if (data.email_sent) {
+        toast.success(`Portal link sent to ${ownerEmail}`);
+        return { success: true, data: data.data || data };
       }
 
-      // Fallback to mailto
-      const email = data.email_content || {};
-      const subject = encodeURIComponent(email.subject || data.data?.emailSubject || "");
-      const body = encodeURIComponent(email.body || data.data?.emailBody || "");
-      const to = encodeURIComponent(email.to || data.data?.recipientEmail || ownerEmail);
-
-      const mailto = `mailto:${to}?subject=${subject}&body=${body}`;
+      // Email failed — fallback to mailto
+      toast.warning("Portal link generated but email failed. Opening email client...");
+      const emailContent = data.email_content || {};
+      const subject = encodeURIComponent(emailContent.subject || data.data?.emailSubject || "");
+      const body = encodeURIComponent(emailContent.body || data.data?.emailBody || "");
+      const to = encodeURIComponent(emailContent.to || data.data?.recipientEmail || ownerEmail);
 
       try {
         const a = document.createElement("a");
-        a.href = mailto;
+        a.href = `mailto:${to}?subject=${subject}&body=${body}`;
         document.body.appendChild(a);
         a.click();
         a.remove();
-        toast.success(`Email client opened for ${decodeURIComponent(to)}`);
       } catch (e) {
         setFallbackData({
           recipientEmail: decodeURIComponent(to),
@@ -65,7 +52,7 @@ export function usePortalLink() {
         toast.warning("Could not open email client. Copy the content manually.");
       }
 
-      return { success: true, data: data.data };
+      return { success: true, data: data.data || data };
     } finally {
       setIsLoading(false);
     }

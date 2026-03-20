@@ -17,7 +17,8 @@ import PortalAuthGuard from "@/components/portal/PortalAuthGuard";
 export default function PortalAgreement() {
   const navigate = useNavigate();
   const urlParams = new URLSearchParams(window.location.search);
-  const token = urlParams.get("token");
+  const caseId = urlParams.get("id");
+  const userEmail = sessionStorage.getItem("portal_user_email") || localStorage.getItem("portal_user_email");
   const [hasRead, setHasRead] = useState(false);
   const [signatureType, setSignatureType] = useState("type"); // type or draw
   const [typedSignature, setTypedSignature] = useState("");
@@ -26,12 +27,21 @@ export default function PortalAgreement() {
   const [isDrawing, setIsDrawing] = useState(false);
 
   const { data: caseData, isLoading } = useQuery({
-    queryKey: ["portalCase", token],
+    queryKey: ["portalCase", caseId],
     queryFn: async () => {
-      const cases = await base44.entities.Case.filter({ portal_token: token });
-      return cases[0];
+      if (!caseId || !userEmail) {
+        window.location.href = createPageUrl("PortalLogin");
+        return null;
+      }
+      const cases = await base44.entities.Case.filter({ id: caseId });
+      const c = cases[0];
+      if (!c || c.owner_email?.toLowerCase() !== userEmail?.toLowerCase()) {
+        window.location.href = createPageUrl("PortalDashboard");
+        return null;
+      }
+      return c;
     },
-    enabled: !!token,
+    enabled: !!caseId && !!userEmail,
   });
 
   // Fetch agreement document
@@ -121,7 +131,7 @@ export default function PortalAgreement() {
       });
 
       toast.success("Agreement signed successfully!");
-      navigate(createPageUrl(`PortalInfo?token=${token}`));
+      navigate(createPageUrl(`PortalInfo?id=${caseId}`));
     } catch (error) {
       toast.error("Failed to sign agreement: " + error.message);
       setIsSubmitting(false);
@@ -152,7 +162,7 @@ export default function PortalAgreement() {
           <p className="text-slate-600 mb-6">
             This agreement was signed on {caseData.agreement_signed_at && new Date(caseData.agreement_signed_at).toLocaleDateString()}
           </p>
-          <Link to={createPageUrl(`PortalInfo?token=${token}`)}>
+          <Link to={createPageUrl(`PortalInfo?id=${caseId}`)}>
             <Button className="bg-emerald-600 hover:bg-emerald-700">
               Continue to Next Step
             </Button>
@@ -192,7 +202,7 @@ export default function PortalAgreement() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <Link to={createPageUrl(`PortalDashboard?token=${token}`)}>
+          <Link to={createPageUrl("PortalDashboard")}>
             <Button variant="ghost" className="mb-4">
               <ArrowLeft className="w-4 h-4 mr-2" /> Back to Dashboard
             </Button>

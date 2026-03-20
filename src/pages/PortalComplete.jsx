@@ -7,24 +7,29 @@ import PortalAuthGuard from "@/components/portal/PortalAuthGuard";
 
 export default function PortalComplete() {
   const urlParams = new URLSearchParams(window.location.search);
-  const token = urlParams.get("token");
+  const caseId = urlParams.get("id");
+  const userEmail = sessionStorage.getItem("portal_user_email") || localStorage.getItem("portal_user_email");
   const [caseData, setCaseData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     async function loadCase() {
-      if (!token) {
+      if (!caseId || !userEmail) {
+        window.location.href = "/PortalLogin";
+        return;
+      }
+      const cases = await base44.entities.Case.filter({ id: caseId });
+      const c = cases[0];
+      if (!c || c.owner_email?.toLowerCase() !== userEmail?.toLowerCase()) {
+        window.location.href = "/PortalDashboard";
         setIsLoading(false);
         return;
       }
-      const cases = await base44.entities.Case.filter({ portal_token: token });
-      if (cases.length > 0) {
-        setCaseData(cases[0]);
-      }
+      setCaseData(c);
       setIsLoading(false);
     }
     loadCase();
-  }, [token]);
+  }, [caseId, userEmail]);
 
   if (isLoading) {
     return (

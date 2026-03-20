@@ -14,7 +14,8 @@ import { toast } from "sonner";
 export default function PortalInfo() {
   const navigate = useNavigate();
   const urlParams = new URLSearchParams(window.location.search);
-  const token = urlParams.get("token");
+  const caseId = urlParams.get("id");
+  const userEmail = sessionStorage.getItem("portal_user_email") || localStorage.getItem("portal_user_email");
   const [caseData, setCaseData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -37,11 +38,17 @@ export default function PortalInfo() {
 
   useEffect(() => {
     async function loadCase() {
-      if (!token) {
+      if (!caseId || !userEmail) {
+        window.location.href = createPageUrl("PortalLogin");
+        return;
+      }
+      const cases = await base44.entities.Case.filter({ id: caseId });
+      const caseMatch = cases[0];
+      if (!caseMatch || caseMatch.owner_email?.toLowerCase() !== userEmail?.toLowerCase()) {
+        window.location.href = createPageUrl("PortalDashboard");
         setIsLoading(false);
         return;
       }
-      const cases = await base44.entities.Case.filter({ portal_token: token });
       if (cases.length > 0) {
         const c = cases[0];
         setCaseData(c);
@@ -62,7 +69,7 @@ export default function PortalInfo() {
       setIsLoading(false);
     }
     loadCase();
-  }, [token]);
+  }, [caseId, userEmail]);
 
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -137,7 +144,7 @@ export default function PortalInfo() {
     });
 
     toast.success("Information saved successfully!");
-    navigate(createPageUrl(`PortalNotary?token=${token}`));
+    navigate(createPageUrl(`PortalNotary?id=${caseId}`));
   };
 
   if (isLoading) {
@@ -188,7 +195,7 @@ export default function PortalInfo() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <Link to={createPageUrl(`PortalDashboard?token=${token}`)}>
+          <Link to={createPageUrl("PortalDashboard")}>
             <Button variant="ghost" className="mb-4 text-slate-300 hover:text-white hover:bg-slate-800">
               <ArrowLeft className="w-4 h-4 mr-2" /> Back to Dashboard
             </Button>

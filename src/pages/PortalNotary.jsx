@@ -16,7 +16,8 @@ import PortalAuthGuard from "@/components/portal/PortalAuthGuard";
 export default function PortalNotary() {
   const navigate = useNavigate();
   const urlParams = new URLSearchParams(window.location.search);
-  const token = urlParams.get("token");
+  const caseId = urlParams.get("id");
+  const userEmail = sessionStorage.getItem("portal_user_email") || localStorage.getItem("portal_user_email");
   const [caseData, setCaseData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [step, setStep] = useState("overview"); // overview, print, find, at_notary, upload, verify
@@ -61,26 +62,28 @@ export default function PortalNotary() {
 
   useEffect(() => {
     async function loadCase() {
-      if (!token) {
+      if (!caseId || !userEmail) {
+        window.location.href = createPageUrl("PortalLogin");
+        return;
+      }
+      const cases = await base44.entities.Case.filter({ id: caseId });
+      const c = cases[0];
+      if (!c || c.owner_email?.toLowerCase() !== userEmail?.toLowerCase()) {
+        window.location.href = createPageUrl("PortalDashboard");
         setIsLoading(false);
         return;
       }
-      const cases = await base44.entities.Case.filter({ portal_token: token });
-      if (cases.length > 0) {
-        setCaseData(cases[0]);
-        
-        // Check if packet already exists
-        if (cases[0].notary_packet_generated && cases[0].notary_packet_url) {
-          setPacketInfo({
-            url: cases[0].notary_packet_url,
-            generated_at: cases[0].notary_packet_generated_at
-          });
-        }
+      setCaseData(c);
+      if (c.notary_packet_generated && c.notary_packet_url) {
+        setPacketInfo({
+          url: c.notary_packet_url,
+          generated_at: c.notary_packet_generated_at
+        });
       }
       setIsLoading(false);
     }
     loadCase();
-  }, [token]);
+  }, [caseId, userEmail]);
 
   const handleGeneratePacket = async () => {
     setIsGeneratingPacket(true);
@@ -174,7 +177,7 @@ export default function PortalNotary() {
       });
 
       toast.success('Notarization packet submitted successfully!');
-      navigate(createPageUrl(`PortalComplete?token=${token}`));
+      navigate(createPageUrl(`PortalComplete?id=${caseId}`));
     } catch (error) {
       toast.error('Upload failed: ' + error.message);
       setIsSubmitting(false);
@@ -225,7 +228,7 @@ export default function PortalNotary() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <Link to={createPageUrl(`PortalDashboard?token=${token}`)}>
+          <Link to={createPageUrl("PortalDashboard")}>
             <Button variant="ghost" className="mb-4">
               <ArrowLeft className="w-4 h-4 mr-2" /> Back to Dashboard
             </Button>
