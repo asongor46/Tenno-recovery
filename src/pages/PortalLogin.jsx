@@ -204,8 +204,8 @@ export default function PortalLogin() {
           <CardContent className="pt-6">
             <div className="mb-6">
               <Label className="text-sm font-medium mb-3 block">Login Method</Label>
-              <RadioGroup value={loginType} onValueChange={setLoginType}>
-                <div className="flex items-center space-x-2 mb-2">
+              <RadioGroup value={loginType} onValueChange={setLoginType} className="flex flex-col gap-3">
+                <div className="flex items-center space-x-2">
                   <RadioGroupItem value="access_code" id="access_code" />
                   <Label htmlFor="access_code" className="cursor-pointer font-normal">
                     First time? I have an access code
