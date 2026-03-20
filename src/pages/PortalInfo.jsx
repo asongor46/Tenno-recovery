@@ -359,7 +359,7 @@ export default function PortalInfo() {
                 (driver's license, state ID, or passport).
               </p>
 
-              <div className="grid sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* ID Front */}
                 <div>
                   <Label className="mb-2 block text-slate-300">ID Front</Label>
