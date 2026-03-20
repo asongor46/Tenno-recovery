@@ -13,6 +13,7 @@ import {
   LogOut,
   Clock,
   Activity,
+  HelpCircle,
 } from "lucide-react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,7 @@ import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
 import PortalAuthGuard from "@/components/portal/PortalAuthGuard";
 import ClientAIAssistant from "@/components/portal/ClientAIAssistant";
+import PortalWelcomeModal from "@/components/portal/PortalWelcomeModal";
 
 function PortalDashboardContent() {
   const sessionToken = localStorage.getItem("portal_session_token") || sessionStorage.getItem("portal_session_token");
