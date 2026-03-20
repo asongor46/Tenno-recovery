@@ -25,6 +25,7 @@ import { Link } from "react-router-dom";
 import PortalAuthGuard from "@/components/portal/PortalAuthGuard";
 import ClientAIAssistant from "@/components/portal/ClientAIAssistant";
 import PortalWelcomeModal from "@/components/portal/PortalWelcomeModal";
+import PortalErrorBoundary from "@/components/portal/PortalErrorBoundary";
 
 function PortalDashboardContent() {
   const sessionToken = localStorage.getItem("portal_session_token") || sessionStorage.getItem("portal_session_token");
