@@ -6,7 +6,6 @@ import { useQuery } from "@tanstack/react-query";
 import {
   LayoutDashboard,
   Briefcase,
-  Flame,
   Building2,
   FileText,
   BookOpen,
@@ -20,7 +19,6 @@ import {
   User,
   Menu,
   X,
-  FileText,
   FileCode,
   PackageOpen,
   Users,
