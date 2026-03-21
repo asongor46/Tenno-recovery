@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, Check, PenTool, FileText, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -27,37 +26,28 @@ export default function PortalAgreement() {
   const canvasRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
 
-  const { data: caseData, isLoading } = useQuery({
-    queryKey: ["portalCase", caseId],
-    queryFn: async () => {
-      if (!caseId || !userEmail) {
-        window.location.href = createPageUrl("PortalLogin");
-        return null;
-      }
-      const cases = await base44.entities.Case.filter({ id: caseId });
-      const c = cases[0];
-      if (!c || c.owner_email?.toLowerCase() !== userEmail?.toLowerCase()) {
-        window.location.href = createPageUrl("PortalDashboard");
-        return null;
-      }
-      return c;
-    },
-    enabled: !!caseId && !!userEmail,
-  });
+  const [caseData, setCaseData] = useState(null);
+  const [agreementDoc, setAgreementDoc] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch agreement document
-  const { data: agreementDoc } = useQuery({
-    queryKey: ["agreementDoc", caseData?.id],
-    queryFn: async () => {
-      const docs = await base44.entities.Document.filter({
-        case_id: caseData.id,
-        category: "agreement",
-        is_primary: true,
-      });
-      return docs[0];
-    },
-    enabled: !!caseData?.id,
-  });
+  useEffect(() => {
+    async function loadCase() {
+      const sessionToken = sessionStorage.getItem("portal_session_token") || localStorage.getItem("portal_session_token");
+      if (!caseId || !sessionToken) {
+        window.location.href = createPageUrl("PortalLogin");
+        return;
+      }
+      const res = await base44.functions.invoke("getPortalCaseData", { session_token: sessionToken, case_id: caseId });
+      if (!res.data?.success) {
+        window.location.href = createPageUrl("PortalDashboard");
+        return;
+      }
+      setCaseData(res.data.case);
+      setAgreementDoc(res.data.agreement_doc);
+      setIsLoading(false);
+    }
+    loadCase();
+  }, [caseId]);
 
   // Canvas drawing functions
   const startDrawing = (e) => {
@@ -112,34 +102,21 @@ export default function PortalAgreement() {
 
     setIsSubmitting(true);
 
-    const signedAt = new Date().toISOString();
+    const sessionToken = sessionStorage.getItem("portal_session_token") || localStorage.getItem("portal_session_token");
 
     try {
-      await base44.entities.Case.update(caseData.id, {
-        agreement_signed_at: signedAt,
-        agreement_signature: signature,
-        agreement_status: "signed",
-        stage: "agreement_signed",
-        fee_locked: true,
-        fee_locked_at: signedAt,
-        fee_percent_at_signing: caseData.fee_percent,
+      const res = await base44.functions.invoke("updatePortalCase", {
+        session_token: sessionToken,
+        case_id: caseData.id,
+        action: "sign_agreement",
+        payload: { signature },
       });
 
-      await base44.entities.HomeownerTaskEvent.create({
-        case_id: caseData.id,
-        event_type: "agreement_signed",
-        step_key: "agreement",
-        performed_by: caseData.owner_email || "Homeowner",
-        details: { signed_at: new Date().toISOString() }
-      });
-
-      await base44.entities.ActivityLog.create({
-        case_id: caseData.id,
-        action: "Agreement Signed",
-        description: "Homeowner signed the service agreement via portal",
-        performed_by: "Homeowner",
-        is_client_visible: true,
-      });
+      if (!res.data?.success) {
+        toast.error(res.data?.error || "Failed to sign agreement");
+        setIsSubmitting(false);
+        return;
+      }
 
       toast.success("Agreement signed successfully!");
       navigate(createPageUrl(`PortalInfo?id=${caseId}`));
