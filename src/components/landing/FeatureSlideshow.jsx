@@ -116,7 +116,8 @@ export default function FeatureSlideshow() {
               <img
                 src={slide.screenshot}
                 alt={slide.title}
-                className="w-full h-full object-cover" />
+                className="w-full h-full object-cover"
+                onError={(e) => { if (slide.fallback) e.target.src = slide.fallback; }} />
               
               {/* Gradient overlay */}
               <div className={`absolute inset-0 bg-gradient-to-br ${slide.color} opacity-60`} />
