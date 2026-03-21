@@ -104,6 +104,36 @@ export default function AgentApply() {
             </p>
           </div>
 
+          {/* Plan Selection */}
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            <button
+              type="button"
+              onClick={() => setSelectedPlan("starter")}
+              className={`p-4 rounded-xl border-2 text-left transition-all ${selectedPlan === "starter" ? "border-emerald-500 bg-emerald-500/10" : "border-slate-700 bg-slate-800 hover:border-slate-600"}`}
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <Zap className="w-4 h-4 text-emerald-400" />
+                <span className="font-semibold text-white">Starter</span>
+                {selectedPlan === "starter" && <CheckCircle2 className="w-4 h-4 text-emerald-400 ml-auto" />}
+              </div>
+              <p className="text-2xl font-bold text-white">$50<span className="text-sm font-normal text-slate-400">/mo</span></p>
+              <p className="text-xs text-slate-400 mt-1">CRM, pipeline, state compliance, counties</p>
+            </button>
+            <button
+              type="button"
+              onClick={() => setSelectedPlan("pro")}
+              className={`p-4 rounded-xl border-2 text-left transition-all ${selectedPlan === "pro" ? "border-amber-500 bg-amber-500/10" : "border-slate-700 bg-slate-800 hover:border-slate-600"}`}
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <Crown className="w-4 h-4 text-amber-400" />
+                <span className="font-semibold text-white">Pro</span>
+                {selectedPlan === "pro" && <CheckCircle2 className="w-4 h-4 text-amber-400 ml-auto" />}
+              </div>
+              <p className="text-2xl font-bold text-white">$97<span className="text-sm font-normal text-slate-400">/mo</span></p>
+              <p className="text-xs text-slate-400 mt-1">Everything + AI imports, portal, packet builder</p>
+            </button>
+          </div>
+
           <Card className="bg-slate-800 border-slate-700">
             <CardHeader>
               <CardTitle className="text-white">Application Form</CardTitle>
