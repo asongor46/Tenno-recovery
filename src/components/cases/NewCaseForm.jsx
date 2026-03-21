@@ -69,6 +69,7 @@ export default function NewCaseForm({ counties, onSuccess }) {
       stage: "imported",
       notary_status: "pending",
       portal_token: crypto.randomUUID(),
+      agent_id: agentId,
     };
 
     try {

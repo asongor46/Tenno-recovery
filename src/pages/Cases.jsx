@@ -92,11 +92,33 @@ export default function Cases() {
   const queryClient = useQueryClient();
   const toast = useStandardToast();
 
+  const { data: agentProfile } = useQuery({
+    queryKey: ["agentProfileForCases"],
+    queryFn: async () => {
+      const user = await base44.auth.me();
+      if (!user?.email) return null;
+      // Admin sees all cases; regular agents see only their own
+      if (user.role === "admin") return { id: null, role: "admin" };
+      const profiles = await base44.entities.AgentProfile.filter({ email: user.email });
+      return profiles[0] || null;
+    },
+  });
+
   const { data: cases = [], isLoading } = useQuery({
-    queryKey: ["cases"],
-    queryFn: () => base44.entities.Case.list("-updated_date", 500),
-    staleTime: 60000, // Cache for 1 minute
-    cacheTime: 300000, // Keep in cache for 5 minutes
+    queryKey: ["cases", agentProfile?.id],
+    queryFn: async () => {
+      if (agentProfile?.role === "admin") {
+        return base44.entities.Case.list("-updated_date", 500);
+      }
+      if (agentProfile?.id) {
+        return base44.entities.Case.filter({ agent_id: agentProfile.id }, "-updated_date", 500);
+      }
+      // Fallback: list all (RLS handles scoping)
+      return base44.entities.Case.list("-updated_date", 500);
+    },
+    enabled: agentProfile !== undefined,
+    staleTime: 60000,
+    cacheTime: 300000,
   });
 
   const { data: counties = [] } = useQuery({
