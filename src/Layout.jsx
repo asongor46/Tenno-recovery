@@ -36,7 +36,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { Toaster } from "@/components/ui/toaster";
-import AgentChatbot from "@/components/dashboard/AgentChatbot";
 import ErrorBoundary from "@/components/shared/ErrorBoundary";
 import SubscriptionBanner from "@/components/stripe/SubscriptionBanner";
 
@@ -307,7 +306,7 @@ export default function Layout({ children, currentPageName }) {
       {/* Main content area */}
       <div className="lg:pl-72">
         {/* Top bar */}
-        <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-slate-200/50">
+        <header className="sticky top-0 z-30 bg-slate-900/80 backdrop-blur-xl border-b border-slate-800">
           <div className="flex items-center justify-between h-16 px-4 lg:px-8">
             {/* Mobile menu button & Search */}
             <div className="flex items-center gap-4 flex-1">
@@ -421,9 +420,6 @@ export default function Layout({ children, currentPageName }) {
           </ErrorBoundary>
         </main>
         </div>
-
-        {/* Agent Chatbot - Available throughout the app */}
-        <AgentChatbot />
 
         <Toaster />
         </div>
