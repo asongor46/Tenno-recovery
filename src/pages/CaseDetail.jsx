@@ -210,12 +210,12 @@ export default function CaseDetail() {
                 </Badge>
               )}
               {/* Surplus type badge */}
-              {caseData.source_type === "pdf_import" || caseData.source_type === "manual" ? null : null}
-              {caseData.sale_amount && caseData.judgment_amount ? (
-                <Badge className="bg-blue-100 text-blue-700 border-0">Tax Sale</Badge>
-              ) : caseData.sale_amount && !caseData.judgment_amount ? (
-                <Badge className="bg-purple-100 text-purple-700 border-0">Sheriff Sale</Badge>
-              ) : null}
+              {caseData.surplus_type === "tax_sale" && (
+                <Badge className="bg-green-100 text-green-700 border-0">🏛 Tax Sale</Badge>
+              )}
+              {caseData.surplus_type === "sheriff_sale" && (
+                <Badge className="bg-blue-100 text-blue-700 border-0">⚖️ Sheriff Sale</Badge>
+              )}
               {/* ADDED: Verification status badge */}
               {caseData.verification_status && caseData.verification_status !== "pending" && (
                 <Badge className={`border-0 ${
