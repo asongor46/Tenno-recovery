@@ -15,7 +15,6 @@ import {
   ChevronLeft,
   ChevronRight,
   FileUp,
-  Globe,
   Edit3,
   ChevronDown,
   FileText,
@@ -56,10 +55,8 @@ import {
 import { format } from "date-fns";
 import NewCaseForm from "@/components/cases/NewCaseForm";
 import PDFCaseBuilder from "@/components/cases/PDFCaseBuilder"; // ADDED
-import URLCaseBuilder from "@/components/cases/URLCaseBuilder"; // ADDED
 import ScreenshotCaseBuilder from "@/components/cases/ScreenshotCaseBuilder"; // ADDED
 import TextCaseBuilder from "@/components/cases/TextCaseBuilder"; // ADDED
-import AdvancedCaseBuilder from "@/components/cases/AdvancedCaseBuilder"; // ADDED: Universal County Mapping
 import AdvancedSearchPanel from "@/components/cases/AdvancedSearchPanel";
 import BulkActionsToolbar from "@/components/cases/BulkActionsToolbar";
 import { useStandardToast } from "@/components/shared/useStandardToast";
@@ -294,27 +291,7 @@ export default function Cases() {
               <FileText className="w-4 h-4 mr-2 text-blue-600" />
               Paste Text (Parse)
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => {
-              setImportMethod("url");
-              setShowNewCaseDialog(true);
-            }}>
-              <Globe className="w-4 h-4 mr-2" />
-              Import From URL (Web Crawler)
-            </DropdownMenuItem>
-            {/* ADDED: Advanced Import option */}
-            <DropdownMenuItem 
-              onClick={() => {
-                setImportMethod("advanced");
-                setShowNewCaseDialog(true);
-              }}
-              className="border-t mt-1 pt-2"
-            >
-              <ChevronDown className="w-4 h-4 mr-2 text-purple-600" />
-              <div>
-                <div className="font-medium">Advanced Import</div>
-                <div className="text-xs text-slate-500">Universal County Mapping</div>
-              </div>
-            </DropdownMenuItem>
+
           </DropdownMenuContent>
         </DropdownMenu>
 
@@ -330,8 +307,7 @@ export default function Cases() {
                 {importMethod === "pdf" && "Create Cases - Upload PDF"}
                 {importMethod === "screenshot" && "Create Cases - Upload Screenshot (OCR)"}
                 {importMethod === "text" && "Create Cases - Paste Text"}
-                {importMethod === "url" && "Create Cases - Import From URL"}
-                {importMethod === "advanced" && "Advanced Import - Universal County Mapping"}
+
               </DialogTitle>
             </DialogHeader>
 
@@ -388,33 +364,7 @@ export default function Cases() {
               />
             )}
 
-            {importMethod === "url" && (
-              <URLCaseBuilder
-                onSuccess={() => {
-                  setShowNewCaseDialog(false);
-                  setImportMethod(null);
-                  queryClient.invalidateQueries({ queryKey: ["cases"] });
-                }}
-                onCancel={() => {
-                  setShowNewCaseDialog(false);
-                  setImportMethod(null);
-                }}
-              />
-            )}
 
-            {importMethod === "advanced" && (
-              <AdvancedCaseBuilder
-                onSuccess={() => {
-                  setShowNewCaseDialog(false);
-                  setImportMethod(null);
-                  queryClient.invalidateQueries({ queryKey: ["cases"] });
-                }}
-                onCancel={() => {
-                  setShowNewCaseDialog(false);
-                  setImportMethod(null);
-                }}
-              />
-            )}
           </DialogContent>
         </Dialog>
       </div>

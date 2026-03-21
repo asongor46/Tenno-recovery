@@ -181,24 +181,12 @@ export default function FileManager() {
         extraction_status: "pending", // ADDED: Mark for AI analysis
       });
 
-      // ADDED: Trigger AI analysis in background
-      base44.functions.invoke("aiDocumentAnalysis", {
-        document_id: newDoc.id,
-        analysis_type: "full"
-      }).then(({ data }) => {
-        if (data.status === 'success') {
-          console.log("AI analysis complete:", data.analysis.summary);
-          queryClient.invalidateQueries({ queryKey: ["all-documents"] });
-          queryClient.invalidateQueries({ queryKey: ["case", uploadData.case_id] });
-        }
-      }).catch(err => console.error("AI analysis failed:", err));
-
       queryClient.invalidateQueries({ queryKey: ["all-documents"] });
       setShowUploadDialog(false);
       setUploadFile(null);
       setUploadData({ case_id: "", name: "", category: "other", tags: [] });
       setTagInput("");
-      toast.success("Document uploaded successfully! AI analysis running in background...");
+      toast.success("Document uploaded successfully!");
     } catch (error) {
       toast.error(`Upload failed: ${error.message}`);
     } finally {
@@ -447,27 +435,11 @@ export default function FileManager() {
                        <div className="flex items-center gap-3">
                          <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center relative">
                            <FileIcon className="w-5 h-5 text-slate-500" />
-                           {/* ADDED: AI analysis indicator */}
-                           {doc.extraction_status === "completed" && (
-                             <Sparkles className="w-3 h-3 text-purple-600 absolute -top-1 -right-1" />
-                           )}
-                           {doc.metadata?.ai_analysis?.discrepancies?.length > 0 && (
-                             <AlertCircle className="w-3 h-3 text-amber-600 absolute -bottom-1 -right-1" />
-                           )}
+ 
                          </div>
                          <div>
                            <span className="font-medium">{doc.name}</span>
-                           {/* ADDED: AI analysis summary */}
-                           {doc.metadata?.ai_analysis?.confidence && (
-                             <p className="text-xs text-slate-500 mt-0.5">
-                               AI Confidence: {doc.metadata.ai_analysis.confidence}%
-                               {doc.metadata.ai_analysis.discrepancies?.length > 0 && (
-                                 <span className="text-amber-600 ml-2">
-                                   • {doc.metadata.ai_analysis.discrepancies.length} issue(s)
-                                 </span>
-                               )}
-                             </p>
-                           )}
+
                          </div>
                        </div>
                       </TableCell>

@@ -248,70 +248,7 @@ export default function CaseDetail() {
         <div className="flex flex-wrap items-center gap-2">
           {/* ADDED: Import RunVerificationButton component at top */}
           <RunVerificationButton caseId={caseId} />
-          {/* ADDED: AI Actions Dropdown */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="gap-2 bg-gradient-to-r from-purple-50 to-indigo-50 border-purple-200">
-                <Sparkles className="w-4 h-4 text-purple-600" />
-                AI Actions
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuItem 
-                onClick={async () => {
-                  const { data } = await base44.functions.invoke("aiCaseAutomation", {
-                    case_id: caseId,
-                    action_type: "link_related_cases"
-                  });
-                  toast.success(`Found ${data.result.related_cases?.length || 0} related case(s)`);
-                  queryClient.invalidateQueries({ queryKey: ["activities", caseId] });
-                }}
-              >
-                <LinkIcon className="w-4 h-4 mr-2" />
-                Find Related Cases
-              </DropdownMenuItem>
-              <DropdownMenuItem 
-                onClick={async () => {
-                  const { data } = await base44.functions.invoke("aiCaseAutomation", {
-                    case_id: caseId,
-                    action_type: "suggest_next_steps"
-                  });
-                  toast.success(`Generated ${data.result.next_steps?.length || 0} suggested action(s)`);
-                  queryClient.invalidateQueries({ queryKey: ["todos", caseId] });
-                  queryClient.invalidateQueries({ queryKey: ["activities", caseId] });
-                }}
-              >
-                <Lightbulb className="w-4 h-4 mr-2" />
-                Suggest Next Steps
-              </DropdownMenuItem>
-              <DropdownMenuItem 
-                onClick={async () => {
-                  const { data } = await base44.functions.invoke("aiCaseAutomation", {
-                    case_id: caseId,
-                    action_type: "generate_correspondence"
-                  });
-                  toast.success("Correspondence generated successfully");
-                }}
-              >
-                <Send className="w-4 h-4 mr-2" />
-                Generate Correspondence
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem 
-                onClick={async () => {
-                  const { data } = await base44.functions.invoke("aiCaseAutomation", {
-                    case_id: caseId,
-                    action_type: "all"
-                  });
-                  toast.success(`AI Automation Complete - ${data.result.related_cases?.length || 0} related cases, ${data.result.next_steps?.length || 0} suggestions`);
-                  queryClient.invalidateQueries();
-                }}
-              >
-                <Sparkles className="w-4 h-4 mr-2" />
-                Run All AI Automations
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+
           <Button 
             variant="outline"
             onClick={async () => {
