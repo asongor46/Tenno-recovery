@@ -495,7 +495,13 @@ export default function Settings() {
                 <div className="p-4 border-2 border-amber-300 rounded-xl bg-amber-50">
                   <p className="font-semibold text-amber-800 mb-1">Upgrade to Pro — $97/month</p>
                   <p className="text-sm text-amber-700 mb-3">Unlock Packet Builder, Form Library, File Manager, AI imports, and the Homeowner Portal.</p>
-                  <Button className="bg-amber-500 hover:bg-amber-600 text-white">
+                  <Button className="bg-amber-500 hover:bg-amber-600 text-white" onClick={async () => {
+                    if (window.self !== window.top) { alert("Checkout only works from the published app."); return; }
+                    try {
+                      const res = await base44.functions.invoke("createCheckoutSession", { plan: "pro", successUrl: window.location.origin + "/Settings?checkout=success", cancelUrl: window.location.origin + "/Settings" });
+                      if (res.data?.url) window.location.href = res.data.url;
+                    } catch (e) { toast.error("Could not start upgrade. Please try again."); }
+                  }}>
                     <Crown className="w-4 h-4 mr-2" /> Upgrade to Pro
                   </Button>
                 </div>
@@ -509,8 +515,17 @@ export default function Settings() {
               )}
 
               {agentProfile?.stripe_customer_id && (
-                <div className="pt-4 border-t">
-                  <p className="text-xs text-slate-400">Stripe Customer ID: {agentProfile.stripe_customer_id}</p>
+                <div className="pt-4 border-t flex items-center justify-between">
+                  <p className="text-xs text-slate-400">Stripe Customer: {agentProfile.stripe_customer_id}</p>
+                  <Button variant="outline" size="sm" onClick={async () => {
+                    if (window.self !== window.top) { alert("Billing portal only works from the published app."); return; }
+                    try {
+                      const res = await base44.functions.invoke("createPortalSession", { returnUrl: window.location.href });
+                      if (res.data?.url) window.location.href = res.data.url;
+                    } catch (e) { toast.error("Could not open billing portal."); }
+                  }}>
+                    Manage Subscription
+                  </Button>
                 </div>
               )}
             </CardContent>
