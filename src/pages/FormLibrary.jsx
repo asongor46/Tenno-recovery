@@ -77,6 +77,10 @@ export default function FormLibrary() {
     other: "bg-gray-100 text-gray-800"
   };
 
+  if (!isPro && agentProfile !== undefined) {
+    return <ProUpgradePrompt feature="Form Library" onDismiss={() => window.history.back()} />;
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
