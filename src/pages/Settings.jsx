@@ -170,7 +170,7 @@ export default function Settings() {
       </div>
 
       <Tabs defaultValue="profile">
-        <TabsList className="bg-white border">
+        <TabsList className="bg-slate-800 border border-slate-700">
           <TabsTrigger value="profile" className="gap-2">
             <User className="w-4 h-4" /> Profile
           </TabsTrigger>
@@ -197,30 +197,31 @@ export default function Settings() {
 
         {/* Profile Tab */}
         <TabsContent value="profile" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Profile Information</CardTitle>
-              <CardDescription>Update your personal information</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="full_name">Full Name</Label>
-                <Input
-                  id="full_name"
-                  value={profile.full_name}
-                  onChange={(e) => setProfile({ ...profile, full_name: e.target.value })}
-                />
-              </div>
-              <div>
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  value={user?.email || ""}
-                  disabled
-                  className="bg-slate-50"
-                />
-                <p className="text-xs text-slate-500 mt-1">Email cannot be changed</p>
-              </div>
+          <Card className="bg-slate-800 border-slate-700">
+          <CardHeader>
+            <CardTitle className="text-white">Profile Information</CardTitle>
+            <CardDescription className="text-slate-400">Update your personal information</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label className="text-slate-300" htmlFor="full_name">Full Name</Label>
+              <Input
+                id="full_name"
+                value={profile.full_name}
+                onChange={(e) => setProfile({ ...profile, full_name: e.target.value })}
+                className="bg-slate-700 border-slate-600 text-white"
+              />
+            </div>
+            <div>
+              <Label className="text-slate-300" htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                value={user?.email || ""}
+                disabled
+                className="bg-slate-900/50 border-slate-600 text-slate-400"
+              />
+              <p className="text-xs text-slate-500 mt-1">Email cannot be changed</p>
+            </div>
               <div className="pt-4">
                 <Button 
                   onClick={handleProfileSave} 
@@ -241,16 +242,16 @@ export default function Settings() {
 
         {/* Notifications Tab */}
         <TabsContent value="notifications" className="mt-6">
-          <Card>
+          <Card className="bg-slate-800 border-slate-700">
             <CardHeader>
-              <CardTitle>Notification Preferences</CardTitle>
-              <CardDescription>Choose what notifications you receive</CardDescription>
+              <CardTitle className="text-white">Notification Preferences</CardTitle>
+              <CardDescription className="text-slate-400">Choose what notifications you receive</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium">Email Alerts</p>
-                  <p className="text-sm text-slate-500">Receive important alerts via email</p>
+                  <p className="font-medium text-white">Email Alerts</p>
+                  <p className="text-sm text-slate-400">Receive important alerts via email</p>
                 </div>
                 <Switch
                   checked={notifications.emailAlerts}
@@ -259,8 +260,8 @@ export default function Settings() {
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium">Case Updates</p>
-                  <p className="text-sm text-slate-500">Get notified when cases progress</p>
+                  <p className="font-medium text-white">Case Updates</p>
+                  <p className="text-sm text-slate-400">Get notified when cases progress</p>
                 </div>
                 <Switch
                   checked={notifications.caseUpdates}
@@ -269,8 +270,8 @@ export default function Settings() {
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium">Payment Notifications</p>
-                  <p className="text-sm text-slate-500">Alerts when payments are received</p>
+                  <p className="font-medium text-white">Payment Notifications</p>
+                  <p className="text-sm text-slate-400">Alerts when payments are received</p>
                 </div>
                 <Switch
                   checked={notifications.paymentNotifications}
@@ -279,8 +280,8 @@ export default function Settings() {
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium">Weekly Digest</p>
-                  <p className="text-sm text-slate-500">Summary of activity sent weekly</p>
+                  <p className="font-medium text-white">Weekly Digest</p>
+                  <p className="text-sm text-slate-400">Summary of activity sent weekly</p>
                 </div>
                 <Switch
                   checked={notifications.weeklyDigest}
@@ -472,19 +473,19 @@ export default function Settings() {
 
         {/* Subscription Tab */}
         <TabsContent value="subscription" className="mt-6">
-          <Card>
+          <Card className="bg-slate-800 border-slate-700">
             <CardHeader>
-              <CardTitle>Subscription</CardTitle>
-              <CardDescription>Your current plan and billing details</CardDescription>
+              <CardTitle className="text-white">Subscription</CardTitle>
+              <CardDescription className="text-slate-400">Your current plan and billing details</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl border">
+              <div className="flex items-center gap-4 p-4 bg-slate-900/50 rounded-xl border border-slate-700">
                 <div className={`w-12 h-12 rounded-full flex items-center justify-center ${agentProfile?.plan === "pro" ? "bg-amber-100" : "bg-slate-200"}`}>
                   <Crown className={`w-6 h-6 ${agentProfile?.plan === "pro" ? "text-amber-600" : "text-slate-500"}`} />
                 </div>
                 <div>
-                  <p className="font-bold text-lg capitalize">{agentProfile?.plan || "Starter"} Plan</p>
-                  <p className="text-slate-500 text-sm">
+                  <p className="font-bold text-lg capitalize text-white">{agentProfile?.plan || "Starter"} Plan</p>
+                  <p className="text-slate-400 text-sm">
                     {agentProfile?.plan === "pro" ? "$97/month • Full access to all Pro features" : "$50/month • Core tools included"}
                   </p>
                   {agentProfile?.plan_status && (
@@ -500,9 +501,9 @@ export default function Settings() {
               </div>
 
               {agentProfile?.plan !== "pro" && (
-                <div className="p-4 border-2 border-amber-300 rounded-xl bg-amber-50">
-                  <p className="font-semibold text-amber-800 mb-1">Upgrade to Pro — $97/month</p>
-                  <p className="text-sm text-amber-700 mb-3">Unlock Packet Builder, Form Library, File Manager, AI imports, and the Homeowner Portal.</p>
+                <div className="p-4 border border-amber-500/30 rounded-xl bg-amber-500/10">
+                  <p className="font-semibold text-amber-400 mb-1">Upgrade to Pro — $97/month</p>
+                  <p className="text-sm text-amber-400/80 mb-3">Unlock Packet Builder, Form Library, File Manager, AI imports, and the Homeowner Portal.</p>
                   <Button className="bg-amber-500 hover:bg-amber-600 text-white" onClick={() => {
                     if (window.self !== window.top) { alert("Checkout only works from the published app."); return; }
                     setShowCheckout(true);
