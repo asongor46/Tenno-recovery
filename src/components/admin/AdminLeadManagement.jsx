@@ -58,12 +58,95 @@ export default function AdminLeadManagement() {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const rows = parseCSV(ev.target.result);
-      setCsvRows(rows);
-    };
-    reader.readAsText(file);
+    if (uploadMode === "pdf") {
+      handlePdfUpload(file);
+    } else {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const rows = parseCSV(ev.target.result);
+        setCsvRows(rows);
+      };
+      reader.readAsText(file);
+    }
+  };
+
+  const handlePdfUpload = async (file) => {
+    setUploading(true);
+    setPdfStatus("Uploading PDF...");
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setPdfStatus("Extracting lead data with AI...");
+
+      const result = await base44.integrations.Core.ExtractDataFromUploadedFile({
+        file_url,
+        json_schema: {
+          type: "object",
+          properties: {
+            leads: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  owner_name: { type: "string" },
+                  property_address: { type: "string" },
+                  county: { type: "string" },
+                  state: { type: "string" },
+                  surplus_type: { type: "string", enum: ["tax_sale", "sheriff_sale"] },
+                  surplus_amount: { type: "number" },
+                  sale_amount: { type: "number" },
+                  sale_date: { type: "string" },
+                  case_number: { type: "string" },
+                  parcel_number: { type: "string" },
+                },
+              },
+            },
+          },
+        },
+      });
+
+      if (result.status !== "success" || !result.output?.leads?.length) {
+        toast({ title: "Could not extract leads from PDF.", variant: "destructive" });
+        setPdfStatus("");
+        setUploading(false);
+        return;
+      }
+
+      const rows = result.output.leads;
+      setPdfStatus(`Extracted ${rows.length} leads. Importing...`);
+
+      let success = 0;
+      for (const row of rows) {
+        if (!row.owner_name || !row.property_address) continue;
+        await base44.entities.Lead.create({
+          owner_name: row.owner_name,
+          property_address: row.property_address,
+          county: row.county || batchCounty,
+          state: row.state || batchState,
+          surplus_type: row.surplus_type || batchType,
+          surplus_amount: row.surplus_amount || 0,
+          sale_amount: row.sale_amount || null,
+          sale_date: row.sale_date || "",
+          case_number: row.case_number || "",
+          parcel_number: row.parcel_number || "",
+          fund_status: "active",
+          claim_flags: 0,
+          times_imported: 0,
+          uploaded_at: new Date().toISOString().split("T")[0],
+          uploaded_by: "system",
+        });
+        success++;
+      }
+
+      qc.invalidateQueries({ queryKey: ["adminLeads"] });
+      qc.invalidateQueries({ queryKey: ["leads"] });
+      toast({ title: `Imported ${success} leads from PDF` });
+      setPdfStatus("");
+    } catch (err) {
+      toast({ title: "PDF import failed: " + err.message, variant: "destructive" });
+      setPdfStatus("");
+    }
+    setUploading(false);
+    if (fileRef.current) fileRef.current.value = "";
   };
 
   const handleImport = async () => {
