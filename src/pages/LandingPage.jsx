@@ -51,32 +51,36 @@ const comparisonRows = [
 
 const faqs = [
 {
-  question: "Can I try before I subscribe?",
-  answer: "Watch our platform walkthrough above — every feature is shown. Subscribe and cancel within 7 days for a full refund. No questions asked."
+  question: "What's the difference between Starter and Pro?",
+  answer: "Starter ($50/mo) gives you the full CRM, pipeline, state compliance engine, county directory, manual/CSV import, contact logging, and email templates. Pro ($97/mo) adds the homeowner self-serve portal, PDF/screenshot/URL AI import, letter generator, packet builder, form library, and file manager."
 },
 {
-  question: "Is there a per-case or per-lead fee?",
-  answer: "No. $50/month, unlimited cases, unlimited homeowners. No per-lead fees, no credits, no surprises."
+  question: "What's the difference between a tax sale and a sheriff sale?",
+  answer: "Tax sale surplus comes from properties sold at auction for unpaid property taxes — these are typically filed administratively with the county. Sheriff sale surplus comes from mortgage foreclosures — these usually require a court motion and sometimes an attorney. TENNO tracks both types separately and shows you the correct fee cap and process for each."
+},
+{
+  question: "Can I work cases without the homeowner portal?",
+  answer: "Yes. Starter agents run their entire business manually. You advance pipeline stages yourself — upload the signed agreement, ID photos, and notarized packet manually. The pipeline is identical to Pro; the difference is that Pro lets homeowners complete those steps themselves online."
 },
 {
   question: "How does the state compliance engine work?",
-  answer: "When you create a case or select a state, TENNO automatically shows you the fee cap, registration requirements, waiting periods, and PI/attorney rules for that state. You get a color-coded warning if your fee exceeds the cap."
+  answer: "When you create a case, TENNO shows you the fee cap for that state and surplus type (tax sale vs. sheriff sale), registration requirements, waiting periods, and PI/attorney rules. You get a warning if your fee exceeds the legal cap for that state."
 },
 {
-  question: "What is the homeowner portal?",
-  answer: "A TENNO-branded web portal where homeowners sign agreements, upload ID, complete intake forms, and track their case. Fully self-serve — no phone calls needed for these steps."
+  question: "What is the homeowner portal? (Pro only)",
+  answer: "A TENNO-branded web portal where homeowners sign agreements, upload their ID, complete intake forms, and upload notarized documents — entirely on their own. Stages auto-advance when they complete each step. You just watch the pipeline move."
+},
+{
+  question: "Is there a per-case or per-lead fee?",
+  answer: "No. $50 or $97/month flat — unlimited cases, unlimited homeowners. No per-lead fees, no credits, no surprises."
 },
 {
   question: "Can I cancel anytime?",
   answer: "Yes. Cancel from Settings → Manage Subscription. Your account stays read-only for 90 days so your data isn't lost."
 },
 {
-  question: "Do homeowners pay anything?",
-  answer: "No. The portal is free for homeowners. Your contingency fee is handled outside TENNO — we just give you the tools to manage it."
-},
-{
   question: "Is my data private from other agents?",
-  answer: "Yes — row-level security means each agent sees only their own cases and homeowners. Even admin staff at TENNO can't see your clients without explicitly querying them."
+  answer: "Yes — row-level security means each agent sees only their own cases and homeowners. Multiple agents can work the same lead independently (common in the industry) — they'll never know about each other."
 }];
 
 
