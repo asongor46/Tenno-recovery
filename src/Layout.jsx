@@ -22,7 +22,6 @@ import {
   PackageOpen,
   Users,
   FolderOpen,
-  Lock,
   Crown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";

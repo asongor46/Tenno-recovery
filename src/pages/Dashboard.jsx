@@ -7,9 +7,6 @@ import {
   FileCheck,
   PackageCheck,
   Target,
-  AlertTriangle,
-  Sparkles,
-  Lightbulb,
 } from "lucide-react";
 import KPICard from "@/components/dashboard/KPICard";
 import CasesTable from "@/components/dashboard/CasesTable";
