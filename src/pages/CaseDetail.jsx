@@ -427,6 +427,14 @@ export default function CaseDetail() {
                     <p className="font-semibold mt-1">{caseData.case_number}</p>
                   </div>
                   <div>
+                    <p className="text-sm text-slate-500">Surplus Type</p>
+                    <div className="mt-1">
+                      {caseData.surplus_type === "tax_sale" && <Badge className="bg-green-100 text-green-700 border-0">🏛 Tax Sale</Badge>}
+                      {caseData.surplus_type === "sheriff_sale" && <Badge className="bg-blue-100 text-blue-700 border-0">⚖️ Sheriff Sale</Badge>}
+                      {!caseData.surplus_type && <span className="text-slate-400 text-sm">Not set</span>}
+                    </div>
+                  </div>
+                  <div>
                     <p className="text-sm text-slate-500">County</p>
                     <p className="font-semibold mt-1">{caseData.county}, {caseData.state}</p>
                   </div>
