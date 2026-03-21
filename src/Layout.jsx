@@ -218,7 +218,7 @@ export default function Layout({ children, currentPageName }) {
 
         {/* Navigation */}
         <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto h-[calc(100vh-64px)]">
-          {navigation.filter(item => !item.adminOnly || userRole === "admin").map((item) => (
+          {navigation.map((item) => (
             <div key={item.name}>
               {item.children ? (
                 <>
