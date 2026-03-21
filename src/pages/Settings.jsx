@@ -164,7 +164,7 @@ export default function Settings() {
           <SettingsIcon className="w-6 h-6 text-white" />
         </div>
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Settings</h1>
+          <h1 className="text-3xl font-bold text-white">Settings</h1>
           <p className="text-slate-500">Manage your account and preferences</p>
         </div>
       </div>
@@ -407,7 +407,7 @@ export default function Settings() {
             </CardHeader>
             <CardContent>
               {showTemplateForm && (
-                <div className="mb-6 p-4 border rounded-xl bg-slate-50 space-y-3">
+                <div className="mb-6 p-4 border border-slate-700 rounded-xl bg-slate-800/50 space-y-3">
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <Label>Name *</Label>
@@ -416,7 +416,7 @@ export default function Settings() {
                     <div>
                       <Label>Category</Label>
                       <select
-                        className="w-full mt-1 border rounded-md px-3 py-2 text-sm bg-white"
+                        className="w-full mt-1 border border-slate-600 rounded-md px-3 py-2 text-sm bg-slate-700 text-white"
                         value={templateForm.category}
                         onChange={e => setTemplateForm({...templateForm, category: e.target.value})}
                       >
@@ -480,8 +480,8 @@ export default function Settings() {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex items-center gap-4 p-4 bg-slate-900/50 rounded-xl border border-slate-700">
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center ${agentProfile?.plan === "pro" ? "bg-amber-100" : "bg-slate-200"}`}>
-                  <Crown className={`w-6 h-6 ${agentProfile?.plan === "pro" ? "text-amber-600" : "text-slate-500"}`} />
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center ${agentProfile?.plan === "pro" ? "bg-amber-500/20" : "bg-slate-700"}`}>
+                  <Crown className={`w-6 h-6 ${agentProfile?.plan === "pro" ? "text-amber-400" : "text-slate-400"}`} />
                 </div>
                 <div>
                   <p className="font-bold text-lg capitalize text-white">{agentProfile?.plan || "Starter"} Plan</p>
@@ -490,9 +490,9 @@ export default function Settings() {
                   </p>
                   {agentProfile?.plan_status && (
                     <span className={`inline-block mt-1 text-xs px-2 py-0.5 rounded-full font-medium ${
-                      agentProfile.plan_status === "active" ? "bg-green-100 text-green-700" :
-                      agentProfile.plan_status === "past_due" ? "bg-red-100 text-red-700" :
-                      "bg-slate-100 text-slate-500"
+                      agentProfile.plan_status === "active" ? "bg-green-500/10 text-green-400" :
+                      agentProfile.plan_status === "past_due" ? "bg-red-500/10 text-red-400" :
+                      "bg-slate-700 text-slate-400"
                     }`}>
                       {agentProfile.plan_status}
                     </span>

@@ -38,9 +38,9 @@ import LoadingState from "@/components/shared/LoadingState";
 import EmptyState from "@/components/shared/EmptyState";
 
 const filingMethodColors = {
-  mail: "bg-blue-100 text-blue-700",
-  efile: "bg-purple-100 text-purple-700",
-  in_person: "bg-amber-100 text-amber-700",
+  mail: "bg-blue-500/10 text-blue-400",
+  efile: "bg-purple-500/10 text-purple-400",
+  in_person: "bg-amber-500/10 text-amber-400",
 };
 
 const notaryTypeLabels = {
@@ -129,7 +129,7 @@ export default function CountyDetail() {
                 <Building2 className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-slate-900">{county.name} County</h1>
+                <h1 className="text-2xl font-bold text-white">{county.name} County</h1>
                 <p className="text-slate-500">{county.state}</p>
               </div>
             </div>
@@ -152,8 +152,8 @@ export default function CountyDetail() {
             <CardContent className="space-y-6">
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center">
-                    <Mail className="w-5 h-5 text-slate-500" />
+                  <div className="w-10 h-10 bg-slate-700 rounded-lg flex items-center justify-center">
+                    <Mail className="w-5 h-5 text-slate-400" />
                   </div>
                   <div>
                     <p className="text-sm text-slate-500">Clerk Email</p>
@@ -161,8 +161,8 @@ export default function CountyDetail() {
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center">
-                    <Phone className="w-5 h-5 text-slate-500" />
+                  <div className="w-10 h-10 bg-slate-700 rounded-lg flex items-center justify-center">
+                    <Phone className="w-5 h-5 text-slate-400" />
                   </div>
                   <div>
                     <p className="text-sm text-slate-500">Clerk Phone</p>
@@ -172,8 +172,8 @@ export default function CountyDetail() {
               </div>
 
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center">
-                  <MapPin className="w-5 h-5 text-slate-500" />
+                <div className="w-10 h-10 bg-slate-700 rounded-lg flex items-center justify-center">
+                  <MapPin className="w-5 h-5 text-slate-400" />
                 </div>
                 <div>
                   <p className="text-sm text-slate-500">Filing Address</p>
@@ -187,12 +187,12 @@ export default function CountyDetail() {
                     href={county.surplus_website}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-3 p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors"
+                    className="flex items-center gap-3 p-4 bg-slate-800/50 rounded-xl hover:bg-slate-700/50 transition-colors"
                   >
-                    <Globe className="w-5 h-5 text-blue-500" />
+                    <Globe className="w-5 h-5 text-blue-400" />
                     <div className="flex-1">
                       <p className="font-medium text-sm">Surplus Website</p>
-                      <p className="text-xs text-slate-500 truncate">{county.surplus_website}</p>
+                      <p className="text-xs text-slate-400 truncate">{county.surplus_website}</p>
                     </div>
                     <ExternalLink className="w-4 h-4 text-slate-400" />
                   </a>
@@ -202,12 +202,12 @@ export default function CountyDetail() {
                     href={county.efile_portal}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-3 p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors"
+                    className="flex items-center gap-3 p-4 bg-slate-800/50 rounded-xl hover:bg-slate-700/50 transition-colors"
                   >
-                    <Globe className="w-5 h-5 text-purple-500" />
+                    <Globe className="w-5 h-5 text-purple-400" />
                     <div className="flex-1">
                       <p className="font-medium text-sm">E-File Portal</p>
-                      <p className="text-xs text-slate-500 truncate">{county.efile_portal}</p>
+                      <p className="text-xs text-slate-400 truncate">{county.efile_portal}</p>
                     </div>
                     <ExternalLink className="w-4 h-4 text-slate-400" />
                   </a>
@@ -223,49 +223,49 @@ export default function CountyDetail() {
             </CardHeader>
             <CardContent>
               <div className="grid md:grid-cols-2 gap-6">
-                <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+                <div className="flex items-center justify-between p-4 bg-slate-800/50 rounded-xl">
                   <span className="font-medium">Representative Filing</span>
                   {county.rep_allowed ? (
-                    <Badge className="bg-green-100 text-green-700 gap-1">
+                    <Badge className="bg-green-500/10 text-green-400 gap-1">
                       <CheckCircle className="w-3 h-3" /> Allowed
                     </Badge>
                   ) : (
-                    <Badge className="bg-red-100 text-red-700 gap-1">
+                    <Badge className="bg-red-500/10 text-red-400 gap-1">
                       <XCircle className="w-3 h-3" /> Not Allowed
                     </Badge>
                   )}
                 </div>
-                <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+                <div className="flex items-center justify-between p-4 bg-slate-800/50 rounded-xl">
                   <span className="font-medium">Assignment Required</span>
                   {county.assignment_required ? (
-                    <Badge className="bg-amber-100 text-amber-700 gap-1">
+                    <Badge className="bg-amber-500/10 text-amber-400 gap-1">
                       <CheckCircle className="w-3 h-3" /> Required
                     </Badge>
                   ) : (
-                    <Badge className="bg-slate-100 text-slate-600 gap-1">
+                    <Badge className="bg-slate-700 text-slate-400 gap-1">
                       <XCircle className="w-3 h-3" /> Not Required
                     </Badge>
                   )}
                 </div>
-                <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+                <div className="flex items-center justify-between p-4 bg-slate-800/50 rounded-xl">
                   <span className="font-medium">Notary Required</span>
                   {county.notary_required ? (
-                    <Badge className="bg-amber-100 text-amber-700 gap-1">
+                    <Badge className="bg-amber-500/10 text-amber-400 gap-1">
                       <CheckCircle className="w-3 h-3" /> Required
                     </Badge>
                   ) : (
-                    <Badge className="bg-slate-100 text-slate-600 gap-1">
+                    <Badge className="bg-slate-700 text-slate-400 gap-1">
                       <XCircle className="w-3 h-3" /> Not Required
                     </Badge>
                   )}
                 </div>
-                <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+                <div className="flex items-center justify-between p-4 bg-slate-800/50 rounded-xl">
                   <span className="font-medium">Notary Type</span>
                   <span className="text-slate-600">{notaryTypeLabels[county.notary_type] || "—"}</span>
                 </div>
               </div>
 
-              <div className="mt-6 p-4 bg-slate-50 rounded-xl">
+              <div className="mt-6 p-4 bg-slate-800/50 rounded-xl">
                 <div className="flex items-center justify-between">
                   <span className="font-medium">Filing Method</span>
                   <Badge className={`${filingMethodColors[county.filing_method]} capitalize`}>
@@ -275,9 +275,9 @@ export default function CountyDetail() {
               </div>
 
               {county.processing_timeline && (
-                <div className="mt-6 p-4 bg-blue-50 rounded-xl">
-                  <p className="text-sm text-blue-600 font-medium">Processing Timeline</p>
-                  <p className="text-blue-800 mt-1">{county.processing_timeline}</p>
+                <div className="mt-6 p-4 bg-blue-500/10 rounded-xl">
+                  <p className="text-sm text-blue-400 font-medium">Processing Timeline</p>
+                  <p className="text-blue-300 mt-1">{county.processing_timeline}</p>
                 </div>
               )}
             </CardContent>
@@ -407,7 +407,7 @@ export default function CountyDetail() {
 
 function FormItem({ label, url }) {
   return (
-    <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+    <div className="flex items-center justify-between p-3 bg-slate-800/50 rounded-lg">
       <div className="flex items-center gap-3">
         <FileText className="w-4 h-4 text-slate-400" />
         <span className="text-sm font-medium">{label}</span>

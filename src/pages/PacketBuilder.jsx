@@ -116,7 +116,7 @@ export default function PacketBuilder() {
             <PackageOpen className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-slate-900">Packet Builder</h1>
+            <h1 className="text-3xl font-bold text-white">Packet Builder</h1>
             <p className="text-slate-500">Generate and organize filing packets</p>
           </div>
         </div>
@@ -171,8 +171,8 @@ export default function PacketBuilder() {
                     key={c.id}
                     className={`flex items-center gap-3 p-3 rounded-lg transition-colors ${
                       selectedCaseId === c.id && !bulkMode
-                        ? "bg-emerald-50 border-emerald-500 border"
-                        : "bg-slate-50 hover:bg-slate-100"
+                        ? "bg-emerald-500/10 border-emerald-500 border"
+                        : "bg-slate-800/50 hover:bg-slate-700/50"
                     }`}
                   >
                     {bulkMode && (
@@ -245,7 +245,7 @@ export default function PacketBuilder() {
             ) : (
               <>
                 {/* Document Checklist */}
-                <div className="mb-6 p-4 bg-slate-50 rounded-lg">
+                <div className="mb-6 p-4 bg-slate-800/50 rounded-lg">
                   <h4 className="font-medium text-sm mb-3">Document Checklist</h4>
                   <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
                     {checkDocuments().map((doc) => (
@@ -284,7 +284,7 @@ export default function PacketBuilder() {
                                 <div
                                   ref={provided.innerRef}
                                   {...provided.draggableProps}
-                                  className={`flex items-center gap-3 p-3 bg-white border rounded-lg ${
+                                  className={`flex items-center gap-3 p-3 bg-slate-800 border border-slate-700 rounded-lg ${
                                     snapshot.isDragging ? "shadow-lg" : ""
                                   }`}
                                 >
@@ -294,7 +294,7 @@ export default function PacketBuilder() {
                                   >
                                     <GripVertical className="w-5 h-5" />
                                   </div>
-                                  <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center">
+                                  <div className="w-10 h-10 bg-slate-700 rounded-lg flex items-center justify-center">
                                     <FileText className="w-5 h-5 text-slate-500" />
                                   </div>
                                   <div className="flex-1">

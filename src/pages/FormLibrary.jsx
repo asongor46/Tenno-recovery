@@ -69,12 +69,12 @@ export default function FormLibrary() {
   });
 
   const formTypeColors = {
-    claim_form: "bg-blue-100 text-blue-800",
-    affidavit: "bg-purple-100 text-purple-800",
-    assignment: "bg-green-100 text-green-800",
-    cover_sheet: "bg-yellow-100 text-yellow-800",
-    w9: "bg-orange-100 text-orange-800",
-    other: "bg-gray-100 text-gray-800"
+    claim_form: "bg-blue-500/10 text-blue-400",
+    affidavit: "bg-purple-500/10 text-purple-400",
+    assignment: "bg-green-500/10 text-green-400",
+    cover_sheet: "bg-yellow-500/10 text-yellow-400",
+    w9: "bg-orange-500/10 text-orange-400",
+    other: "bg-slate-700 text-slate-400"
   };
 
   if (!isPro && agentProfile !== undefined) {
@@ -136,7 +136,7 @@ export default function FormLibrary() {
               {filteredForms.map((form) => (
                 <div
                   key={form.id}
-                  className="border rounded-lg p-4 hover:bg-slate-50 transition-colors"
+                  className="border border-slate-700 rounded-lg p-4 hover:bg-slate-800/50 transition-colors"
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">

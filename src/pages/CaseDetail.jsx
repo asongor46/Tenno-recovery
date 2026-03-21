@@ -202,23 +202,23 @@ export default function CaseDetail() {
             <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               <h1 className="text-xl sm:text-2xl font-bold text-slate-900">{caseData.owner_name}</h1>
               {caseData.is_hot && (
-                <Badge className="bg-orange-100 text-orange-700 border-0">
+              <Badge className="bg-orange-500/10 text-orange-400 border-0">
                   <Flame className="w-3 h-3 mr-1" /> Hot Case
                 </Badge>
               )}
               {/* Surplus type badge */}
               {caseData.surplus_type === "tax_sale" && (
-                <Badge className="bg-green-100 text-green-700 border-0">🏛 Tax Sale</Badge>
+                <Badge className="bg-green-500/10 text-green-400 border-0">🏛 Tax Sale</Badge>
               )}
               {caseData.surplus_type === "sheriff_sale" && (
-                <Badge className="bg-blue-100 text-blue-700 border-0">⚖️ Sheriff Sale</Badge>
+                <Badge className="bg-blue-500/10 text-blue-400 border-0">⚖️ Sheriff Sale</Badge>
               )}
               {/* ADDED: Verification status badge */}
               {caseData.verification_status && caseData.verification_status !== "pending" && (
                 <Badge className={`border-0 ${
-                  caseData.verification_status === "green" ? "bg-emerald-100 text-emerald-700" :
-                  caseData.verification_status === "yellow" ? "bg-amber-100 text-amber-700" :
-                  "bg-red-100 text-red-700"
+                  caseData.verification_status === "green" ? "bg-emerald-500/10 text-emerald-400" :
+                  caseData.verification_status === "yellow" ? "bg-amber-500/10 text-amber-400" :
+                  "bg-red-500/10 text-red-400"
                 }`}>
                   {caseData.verification_status === "green" ? "✓ Verified" :
                    caseData.verification_status === "yellow" ? "⚠ Review" :
@@ -299,7 +299,7 @@ export default function CaseDetail() {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="bg-white border flex-wrap h-auto">
+        <TabsList className="bg-slate-800 border border-slate-700 flex-wrap h-auto">
           <TabsTrigger value="overview" className="gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-4">
             <User className="w-3 h-3 sm:w-4 sm:h-4" /> <span className="hidden xs:inline">Overview</span>
           </TabsTrigger>
@@ -363,8 +363,8 @@ export default function CaseDetail() {
                   <div>
                     <p className="text-sm text-slate-500">Surplus Type</p>
                     <div className="mt-1">
-                      {caseData.surplus_type === "tax_sale" && <Badge className="bg-green-100 text-green-700 border-0">🏛 Tax Sale</Badge>}
-                      {caseData.surplus_type === "sheriff_sale" && <Badge className="bg-blue-100 text-blue-700 border-0">⚖️ Sheriff Sale</Badge>}
+                      {caseData.surplus_type === "tax_sale" && <Badge className="bg-green-500/10 text-green-400 border-0">🏛 Tax Sale</Badge>}
+                      {caseData.surplus_type === "sheriff_sale" && <Badge className="bg-blue-500/10 text-blue-400 border-0">⚖️ Sheriff Sale</Badge>}
                       {!caseData.surplus_type && <span className="text-slate-400 text-sm">Not set</span>}
                     </div>
                   </div>
@@ -437,12 +437,12 @@ export default function CaseDetail() {
 
           {/* Missing Data Warnings */}
           {(!caseData.owner_email || !caseData.owner_phone || !caseData.surplus_amount) && (
-            <div className="flex flex-wrap gap-2 p-3 bg-amber-50 border border-amber-200 rounded-xl">
-              <span className="text-xs font-semibold text-amber-700 w-full">⚠ Missing Data:</span>
-              {!caseData.owner_email && <Badge className="bg-amber-100 text-amber-700 border-0 text-xs">No Email</Badge>}
-              {!caseData.owner_phone && <Badge className="bg-amber-100 text-amber-700 border-0 text-xs">No Phone</Badge>}
-              {!caseData.surplus_amount && <Badge className="bg-amber-100 text-amber-700 border-0 text-xs">No Surplus Amount</Badge>}
-              {!caseData.property_address && <Badge className="bg-amber-100 text-amber-700 border-0 text-xs">No Property Address</Badge>}
+            <div className="flex flex-wrap gap-2 p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl">
+              <span className="text-xs font-semibold text-amber-400 w-full">⚠ Missing Data:</span>
+              {!caseData.owner_email && <Badge className="bg-amber-500/10 text-amber-400 border-0 text-xs">No Email</Badge>}
+              {!caseData.owner_phone && <Badge className="bg-amber-500/10 text-amber-400 border-0 text-xs">No Phone</Badge>}
+              {!caseData.surplus_amount && <Badge className="bg-amber-500/10 text-amber-400 border-0 text-xs">No Surplus Amount</Badge>}
+              {!caseData.property_address && <Badge className="bg-amber-500/10 text-amber-400 border-0 text-xs">No Property Address</Badge>}
             </div>
           )}
 
@@ -517,8 +517,8 @@ export default function CaseDetail() {
                   {documents.map((doc) => (
                     <div key={doc.id} className="flex items-center justify-between py-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center">
-                          <FileText className="w-5 h-5 text-slate-500" />
+                        <div className="w-10 h-10 bg-slate-700 rounded-lg flex items-center justify-center">
+                          <FileText className="w-5 h-5 text-slate-400" />
                         </div>
                         <div>
                           <p className="font-medium">{doc.name}</p>
@@ -644,7 +644,7 @@ export default function CaseDetail() {
                 <h3 className="font-semibold mb-4">ID Documents</h3>
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="border rounded-xl p-4">
-                    <p className="text-sm text-slate-500 mb-2">ID Front</p>
+                    <p className="text-sm text-slate-400 mb-2">ID Front</p>
                     {caseData.id_front_url ? (
                       <img src={caseData.id_front_url} alt="ID Front" className="rounded-lg w-full" />
                     ) : (
@@ -654,7 +654,7 @@ export default function CaseDetail() {
                     )}
                   </div>
                   <div className="border rounded-xl p-4">
-                    <p className="text-sm text-slate-500 mb-2">ID Back</p>
+                    <p className="text-sm text-slate-400 mb-2">ID Back</p>
                     {caseData.id_back_url ? (
                       <img src={caseData.id_back_url} alt="ID Back" className="rounded-lg w-full" />
                     ) : (
@@ -667,7 +667,7 @@ export default function CaseDetail() {
               </div>
 
               {/* [MODIFIED - Portal Invite] Portal Access */}
-              <div className="mt-8 p-4 bg-slate-50 rounded-xl">
+              <div className="mt-8 p-4 bg-slate-800/50 rounded-xl">
                 <div className="flex items-center justify-between mb-3">
                   <p className="font-medium">Portal Access</p>
                   {caseData.portal_access_code && (
@@ -704,7 +704,7 @@ export default function CaseDetail() {
                 
                 {caseData.portal_access_code ? (
                   <div className="space-y-3">
-                    <div className="flex items-center justify-between p-3 bg-white rounded-lg border">
+                    <div className="flex items-center justify-between p-3 bg-slate-900 rounded-lg border border-slate-700">
                       <span className="text-sm text-slate-500">Access Code:</span>
                       <div className="flex items-center gap-2">
                         <code className="font-mono font-bold text-lg tracking-wider">
@@ -725,8 +725,8 @@ export default function CaseDetail() {
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-slate-500">Status:</span>
                       <Badge className={caseData.portal_code_used 
-                        ? "bg-green-100 text-green-700 border-0" 
-                        : "bg-amber-100 text-amber-700 border-0"
+                        ? "bg-green-500/10 text-green-400 border-0" 
+                        : "bg-amber-500/10 text-amber-400 border-0"
                       }>
                         {caseData.portal_code_used ? "✓ Used" : "⏳ Unused"}
                       </Badge>
@@ -784,10 +784,10 @@ export default function CaseDetail() {
                 <div>
                   <p className="text-sm text-slate-500">Status</p>
                   <Badge className={`mt-1 ${
-                    caseData.notary_status === "approved" ? "bg-green-100 text-green-700" :
-                    caseData.notary_status === "validated" ? "bg-blue-100 text-blue-700" :
-                    caseData.notary_status === "rejected" ? "bg-red-100 text-red-700" :
-                    "bg-amber-100 text-amber-700"
+                    caseData.notary_status === "approved" ? "bg-green-500/10 text-green-400" :
+                    caseData.notary_status === "validated" ? "bg-blue-500/10 text-blue-400" :
+                    caseData.notary_status === "rejected" ? "bg-red-500/10 text-red-400" :
+                    "bg-amber-500/10 text-amber-400"
                   }`}>
                     {caseData.notary_status?.replace(/_/g, " ") || "Pending"}
                   </Badge>
@@ -803,7 +803,7 @@ export default function CaseDetail() {
                       {caseData.notary_photo_url ? (
                         <img src={caseData.notary_photo_url} alt="Notary" className="mt-2 rounded-lg max-h-48 object-contain" />
                       ) : (
-                        <div className="mt-2 h-32 bg-slate-100 rounded-lg flex items-center justify-center text-slate-400">
+                        <div className="mt-2 h-32 bg-slate-800 rounded-lg flex items-center justify-center text-slate-400">
                           Not uploaded
                         </div>
                       )}
@@ -932,8 +932,8 @@ export default function CaseDetail() {
                 <div className="space-y-4">
                   {activities.map((activity) => (
                     <div key={activity.id} className="flex gap-4">
-                      <div className="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center flex-shrink-0">
-                        <Activity className="w-4 h-4 text-slate-500" />
+                      <div className="w-8 h-8 bg-slate-700 rounded-full flex items-center justify-center flex-shrink-0">
+                        <Activity className="w-4 h-4 text-slate-400" />
                       </div>
                       <div className="flex-1 pb-4 border-b last:border-0">
                         <p className="font-medium">{activity.action}</p>

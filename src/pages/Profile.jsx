@@ -38,7 +38,7 @@ export default function Profile() {
               </span>
             </div>
             <div className="text-center sm:text-left">
-              <h1 className="text-2xl font-bold text-slate-900">{user?.full_name || "User"}</h1>
+              <h1 className="text-2xl font-bold text-white">{user?.full_name || "User"}</h1>
               <p className="text-slate-500">{user?.email}</p>
               <Badge className="mt-2 capitalize">{user?.role || "User"}</Badge>
             </div>
@@ -60,9 +60,9 @@ export default function Profile() {
           <CardTitle>Account Information</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-lg">
-            <div className="w-10 h-10 bg-slate-200 rounded-lg flex items-center justify-center">
-              <User className="w-5 h-5 text-slate-600" />
+          <div className="flex items-center gap-4 p-4 bg-slate-800/50 rounded-lg">
+            <div className="w-10 h-10 bg-slate-700 rounded-lg flex items-center justify-center">
+              <User className="w-5 h-5 text-slate-400" />
             </div>
             <div>
               <p className="text-sm text-slate-500">Full Name</p>
@@ -70,9 +70,9 @@ export default function Profile() {
             </div>
           </div>
 
-          <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-lg">
-            <div className="w-10 h-10 bg-slate-200 rounded-lg flex items-center justify-center">
-              <Mail className="w-5 h-5 text-slate-600" />
+          <div className="flex items-center gap-4 p-4 bg-slate-800/50 rounded-lg">
+            <div className="w-10 h-10 bg-slate-700 rounded-lg flex items-center justify-center">
+              <Mail className="w-5 h-5 text-slate-400" />
             </div>
             <div>
               <p className="text-sm text-slate-500">Email Address</p>
@@ -80,9 +80,9 @@ export default function Profile() {
             </div>
           </div>
 
-          <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-lg">
-            <div className="w-10 h-10 bg-slate-200 rounded-lg flex items-center justify-center">
-              <Shield className="w-5 h-5 text-slate-600" />
+          <div className="flex items-center gap-4 p-4 bg-slate-800/50 rounded-lg">
+            <div className="w-10 h-10 bg-slate-700 rounded-lg flex items-center justify-center">
+              <Shield className="w-5 h-5 text-slate-400" />
             </div>
             <div>
               <p className="text-sm text-slate-500">Role</p>
@@ -90,9 +90,9 @@ export default function Profile() {
             </div>
           </div>
 
-          <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-lg">
-            <div className="w-10 h-10 bg-slate-200 rounded-lg flex items-center justify-center">
-              <Calendar className="w-5 h-5 text-slate-600" />
+          <div className="flex items-center gap-4 p-4 bg-slate-800/50 rounded-lg">
+            <div className="w-10 h-10 bg-slate-700 rounded-lg flex items-center justify-center">
+              <Calendar className="w-5 h-5 text-slate-400" />
             </div>
             <div>
               <p className="text-sm text-slate-500">Member Since</p>
