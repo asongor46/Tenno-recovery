@@ -247,6 +247,10 @@ export default function FileManager() {
     }
   };
 
+  if (agentProfile !== undefined && !isPro) {
+    return <ProUpgradePrompt feature="File Manager" onDismiss={() => window.history.back()} />;
+  }
+
   return (
     <RoleGuard allowedRoles={["admin", "agent"]}>
     <div className="space-y-6">
