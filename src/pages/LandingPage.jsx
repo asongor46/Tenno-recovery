@@ -173,13 +173,15 @@ export default function LandingPage() {
                 size="lg"
                 className="bg-emerald-600 hover:bg-emerald-500 text-base px-8 h-12 font-semibold"
                 onClick={() => window.location.href = createPageUrl("AgentApply")}>
-                Get Started — From $50/mo <ArrowRight className="w-5 h-5 ml-1" />
+                Start at $50/mo <ArrowRight className="w-5 h-5 ml-1" />
               </Button>
-              <a href="#slideshow">
-                <Button size="lg" variant="outline" className="border-slate-700 text-slate-300 hover:bg-slate-800 text-base px-8 h-12">
-                  See the Platform <ChevronDown className="w-5 h-5 ml-1" />
-                </Button>
-              </a>
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/10 text-base px-8 h-12 font-semibold"
+                onClick={() => window.location.href = createPageUrl("AgentApply")}>
+                Go Pro at $97/mo <ArrowRight className="w-5 h-5 ml-1" />
+              </Button>
             </div>
             <p className="mt-5 text-sm text-slate-500">Unlimited cases · No per-lead fees · Cancel anytime</p>
             
