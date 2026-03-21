@@ -317,28 +317,6 @@ export default function AdminLeadManagement() {
           {csvRows.length > 0 && (
             <div className="space-y-3">
               <p className="text-sm text-emerald-400">{csvRows.length} rows loaded</p>
-              <div className="grid grid-cols-3 gap-3">
-                <div>
-                  <label className="text-xs text-slate-400">Default State</label>
-                  <Input value={batchState} onChange={(e) => setBatchState(e.target.value)} placeholder="FL" className="mt-1 bg-slate-700 border-slate-600 text-sm" />
-                </div>
-                <div>
-                  <label className="text-xs text-slate-400">Default County</label>
-                  <Input value={batchCounty} onChange={(e) => setBatchCounty(e.target.value)} placeholder="Broward" className="mt-1 bg-slate-700 border-slate-600 text-sm" />
-                </div>
-                <div>
-                  <label className="text-xs text-slate-400">Surplus Type</label>
-                  <Select value={batchType} onValueChange={setBatchType}>
-                    <SelectTrigger className="mt-1 bg-slate-700 border-slate-600 text-sm">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="tax_sale">Tax Sale</SelectItem>
-                      <SelectItem value="sheriff_sale">Sheriff Sale</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
               <Button className="bg-emerald-600 hover:bg-emerald-700" onClick={handleImport} disabled={uploading}>
                 {uploading ? <RefreshCw className="w-4 h-4 mr-2 animate-spin" /> : <CheckCircle className="w-4 h-4 mr-2" />}
                 Import {csvRows.length} Leads
