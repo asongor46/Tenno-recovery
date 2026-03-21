@@ -493,10 +493,24 @@ export default function CaseDetail() {
             </Card>
           </div>
 
-          {/* Pipeline Timeline */}
+          {/* Missing Data Warnings */}
+          {(!caseData.owner_email || !caseData.owner_phone || !caseData.surplus_amount) && (
+            <div className="flex flex-wrap gap-2 p-3 bg-amber-50 border border-amber-200 rounded-xl">
+              <span className="text-xs font-semibold text-amber-700 w-full">⚠ Missing Data:</span>
+              {!caseData.owner_email && <Badge className="bg-amber-100 text-amber-700 border-0 text-xs">No Email</Badge>}
+              {!caseData.owner_phone && <Badge className="bg-amber-100 text-amber-700 border-0 text-xs">No Phone</Badge>}
+              {!caseData.surplus_amount && <Badge className="bg-amber-100 text-amber-700 border-0 text-xs">No Surplus Amount</Badge>}
+              {!caseData.property_address && <Badge className="bg-amber-100 text-amber-700 border-0 text-xs">No Property Address</Badge>}
+            </div>
+          )}
+
+          {/* Pipeline Timeline — clickable */}
           <Card>
             <CardHeader>
-              <CardTitle>Pipeline Progress</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                Pipeline Progress
+                <span className="text-xs font-normal text-slate-500">(click a stage to advance)</span>
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="relative">
@@ -505,8 +519,16 @@ export default function CaseDetail() {
                     const isComplete = index <= getCurrentStageIndex();
                     const isCurrent = index === getCurrentStageIndex();
                     return (
-                      <div key={stage} className="flex flex-col items-center flex-1">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                      <div
+                        key={stage}
+                        className="flex flex-col items-center flex-1 cursor-pointer group"
+                        onClick={() => {
+                          if (index !== getCurrentStageIndex()) {
+                            updateCase.mutate({ stage });
+                          }
+                        }}
+                      >
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-transform group-hover:scale-110 ${
                           isComplete ? stageConfig[stage].color : "bg-slate-200"
                         }`}>
                           {isComplete ? (
@@ -515,7 +537,7 @@ export default function CaseDetail() {
                             <Circle className="w-5 h-5 text-slate-400" />
                           )}
                         </div>
-                        <p className={`text-xs mt-2 text-center ${isCurrent ? "font-semibold text-slate-900" : "text-slate-500"}`}>
+                        <p className={`text-xs mt-2 text-center ${isCurrent ? "font-semibold text-slate-900" : "text-slate-500 group-hover:text-slate-700"}`}>
                           {stageConfig[stage].label}
                         </p>
                       </div>
@@ -524,7 +546,7 @@ export default function CaseDetail() {
                 </div>
                 {/* Progress bar */}
                 <div className="absolute top-4 left-0 right-0 h-0.5 bg-slate-200 -z-10">
-                  <div 
+                  <div
                     className="h-full bg-emerald-500 transition-all"
                     style={{ width: `${(getCurrentStageIndex() / (stages.length - 1)) * 100}%` }}
                   />
