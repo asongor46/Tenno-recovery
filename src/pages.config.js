@@ -10,11 +10,8 @@ import FileManager from './pages/FileManager';
 import FormLibrary from './pages/FormLibrary';
 import HowItWorks from './pages/HowItWorks';
 import HowTo from './pages/HowTo';
-import Invoices from './pages/Invoices';
 import LandingPage from './pages/LandingPage';
 import PacketBuilder from './pages/PacketBuilder';
-import PaymentPipeline from './pages/PaymentPipeline';
-import PeopleFinder from './pages/PeopleFinder';
 import PortalAgreement from './pages/PortalAgreement';
 import PortalComplete from './pages/PortalComplete';
 import PortalDashboard from './pages/PortalDashboard';
@@ -42,11 +39,8 @@ export const PAGES = {
     "FormLibrary": FormLibrary,
     "HowItWorks": HowItWorks,
     "HowTo": HowTo,
-    "Invoices": Invoices,
     "LandingPage": LandingPage,
     "PacketBuilder": PacketBuilder,
-    "PaymentPipeline": PaymentPipeline,
-    "PeopleFinder": PeopleFinder,
     "PortalAgreement": PortalAgreement,
     "PortalComplete": PortalComplete,
     "PortalDashboard": PortalDashboard,

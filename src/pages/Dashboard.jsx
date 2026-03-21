@@ -13,8 +13,6 @@ import CasesTable from "@/components/dashboard/CasesTable";
 import AlertsPanel from "@/components/dashboard/AlertsPanel";
 import TodoPanel from "@/components/dashboard/TodoPanel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import LoadingState from "@/components/shared/LoadingState";
 
