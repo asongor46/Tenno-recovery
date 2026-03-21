@@ -75,44 +75,28 @@ export default function AdminLeadManagement() {
     setPdfStatus("Uploading PDF...");
     try {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      setPdfStatus("Extracting lead data with AI...");
+      setPdfStatus("Extracting lead data with AI (surplus-aware)...");
 
-      const result = await base44.integrations.Core.ExtractDataFromUploadedFile({
+      const { data: extractResult } = await base44.functions.invoke("extractPDFData", {
         file_url,
-        json_schema: {
-          type: "object",
-          properties: {
-            leads: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  owner_name: { type: "string" },
-                  property_address: { type: "string" },
-                  county: { type: "string" },
-                  state: { type: "string" },
-                  surplus_type: { type: "string", enum: ["tax_sale", "sheriff_sale"] },
-                  surplus_amount: { type: "number" },
-                  sale_amount: { type: "number" },
-                  sale_date: { type: "string" },
-                  case_number: { type: "string" },
-                  parcel_number: { type: "string" },
-                },
-              },
-            },
-          },
-        },
+        county: batchCounty,
+        state: batchState,
       });
 
-      if (result.status !== "success" || !result.output?.leads?.length) {
-        toast({ title: "Could not extract leads from PDF.", variant: "destructive" });
+      if (!extractResult?.cases?.length) {
+        toast({ title: `Could not extract leads from PDF. ${extractResult?.details || ""}`, variant: "destructive" });
         setPdfStatus("");
         setUploading(false);
         return;
       }
 
-      const rows = result.output.leads;
+      // extractPDFData returns { cases, document_type, surplus_cases_found }
+      const detectedType = extractResult.document_type; // e.g. "return_of_sale"
+      const rows = extractResult.cases;
       setPdfStatus(`Extracted ${rows.length} leads. Importing...`);
+
+      // Infer surplus_type from document_type if not set per-row
+      const inferredType = detectedType === "return_of_sale" ? "sheriff_sale" : batchType;
 
       let success = 0;
       for (const row of rows) {
@@ -122,7 +106,7 @@ export default function AdminLeadManagement() {
           property_address: row.property_address,
           county: row.county || batchCounty,
           state: row.state || batchState,
-          surplus_type: row.surplus_type || batchType,
+          surplus_type: row.surplus_type || inferredType,
           surplus_amount: row.surplus_amount || 0,
           sale_amount: row.sale_amount || null,
           sale_date: row.sale_date || "",
@@ -139,7 +123,7 @@ export default function AdminLeadManagement() {
 
       qc.invalidateQueries({ queryKey: ["adminLeads"] });
       qc.invalidateQueries({ queryKey: ["leads"] });
-      toast({ title: `Imported ${success} leads from PDF` });
+      toast({ title: `Imported ${success} leads from PDF (${detectedType || "unknown"} document)` });
       setPdfStatus("");
     } catch (err) {
       toast({ title: "PDF import failed: " + err.message, variant: "destructive" });
