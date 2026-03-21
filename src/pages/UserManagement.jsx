@@ -303,9 +303,10 @@ export default function UserManagement() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>User</TableHead>
+                  <TableHead>Agent</TableHead>
                   <TableHead>Email</TableHead>
-                  <TableHead>Role</TableHead>
+                  <TableHead>Plan</TableHead>
+                  <TableHead>Status</TableHead>
                   <TableHead>Joined</TableHead>
                   <TableHead className="w-20"></TableHead>
                 </TableRow>
@@ -313,18 +314,20 @@ export default function UserManagement() {
               <TableBody>
                 {filteredUsers.length === 0 && searchQuery ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center py-8 text-slate-500">
+                    <TableCell colSpan={6} className="text-center py-8 text-slate-500">
                       No users match your search
                     </TableCell>
                   </TableRow>
                 ) : filteredUsers.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center py-8 text-slate-500">
+                    <TableCell colSpan={6} className="text-center py-8 text-slate-500">
                       No users found
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredUsers.map((user) => (
+                  filteredUsers.map((user) => {
+                    const agentProfile = allProfiles.find(p => p.email === user.email);
+                    return (
                     <TableRow key={user.id}>
                       <TableCell>
                         <div className="flex items-center gap-3">
@@ -338,7 +341,26 @@ export default function UserManagement() {
                       </TableCell>
                       <TableCell>{user.email}</TableCell>
                       <TableCell>
-                        <PermissionBadge role={user.role} />
+                        {agentProfile ? (
+                          <Badge className={agentProfile.plan === "pro" ? "bg-amber-100 text-amber-700 border-0" : "bg-slate-100 text-slate-600 border-0"}>
+                            {agentProfile.plan || "starter"}
+                          </Badge>
+                        ) : (
+                          <PermissionBadge role={user.role} />
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {agentProfile ? (
+                          <Badge className={
+                            agentProfile.plan_status === "active" ? "bg-green-100 text-green-700 border-0" :
+                            agentProfile.plan_status === "past_due" ? "bg-red-100 text-red-700 border-0" :
+                            "bg-slate-100 text-slate-500 border-0"
+                          }>
+                            {agentProfile.plan_status || "active"}
+                          </Badge>
+                        ) : (
+                          <Badge className="bg-slate-100 text-slate-500 border-0">—</Badge>
+                        )}
                       </TableCell>
                       <TableCell className="text-slate-500">
                         {user.created_date ? format(new Date(user.created_date), "MMM d, yyyy") : "—"}
