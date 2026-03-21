@@ -42,6 +42,16 @@ export default function Settings() {
   });
   const queryClient = useQueryClient();
 
+  const { data: agentProfile } = useQuery({
+    queryKey: ["agentProfileSettings"],
+    queryFn: async () => {
+      const u = await base44.auth.me();
+      if (!u?.email) return null;
+      const profiles = await base44.entities.AgentProfile.filter({ email: u.email });
+      return profiles[0] || null;
+    },
+  });
+
   const { data: user } = useQuery({
     queryKey: ["currentUser"],
     queryFn: () => base44.auth.me(),
