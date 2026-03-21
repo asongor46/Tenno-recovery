@@ -4,7 +4,9 @@ import { EmbeddedCheckoutProvider, EmbeddedCheckout } from "@stripe/react-stripe
 import { base44 } from "@/api/base44Client";
 import { X } from "lucide-react";
 
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || "");
+// The publishable key is safe to hardcode in frontend; loaded from env or Settings
+const STRIPE_PK = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || window.__STRIPE_PK__ || "";
+const stripePromise = STRIPE_PK ? loadStripe(STRIPE_PK) : null;
 
 export default function StripeEmbeddedCheckout({ plan, onClose, onSuccess }) {
   const [clientSecret, setClientSecret] = useState(null);
