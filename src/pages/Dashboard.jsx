@@ -143,43 +143,6 @@ export default function Dashboard() {
   ).length;
 
   const verifiedCases = cases.filter(c => c.verification_status === "green").length;
-  const recentCases = cases.slice(0, 10);
-
-  // Calculate chart data
-  const stageData = [
-    { name: 'Imported', value: cases.filter(c => c.stage === 'imported').length },
-    { name: 'Agreement', value: cases.filter(c => c.stage === 'agreement_signed').length },
-    { name: 'Info Complete', value: cases.filter(c => c.stage === 'info_completed').length },
-    { name: 'Notary', value: cases.filter(c => c.stage === 'notary_completed').length },
-    { name: 'Packet Ready', value: cases.filter(c => c.stage === 'packet_ready').length },
-    { name: 'Filed', value: cases.filter(c => c.stage === 'filed').length },
-    { name: 'Paid', value: cases.filter(c => c.stage === 'paid').length },
-  ].filter(s => s.value > 0);
-
-  const COLORS = ['#3b82f6', '#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#ec4899'];
-
-  // Revenue over time (last 30 days)
-  const last30Days = Array.from({ length: 30 }, (_, i) => {
-    const date = new Date();
-    date.setDate(date.getDate() - (29 - i));
-    return date;
-  });
-
-  const revenueData = last30Days.map(date => {
-    const dateStr = date.toISOString().split('T')[0];
-    const paidCases = cases.filter(c => 
-      c.stage === 'paid' && 
-      c.paid_at && 
-      c.paid_at.startsWith(dateStr)
-    );
-    const revenue = paidCases.reduce((sum, c) => 
-      sum + ((c.surplus_amount || 0) * ((c.fee_percent || 20) / 100)), 0
-    );
-    return {
-      date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-      revenue: Math.round(revenue)
-    };
-  }).filter((_, i) => i % 5 === 0); // Show every 5th day
 
   if (casesLoading) {
     return <LoadingState message="Loading dashboard..." />;
