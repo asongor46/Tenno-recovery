@@ -94,10 +94,10 @@ export default function CasesTable({ cases, isLoading, showTitle = true }) {
           <TableHeader>
             <TableRow className="bg-slate-50/50">
               <TableHead className="font-semibold">Owner</TableHead>
+              <TableHead className="font-semibold">Type</TableHead>
               <TableHead className="font-semibold">Case #</TableHead>
               <TableHead className="font-semibold">County</TableHead>
               <TableHead className="font-semibold text-right">Surplus</TableHead>
-              <TableHead className="font-semibold">Status</TableHead>
               <TableHead className="font-semibold">Stage</TableHead>
               <TableHead className="font-semibold">Updated</TableHead>
               <TableHead className="font-semibold w-10"></TableHead>
@@ -107,7 +107,7 @@ export default function CasesTable({ cases, isLoading, showTitle = true }) {
           <TableBody>
             {cases?.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={9} className="py-8">
+                <TableCell colSpan={8} className="py-8">
                   <div className="text-center py-4">
                     <FolderOpen className="w-10 h-10 text-slate-300 mx-auto mb-2" />
                     <p className="font-medium text-slate-500">No cases yet</p>
@@ -128,6 +128,17 @@ export default function CasesTable({ cases, isLoading, showTitle = true }) {
                       <span className="font-medium text-slate-900">{caseItem.owner_name}</span>
                     </div>
                   </TableCell>
+                  <TableCell>
+                    {caseItem.surplus_type === "tax_sale" && (
+                      <Badge className="bg-green-100 text-green-700 border-0 text-xs whitespace-nowrap">Tax</Badge>
+                    )}
+                    {caseItem.surplus_type === "sheriff_sale" && (
+                      <Badge className="bg-blue-100 text-blue-700 border-0 text-xs whitespace-nowrap">Sheriff</Badge>
+                    )}
+                    {!caseItem.surplus_type && (
+                      <span className="text-slate-300 text-xs">—</span>
+                    )}
+                  </TableCell>
                   <TableCell className="font-mono text-sm text-slate-600">
                     {caseItem.case_number}
                   </TableCell>
@@ -136,12 +147,6 @@ export default function CasesTable({ cases, isLoading, showTitle = true }) {
                   </TableCell>
                   <TableCell className="text-right font-semibold text-slate-900">
                     ${caseItem.surplus_amount?.toLocaleString() || "0"}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <div className={`w-2 h-2 rounded-full ${statusColors[caseItem.status]}`} />
-                      <span className="capitalize text-slate-600">{caseItem.status}</span>
-                    </div>
                   </TableCell>
                   <TableCell>
                     <Badge className={`${stageColors[caseItem.stage]} border-0 font-medium`}>
