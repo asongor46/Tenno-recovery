@@ -39,38 +39,36 @@ export default function PortalInfo() {
 
   useEffect(() => {
     async function loadCase() {
-      if (!caseId || !userEmail) {
+      const sessionToken = sessionStorage.getItem("portal_session_token") || localStorage.getItem("portal_session_token");
+      if (!caseId || !sessionToken) {
         window.location.href = createPageUrl("PortalLogin");
         return;
       }
-      const cases = await base44.entities.Case.filter({ id: caseId });
-      const caseMatch = cases[0];
-      if (!caseMatch || caseMatch.owner_email?.toLowerCase() !== userEmail?.toLowerCase()) {
+      const res = await base44.functions.invoke("getPortalCaseData", { session_token: sessionToken, case_id: caseId });
+      if (!res.data?.success) {
         window.location.href = createPageUrl("PortalDashboard");
         setIsLoading(false);
         return;
       }
-      if (cases.length > 0) {
-        const c = cases[0];
-        setCaseData(c);
-        setFormData({
-          owner_name: c.owner_name || "",
-          owner_address: c.owner_address || "",
-          owner_city: c.owner_city || "",
-          owner_state: c.owner_state || "",
-          owner_zip: c.owner_zip || "",
-          owner_phone: c.owner_phone || "",
-          owner_email: c.owner_email || "",
-          owner_dob: c.owner_dob || "",
-          owner_ssn_last_four: c.owner_ssn_last_four || "",
-        });
-        if (c.id_front_url) setIdFrontPreview(c.id_front_url);
-        if (c.id_back_url) setIdBackPreview(c.id_back_url);
-      }
+      const c = res.data.case;
+      setCaseData(c);
+      setFormData({
+        owner_name: c.owner_name || "",
+        owner_address: c.owner_address || "",
+        owner_city: c.owner_city || "",
+        owner_state: c.owner_state || "",
+        owner_zip: c.owner_zip || "",
+        owner_phone: c.owner_phone || "",
+        owner_email: c.owner_email || "",
+        owner_dob: c.owner_dob || "",
+        owner_ssn_last_four: c.owner_ssn_last_four || "",
+      });
+      if (c.id_front_url) setIdFrontPreview(c.id_front_url);
+      if (c.id_back_url) setIdBackPreview(c.id_back_url);
       setIsLoading(false);
     }
     loadCase();
-  }, [caseId, userEmail]);
+  }, [caseId]);
 
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -114,6 +112,8 @@ export default function PortalInfo() {
   const handleSubmit = async () => {
     setIsSubmitting(true);
 
+    const sessionToken = sessionStorage.getItem("portal_session_token") || localStorage.getItem("portal_session_token");
+
     let id_front_url = caseData.id_front_url;
     let id_back_url = caseData.id_back_url;
 
@@ -127,30 +127,30 @@ export default function PortalInfo() {
       id_back_url = file_url;
     }
 
-    await base44.entities.Case.update(caseData.id, {
-      owner_name: formData.owner_name,
-      owner_address: formData.owner_address,
-      owner_city: formData.owner_city,
-      owner_state: formData.owner_state,
-      owner_zip: formData.owner_zip,
-      owner_phone: formData.owner_phone,
-      owner_email: formData.owner_email,
-      owner_dob: formData.owner_dob,
-      owner_ssn_last_four: formData.owner_ssn_last_four,
-      id_front_url,
-      id_back_url,
-      stage: "info_completed",
-      info_submitted_at: new Date().toISOString(),
-      id_uploaded_at: id_front_url && id_back_url ? new Date().toISOString() : caseData.id_uploaded_at,
+    const res = await base44.functions.invoke("updatePortalCase", {
+      session_token: sessionToken,
+      case_id: caseData.id,
+      action: "submit_info",
+      payload: {
+        owner_name: formData.owner_name,
+        owner_address: formData.owner_address,
+        owner_city: formData.owner_city,
+        owner_state: formData.owner_state,
+        owner_zip: formData.owner_zip,
+        owner_phone: formData.owner_phone,
+        owner_dob: formData.owner_dob,
+        owner_ssn_last_four: formData.owner_ssn_last_four,
+        id_front_url,
+        id_back_url,
+        id_uploaded_at: id_front_url && id_back_url ? new Date().toISOString() : caseData.id_uploaded_at,
+      },
     });
 
-    await base44.entities.ActivityLog.create({
-      case_id: caseData.id,
-      action: "Info Completed",
-      description: "Homeowner submitted personal information and ID via portal",
-      performed_by: "Homeowner",
-      is_client_visible: true,
-    });
+    if (!res.data?.success) {
+      toast.error(res.data?.error || "Failed to save information");
+      setIsSubmitting(false);
+      return;
+    }
 
     toast.success("Information saved successfully!");
     navigate(createPageUrl(`PortalNotary?id=${caseId}`));
