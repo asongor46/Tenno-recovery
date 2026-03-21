@@ -17,6 +17,7 @@ import { toast } from "sonner";
 export default function NewCaseForm({ counties, onSuccess }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
+    surplus_type: "",
     case_number: "",
     owner_name: "",
     owner_email: "",
@@ -52,6 +53,12 @@ export default function NewCaseForm({ counties, onSuccess }) {
     e.preventDefault();
     setIsSubmitting(true);
 
+    if (!formData.surplus_type) {
+      toast.error("Please select a surplus type (Tax Sale or Sheriff Sale)");
+      setIsSubmitting(false);
+      return;
+    }
+
     const caseData = {
       ...formData,
       surplus_amount: parseFloat(formData.surplus_amount) || 0,
@@ -79,6 +86,31 @@ export default function NewCaseForm({ counties, onSuccess }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Surplus Type — first field, large buttons */}
+      <div>
+        <Label>Surplus Type *</Label>
+        <div className="grid grid-cols-2 gap-3 mt-2">
+          {[
+            { value: "tax_sale", label: "🏛 Tax Sale", desc: "Delinquent property taxes" },
+            { value: "sheriff_sale", label: "⚖️ Sheriff Sale", desc: "Foreclosure / mortgage default" },
+          ].map(({ value, label, desc }) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => handleChange("surplus_type", value)}
+              className={`p-4 border-2 rounded-xl text-left transition-all ${
+                formData.surplus_type === value
+                  ? "border-emerald-600 bg-emerald-50"
+                  : "border-slate-200 hover:border-slate-300"
+              }`}
+            >
+              <p className={`font-semibold text-sm ${formData.surplus_type === value ? "text-emerald-700" : "text-slate-700"}`}>{label}</p>
+              <p className="text-xs text-slate-500 mt-0.5">{desc}</p>
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="grid grid-cols-2 gap-4">
         <div className="col-span-2 sm:col-span-1">
           <Label htmlFor="case_number">Case Number *</Label>
