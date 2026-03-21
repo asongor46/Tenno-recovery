@@ -12,6 +12,7 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
 // Add page imports here
 import AdminDashboard from './pages/AdminDashboard';
+import TermsPage from './pages/TermsPage';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -68,6 +69,7 @@ const AuthenticatedApp = () => {
           <AdminDashboard />
         </LayoutWrapper>
       } />
+      <Route path="/TermsPage" element={<TermsPage />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

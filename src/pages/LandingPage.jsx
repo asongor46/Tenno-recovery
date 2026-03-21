@@ -91,12 +91,12 @@ export default function LandingPage() {
       const user = await base44.auth.me();
       const profiles = await base44.entities.AgentProfile.filter({ email: user.email });
       const profile = profiles[0];
-      if (!profile) {
+      if (!profile || !profile.plan_status || profile.plan_status === "pending_payment") {
         window.location.href = createPageUrl("AgentApply");
-      } else if (profile.status === "approved") {
+      } else if (profile.plan_status === "active" && !profile.onboarding_completed) {
+        window.location.href = createPageUrl("AgentOnboarding");
+      } else {
         window.location.href = createPageUrl("Dashboard");
-      } else if (profile.status === "pending") {
-        window.location.href = createPageUrl("AgentPending");
       }
     } catch {
       base44.auth.redirectToLogin(createPageUrl("Dashboard"));
