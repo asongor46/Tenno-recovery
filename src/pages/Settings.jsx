@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import StripeEmbeddedCheckout from "@/components/stripe/EmbeddedCheckout";
 import { toast } from "sonner";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
@@ -33,6 +34,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function Settings() {
   const [isSaving, setIsSaving] = useState(false);
+  const [showCheckout, setShowCheckout] = useState(false);
   const [showWorkflowEditor, setShowWorkflowEditor] = useState(false);
   const [companySettings, setCompanySettings] = useState({
     company_name: '',
@@ -150,6 +152,12 @@ export default function Settings() {
 
   return (
     <div className="space-y-6 max-w-4xl">
+      {showCheckout && (
+        <StripeEmbeddedCheckout
+          plan="pro"
+          onClose={() => setShowCheckout(false)}
+        />
+      )}
       {/* Header */}
       <div className="flex items-center gap-3">
         <div className="w-12 h-12 bg-gradient-to-br from-slate-600 to-slate-700 rounded-xl flex items-center justify-center">
@@ -495,12 +503,9 @@ export default function Settings() {
                 <div className="p-4 border-2 border-amber-300 rounded-xl bg-amber-50">
                   <p className="font-semibold text-amber-800 mb-1">Upgrade to Pro — $97/month</p>
                   <p className="text-sm text-amber-700 mb-3">Unlock Packet Builder, Form Library, File Manager, AI imports, and the Homeowner Portal.</p>
-                  <Button className="bg-amber-500 hover:bg-amber-600 text-white" onClick={async () => {
+                  <Button className="bg-amber-500 hover:bg-amber-600 text-white" onClick={() => {
                     if (window.self !== window.top) { alert("Checkout only works from the published app."); return; }
-                    try {
-                      const res = await base44.functions.invoke("createCheckoutSession", { plan: "pro", successUrl: window.location.origin + "/Settings?checkout=success", cancelUrl: window.location.origin + "/Settings" });
-                      if (res.data?.url) window.location.href = res.data.url;
-                    } catch (e) { toast.error("Could not start upgrade. Please try again."); }
+                    setShowCheckout(true);
                   }}>
                     <Crown className="w-4 h-4 mr-2" /> Upgrade to Pro
                   </Button>
