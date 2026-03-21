@@ -39,13 +39,14 @@ const features = [
 
 const comparisonRows = [
 { feature: "CRM + Pipeline", tenno: true, excessElite: true, surplusSystems: true, spreadsheet: false },
-{ feature: "Lead Import Tools", tenno: true, excessElite: true, surplusSystems: true, spreadsheet: false },
-{ feature: "Skip Tracing", tenno: "Links to free tools", excessElite: "Included", surplusSystems: "Included", spreadsheet: false },
-{ feature: "Homeowner Portal", tenno: true, excessElite: false, surplusSystems: false, spreadsheet: false },
+{ feature: "Lead Import (CSV + Manual)", tenno: true, excessElite: true, surplusSystems: true, spreadsheet: false },
+{ feature: "PDF / Screenshot AI Import", tenno: "Pro only", excessElite: true, surplusSystems: "Partial", spreadsheet: false },
 { feature: "State Compliance Engine", tenno: true, excessElite: false, surplusSystems: false, spreadsheet: false },
-{ feature: "Packet Builder", tenno: true, excessElite: false, surplusSystems: "Partial", spreadsheet: false },
+{ feature: "Tax Sale vs Sheriff Sale Rules", tenno: true, excessElite: false, surplusSystems: false, spreadsheet: false },
+{ feature: "Homeowner Self-Serve Portal", tenno: "Pro only", excessElite: false, surplusSystems: false, spreadsheet: false },
+{ feature: "Packet Builder", tenno: "Pro only", excessElite: false, surplusSystems: "Partial", spreadsheet: false },
 { feature: "Power Dialer", tenno: false, excessElite: true, surplusSystems: true, spreadsheet: false },
-{ feature: "Monthly Price", tenno: "$50", excessElite: "$200–400+", surplusSystems: "$197–497", spreadsheet: "Free" }];
+{ feature: "Monthly Price", tenno: "$50–$97", excessElite: "$200–400+", surplusSystems: "$197–497", spreadsheet: "Free" }];
 
 
 const faqs = [
