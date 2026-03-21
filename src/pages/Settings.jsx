@@ -379,6 +379,142 @@ export default function Settings() {
           </Card>
           </RoleGuard>
         </TabsContent>
+        {/* Templates Tab */}
+        <TabsContent value="templates" className="mt-6 space-y-4">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>My Templates</CardTitle>
+                <CardDescription>Phone scripts, email drafts, SMS templates</CardDescription>
+              </div>
+              <Button
+                size="sm"
+                className="bg-emerald-600 hover:bg-emerald-700"
+                onClick={() => { setEditingTemplate(null); setTemplateForm({ name: "", category: "email", subject: "", body: "" }); setShowTemplateForm(true); }}
+              >
+                <Plus className="w-4 h-4 mr-1" /> New Template
+              </Button>
+            </CardHeader>
+            <CardContent>
+              {showTemplateForm && (
+                <div className="mb-6 p-4 border rounded-xl bg-slate-50 space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label>Name *</Label>
+                      <Input value={templateForm.name} onChange={e => setTemplateForm({...templateForm, name: e.target.value})} placeholder="Template name" className="mt-1" />
+                    </div>
+                    <div>
+                      <Label>Category</Label>
+                      <select
+                        className="w-full mt-1 border rounded-md px-3 py-2 text-sm bg-white"
+                        value={templateForm.category}
+                        onChange={e => setTemplateForm({...templateForm, category: e.target.value})}
+                      >
+                        <option value="email">Email</option>
+                        <option value="phone_script">Phone Script</option>
+                        <option value="sms">SMS</option>
+                        <option value="voicemail">Voicemail</option>
+                        <option value="rebuttal">Rebuttal</option>
+                      </select>
+                    </div>
+                  </div>
+                  {templateForm.category === "email" && (
+                    <div>
+                      <Label>Subject</Label>
+                      <Input value={templateForm.subject} onChange={e => setTemplateForm({...templateForm, subject: e.target.value})} placeholder="Email subject" className="mt-1" />
+                    </div>
+                  )}
+                  <div>
+                    <Label>Body *</Label>
+                    <Textarea value={templateForm.body} onChange={e => setTemplateForm({...templateForm, body: e.target.value})} placeholder="Template content. Use {{owner_name}}, {{county}}, {{surplus_amount}} etc." rows={5} className="mt-1 font-mono text-sm" />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button size="sm" onClick={saveTemplate} className="bg-emerald-600 hover:bg-emerald-700"><Save className="w-3 h-3 mr-1" /> Save</Button>
+                    <Button size="sm" variant="outline" onClick={() => setShowTemplateForm(false)}>Cancel</Button>
+                  </div>
+                </div>
+              )}
+
+              {templates.length === 0 ? (
+                <p className="text-slate-500 text-center py-6">No templates yet. Create your first one above.</p>
+              ) : (
+                <div className="divide-y">
+                  {templates.map(t => (
+                    <div key={t.id} className="flex items-center justify-between py-3">
+                      <div>
+                        <p className="font-medium">{t.name}</p>
+                        <p className="text-xs text-slate-500 capitalize">{t.category.replace(/_/g, " ")}</p>
+                      </div>
+                      <div className="flex gap-1">
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditingTemplate(t); setTemplateForm({ name: t.name, category: t.category, subject: t.subject || "", body: t.body }); setShowTemplateForm(true); }}>
+                          <Edit2 className="w-4 h-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500" onClick={() => deleteTemplate(t.id)}>
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Subscription Tab */}
+        <TabsContent value="subscription" className="mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Subscription</CardTitle>
+              <CardDescription>Your current plan and billing details</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl border">
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center ${agentProfile?.plan === "pro" ? "bg-amber-100" : "bg-slate-200"}`}>
+                  <Crown className={`w-6 h-6 ${agentProfile?.plan === "pro" ? "text-amber-600" : "text-slate-500"}`} />
+                </div>
+                <div>
+                  <p className="font-bold text-lg capitalize">{agentProfile?.plan || "Starter"} Plan</p>
+                  <p className="text-slate-500 text-sm">
+                    {agentProfile?.plan === "pro" ? "$97/month • Full access to all Pro features" : "$50/month • Core tools included"}
+                  </p>
+                  {agentProfile?.plan_status && (
+                    <span className={`inline-block mt-1 text-xs px-2 py-0.5 rounded-full font-medium ${
+                      agentProfile.plan_status === "active" ? "bg-green-100 text-green-700" :
+                      agentProfile.plan_status === "past_due" ? "bg-red-100 text-red-700" :
+                      "bg-slate-100 text-slate-500"
+                    }`}>
+                      {agentProfile.plan_status}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {agentProfile?.plan !== "pro" && (
+                <div className="p-4 border-2 border-amber-300 rounded-xl bg-amber-50">
+                  <p className="font-semibold text-amber-800 mb-1">Upgrade to Pro — $97/month</p>
+                  <p className="text-sm text-amber-700 mb-3">Unlock Packet Builder, Form Library, File Manager, AI imports, and the Homeowner Portal.</p>
+                  <Button className="bg-amber-500 hover:bg-amber-600 text-white">
+                    <Crown className="w-4 h-4 mr-2" /> Upgrade to Pro
+                  </Button>
+                </div>
+              )}
+
+              {agentProfile?.billing_cycle_end && (
+                <div>
+                  <p className="text-sm text-slate-500">Next billing date</p>
+                  <p className="font-semibold">{agentProfile.billing_cycle_end}</p>
+                </div>
+              )}
+
+              {agentProfile?.stripe_customer_id && (
+                <div className="pt-4 border-t">
+                  <p className="text-xs text-slate-400">Stripe Customer ID: {agentProfile.stripe_customer_id}</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
     </div>
   );
