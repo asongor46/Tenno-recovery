@@ -39,37 +39,7 @@ import { Toaster } from "@/components/ui/toaster";
 import AgentChatbot from "@/components/dashboard/AgentChatbot";
 import ErrorBoundary from "@/components/shared/ErrorBoundary";
 
-const navigation = [
-  { name: "Dashboard", href: "Dashboard", icon: LayoutDashboard },
-  { 
-    name: "Cases", 
-    href: "Cases", 
-    icon: Briefcase,
-    subtitle: "All imported, scanned, and manually entered cases"
-  },
-  { name: "County Directory", href: "Counties", icon: Building2 },
-  { name: "Templates", href: "Templates", icon: FileText },
-  { name: "How-To", href: "HowTo", icon: BookOpen },
-  {
-    name: "Tools",
-    icon: Wrench,
-    children: [
-      { name: "Packet Builder", href: "PacketBuilder", icon: PackageOpen },
-      { name: "Form Library", href: "FormLibrary", icon: FileCode },
-      { name: "File Manager", href: "FileManager", icon: FolderOpen },
-    ],
-  },
-  {
-    name: "Admin",
-    icon: Users,
-    adminOnly: true,
-    children: [
-      { name: "User Management", href: "UserManagement", icon: Users },
-      { name: "Invoices", href: "Invoices", icon: DollarSign },
-      { name: "Payment Pipeline", href: "PaymentPipeline", icon: DollarSign },
-    ],
-  },
-];
+// Navigation is built dynamically per role — see buildNavigation() below
 
 export default function Layout({ children, currentPageName }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
