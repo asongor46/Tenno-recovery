@@ -145,12 +145,7 @@ export default function Dashboard() {
     c.stage === "paid" && c.paid_at && new Date(c.paid_at) > thirtyDaysAgo
   ).length;
 
-  // ADDED: Verification stats
   const verifiedCases = cases.filter(c => c.verification_status === "green").length;
-  const identityIssues = cases.filter(c => 
-    c.owner_confidence === "low" || c.owner_confidence === "unknown"
-  ).length;
-
   const recentCases = cases.slice(0, 10);
 
   // Calculate chart data
@@ -188,102 +183,6 @@ export default function Dashboard() {
       revenue: Math.round(revenue)
     };
   }).filter((_, i) => i % 5 === 0); // Show every 5th day
-
-  // ADDED: AI Suggestions Panel Component
-  function AISuggestionsPanel() {
-    const [suggestions, setSuggestions] = React.useState([]);
-    const [loading, setLoading] = React.useState(false);
-
-    const loadSuggestions = async () => {
-      setLoading(true);
-      try {
-        // Get top 3 cases needing attention
-        const priorityCases = cases
-          .filter(c => !c.is_archived && c.stage === 'imported' && !c.verification_status)
-          .slice(0, 3);
-
-        const allSuggestions = [];
-        for (const c of priorityCases) {
-          const { data } = await base44.functions.invoke("aiCaseAutomation", {
-            case_id: c.id,
-            action_type: "suggest_next_steps"
-          });
-          if (data.result?.next_steps) {
-            allSuggestions.push({
-              case_id: c.id,
-              case_number: c.case_number,
-              owner_name: c.owner_name,
-              steps: data.result.next_steps.slice(0, 2) // Top 2 steps per case
-            });
-          }
-        }
-        setSuggestions(allSuggestions);
-      } catch (error) {
-        console.error("Failed to load AI suggestions:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    React.useEffect(() => {
-      if (cases.length > 0 && suggestions.length === 0) {
-        loadSuggestions();
-      }
-    }, [cases]);
-
-    return (
-      <Card className="border-purple-200 bg-gradient-to-br from-purple-50 to-indigo-50">
-        <CardHeader className="flex flex-row items-center justify-between pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-purple-600" />
-            AI Suggestions
-          </CardTitle>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={loadSuggestions}
-            disabled={loading}
-            className="text-xs"
-          >
-            Refresh
-          </Button>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <p className="text-sm text-slate-500 text-center py-4">Analyzing cases...</p>
-          ) : suggestions.length === 0 ? (
-            <p className="text-sm text-slate-500 text-center py-4">No suggestions yet</p>
-          ) : (
-            <div className="space-y-3">
-              {suggestions.slice(0, 2).map((sug) => (
-                <div key={sug.case_id} className="bg-white p-3 rounded-lg border border-purple-100">
-                  <p className="text-xs font-semibold text-purple-900 mb-1">{sug.case_number}</p>
-                  {sug.steps.map((step, i) => (
-                    <div key={i} className="flex items-start gap-2 mt-2">
-                      <Lightbulb className="w-3 h-3 text-amber-500 mt-0.5 flex-shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs text-slate-700">{step.action}</p>
-                        <Badge 
-                          variant="outline" 
-                          className={`mt-1 text-xs ${
-                            step.priority === "urgent" ? "border-red-300 text-red-700" :
-                            step.priority === "high" ? "border-orange-300 text-orange-700" :
-                            "border-slate-300 text-slate-600"
-                          }`}
-                        >
-                          {step.priority}
-                        </Badge>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    );
-  }
 
   if (casesLoading) {
     return <LoadingState message="Loading dashboard..." />;
