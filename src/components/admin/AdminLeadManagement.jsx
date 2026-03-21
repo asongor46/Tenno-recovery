@@ -237,20 +237,57 @@ export default function AdminLeadManagement() {
         </Card>
       </div>
 
-      {/* CSV Upload */}
+      {/* Upload Card */}
       <Card className="bg-slate-800 border-slate-700">
         <CardHeader>
-          <CardTitle className="text-white text-sm">Upload Leads (CSV)</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-white text-sm">Upload Leads</CardTitle>
+            <div className="flex gap-1 bg-slate-700 rounded-lg p-1">
+              <button
+                onClick={() => { setUploadMode("csv"); setCsvRows([]); setPdfStatus(""); }}
+                className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${uploadMode === "csv" ? "bg-slate-500 text-white" : "text-slate-400 hover:text-white"}`}
+              >
+                CSV
+              </button>
+              <button
+                onClick={() => { setUploadMode("pdf"); setCsvRows([]); setPdfStatus(""); }}
+                className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${uploadMode === "pdf" ? "bg-slate-500 text-white" : "text-slate-400 hover:text-white"}`}
+              >
+                PDF
+              </button>
+            </div>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           <div
             className="border-2 border-dashed border-slate-600 rounded-xl p-6 text-center cursor-pointer hover:border-emerald-500 transition-colors"
-            onClick={() => fileRef.current?.click()}
+            onClick={() => !uploading && fileRef.current?.click()}
           >
-            <Upload className="w-8 h-8 text-slate-400 mx-auto mb-2" />
-            <p className="text-sm text-slate-300">Click to upload CSV</p>
-            <p className="text-xs text-slate-500 mt-1">Columns: owner_name, property_address, county, state, surplus_type, surplus_amount, sale_date, case_number</p>
-            <input ref={fileRef} type="file" accept=".csv" onChange={handleFileChange} className="hidden" />
+            {uploading ? (
+              <>
+                <RefreshCw className="w-8 h-8 text-emerald-400 mx-auto mb-2 animate-spin" />
+                <p className="text-sm text-emerald-400">{pdfStatus || "Processing..."}</p>
+              </>
+            ) : uploadMode === "pdf" ? (
+              <>
+                <FileText className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+                <p className="text-sm text-slate-300">Click to upload PDF</p>
+                <p className="text-xs text-slate-500 mt-1">AI will extract owner names, surplus amounts, counties, and case numbers</p>
+              </>
+            ) : (
+              <>
+                <Upload className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+                <p className="text-sm text-slate-300">Click to upload CSV</p>
+                <p className="text-xs text-slate-500 mt-1">Columns: owner_name, property_address, county, state, surplus_type, surplus_amount, sale_date, case_number</p>
+              </>
+            )}
+            <input
+              ref={fileRef}
+              type="file"
+              accept={uploadMode === "pdf" ? ".pdf" : ".csv"}
+              onChange={handleFileChange}
+              className="hidden"
+            />
           </div>
 
           {csvRows.length > 0 && (
