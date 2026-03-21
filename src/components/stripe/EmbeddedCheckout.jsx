@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import { EmbeddedCheckoutProvider, EmbeddedCheckout } from "@stripe/react-stripe-js";
 import { base44 } from "@/api/base44Client";
 import { X } from "lucide-react";
 
-export default function StripeEmbeddedCheckout({ plan, onClose, onSuccess }) {
+export default function StripeEmbeddedCheckout({ plan, onClose }) {
   const [clientSecret, setClientSecret] = useState(null);
   const [stripePromise, setStripePromise] = useState(null);
   const [error, setError] = useState(null);
@@ -37,7 +37,7 @@ export default function StripeEmbeddedCheckout({ plan, onClose, onSuccess }) {
     );
   }
 
-  if (!clientSecret) {
+  if (!clientSecret || !stripePromise) {
     return (
       <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center">
         <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-emerald-400"></div>
@@ -47,14 +47,14 @@ export default function StripeEmbeddedCheckout({ plan, onClose, onSuccess }) {
 
   return (
     <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-white rounded-2xl w-full max-w-xl relative mt-4 mb-4">
+      <div className="bg-white rounded-2xl w-full max-w-xl relative my-4">
         <button
           onClick={onClose}
           className="absolute top-3 right-3 z-10 w-8 h-8 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center"
         >
           <X className="w-4 h-4 text-slate-600" />
         </button>
-        <EmbeddedCheckoutProvider stripe={stripePromise} options={options()}>
+        <EmbeddedCheckoutProvider stripe={stripePromise} options={{ clientSecret }}>
           <EmbeddedCheckout />
         </EmbeddedCheckoutProvider>
       </div>
