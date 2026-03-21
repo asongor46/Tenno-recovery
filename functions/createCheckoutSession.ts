@@ -27,11 +27,13 @@ Deno.serve(async (req) => {
     const profile = profiles[0];
     const existingCustomerId = profile?.stripe_customer_id;
 
+    const appUrl = Deno.env.get("BASE44_APP_URL") || req.headers.get("origin") || "https://tenno-recovery.base44.app";
+
     const sessionParams = {
       mode: "subscription",
+      ui_mode: "embedded",
       line_items: [{ price: PRICE_IDS[plan], quantity: 1 }],
-      success_url: successUrl || `${req.headers.get("origin") || "https://app.base44.com"}/Dashboard?checkout=success`,
-      cancel_url: cancelUrl || `${req.headers.get("origin") || "https://app.base44.com"}/AgentApply?checkout=cancelled`,
+      return_url: `${appUrl}/Dashboard?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
       customer_email: existingCustomerId ? undefined : user.email,
       customer: existingCustomerId || undefined,
       subscription_data: {
@@ -49,8 +51,8 @@ Deno.serve(async (req) => {
 
     const session = await stripe.checkout.sessions.create(sessionParams);
 
-    console.log(`Created checkout session for ${user.email}, plan=${plan}, session=${session.id}`);
-    return Response.json({ url: session.url, sessionId: session.id });
+    console.log(`Created embedded checkout session for ${user.email}, plan=${plan}, session=${session.id}`);
+    return Response.json({ clientSecret: session.client_secret, sessionId: session.id });
   } catch (err) {
     console.error("Error creating checkout session:", err.message);
     return Response.json({ error: err.message }, { status: 500 });
