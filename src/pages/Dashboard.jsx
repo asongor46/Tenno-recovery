@@ -12,10 +12,24 @@ import KPICard from "@/components/dashboard/KPICard";
 import AlertsPanel from "@/components/dashboard/AlertsPanel";
 import TodoPanel from "@/components/dashboard/TodoPanel";
 import LeadFeed from "@/components/dashboard/LeadFeed";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import WarmLeadsPanel from "@/components/dashboard/WarmLeadsPanel";
 import LoadingState from "@/components/shared/LoadingState";
 
 export default function Dashboard() {
+  const { data: user } = useQuery({
+    queryKey: ["currentUser"],
+    queryFn: () => base44.auth.me(),
+  });
+
+  const { data: profile } = useQuery({
+    queryKey: ["agentProfile", user?.email],
+    queryFn: async () => {
+      const profiles = await base44.entities.AgentProfile.filter({ email: user.email });
+      return profiles[0] || null;
+    },
+    enabled: !!user?.email,
+  });
+
   const { data: cases = [], isLoading: casesLoading } = useQuery({
     queryKey: ["cases"],
     queryFn: () => base44.entities.Case.list("-updated_date", 100),
@@ -171,7 +185,10 @@ export default function Dashboard() {
         <TodoPanel todos={todos} isLoading={todosLoading} />
       </div>
 
-      {/* 3. Lead Feed */}
+      {/* 3. Warm Leads */}
+      <WarmLeadsPanel user={user} profile={profile} />
+
+      {/* 4. Lead Feed */}
       <LeadFeed user={user} profile={profile} />
     </div>
   );

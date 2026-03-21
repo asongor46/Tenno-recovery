@@ -25,6 +25,7 @@ import {
 "@/components/ui/accordion";
 import { base44 } from "@/api/base44Client";
 import FeatureSlideshow from "@/components/landing/FeatureSlideshow";
+import PublicSurplusSearch from "@/components/landing/PublicSurplusSearch";
 
 const LOGO = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6935380f41db07237f45b1db/11ed7b05d_Screenshot_20251213_181447_Chrome.jpg";
 
@@ -180,6 +181,9 @@ export default function LandingPage() {
           </motion.div>
         </div>
       </section>
+
+      {/* Public Surplus Search */}
+      <PublicSurplusSearch />
 
       {/* Feature Slideshow */}
       <section id="slideshow" className="py-20 bg-slate-900/40">
