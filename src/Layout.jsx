@@ -125,6 +125,9 @@ export default function Layout({ children, currentPageName }) {
     enabled: !!user?.email && !isPublicPage && !isPortalPage,
   });
 
+  const agentPlan = profile?.plan || "starter";
+  const navigation = buildNavigation(userRole, agentPlan);
+
   const toggleMenu = (menuName) => {
     setExpandedMenus((prev) => ({
       ...prev,
