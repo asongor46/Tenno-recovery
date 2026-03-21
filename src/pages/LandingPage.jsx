@@ -117,7 +117,7 @@ export default function LandingPage() {
                 Agent Login
               </button>
               <Link to={createPageUrl("PortalLogin")}>
-                <Button variant="outline" size="sm" className="border-slate-600 text-slate-300 hover:bg-slate-800">
+                <Button variant="outline" size="sm" className="bg-background text-green-500 px-3 text-xs font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border shadow-sm hover:text-accent-foreground h-8 border-slate-600 hover:bg-slate-800">
                   Homeowner Portal
                 </Button>
               </Link>
@@ -149,31 +149,31 @@ export default function LandingPage() {
             
 
             
-            <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold px-4 py-1.5 rounded-full mb-6 tracking-wide uppercase">
-              Surplus Recovery SaaS — Starter $50 · Pro $97
-            </div>
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold leading-tight tracking-tight">
-              Every decision.{" "}
-              <span className="text-emerald-400">Every screen.</span>
-              <br />Every prompt.
+            
+
+            
+            <h1 className="text-green-400 text-5xl font-bold tracking-tight leading-tight sm:text-6xl lg:text-7xl">Welcome to Tenno Recovery
+
+
+
             </h1>
-            <p className="mt-6 text-xl text-slate-400 max-w-2xl mx-auto">
-              Import leads. Stay compliant across all 50 states. Move homeowners through a pipeline — manually on Starter, or self-serve on Pro.
-            </p>
+            
+
+            
             <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
-              <Button
-                size="lg"
-                className="bg-emerald-600 hover:bg-emerald-500 text-base px-8 h-12 font-semibold"
-                onClick={() => window.location.href = createPageUrl("AgentApply")}>
-                Start at $50/mo <ArrowRight className="w-5 h-5 ml-1" />
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/10 text-base px-8 h-12 font-semibold"
-                onClick={() => window.location.href = createPageUrl("AgentApply")}>
-                Go Pro at $97/mo <ArrowRight className="w-5 h-5 ml-1" />
-              </Button>
+              
+
+
+
+
+              
+              
+
+
+
+
+
+              
             </div>
             <p className="mt-5 text-sm text-slate-500">Unlimited cases · No per-lead fees · Cancel anytime</p>
             
@@ -186,7 +186,7 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl font-bold">Every Tool You Need</h2>
-            <p className="mt-3 text-slate-400 text-lg">A real look at the platform — no stock mockups.</p>
+            <p className="mt-3 text-slate-400 text-lg"></p>
           </div>
           <FeatureSlideshow />
         </div>
@@ -196,7 +196,7 @@ export default function LandingPage() {
       <section id="features" className="py-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
-            <h2 className="text-3xl sm:text-4xl font-bold">Built for Agents, Not Spreadsheets</h2>
+            <h2 className="text-3xl sm:text-4xl font-bold">Built for Agents</h2>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {features.map((f, i) =>
@@ -212,7 +212,7 @@ export default function LandingPage() {
                   <f.icon className="w-5 h-5 text-emerald-400" />
                 </div>
                 <h3 className="font-semibold text-white mb-2">{f.title}</h3>
-                <p className="text-slate-400 text-sm">{f.description}</p>
+                
               </motion.div>
             )}
           </div>
@@ -278,20 +278,20 @@ export default function LandingPage() {
               </div>
               <ul className="space-y-2.5 text-sm text-slate-300 mb-8">
                 {[
-                  "Unlimited cases",
-                  "Full CRM & pipeline",
-                  "Manual case entry + CSV import",
-                  "State compliance engine — all 50 states",
-                  "County directory with filing rules",
-                  "Contact logging & email templates",
-                  "Case notes & document uploads",
-                  "How-to training guides",
-                ].map((item) => (
-                  <li key={item} className="flex items-center gap-3">
+                "Unlimited cases",
+                "Full CRM & pipeline",
+                "Manual case entry + CSV import",
+                "State compliance engine — all 50 states",
+                "County directory with filing rules",
+                "Contact logging & email templates",
+                "Case notes & document uploads",
+                "How-to training guides"].
+                map((item) =>
+                <li key={item} className="flex items-center gap-3">
                     <CheckCircle2 className="w-4 h-4 text-slate-400 flex-shrink-0" />
                     {item}
                   </li>
-                ))}
+                )}
               </ul>
               <Button
                 size="lg"
@@ -317,21 +317,21 @@ export default function LandingPage() {
               </div>
               <ul className="space-y-2.5 text-sm text-slate-300 mb-8">
                 {[
-                  "Everything in Starter",
-                  "Homeowner self-serve portal",
-                  "PDF import with AI extraction",
-                  "Screenshot & URL import",
-                  "Letter generator (mail-ready PDFs)",
-                  "Packet builder",
-                  "Form library",
-                  "Advanced email templates + custom creation",
-                  "File manager",
-                ].map((item) => (
-                  <li key={item} className="flex items-center gap-3">
+                "Everything in Starter",
+                "Homeowner self-serve portal",
+                "PDF import with AI extraction",
+                "Screenshot & URL import",
+                "Letter generator (mail-ready PDFs)",
+                "Packet builder",
+                "Form library",
+                "Advanced email templates + custom creation",
+                "File manager"].
+                map((item) =>
+                <li key={item} className="flex items-center gap-3">
                     <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
                     {item}
                   </li>
-                ))}
+                )}
               </ul>
               <Button
                 size="lg"
@@ -339,7 +339,7 @@ export default function LandingPage() {
                 onClick={() => window.location.href = createPageUrl("AgentApply")}>
                 Start with Pro <ArrowRight className="w-5 h-5 ml-1" />
               </Button>
-              <p className="mt-4 text-xs text-slate-500 text-center">7-day money-back guarantee · Cancel anytime</p>
+              <p className="mt-4 text-xs text-slate-500 text-center">Cancel anytime</p>
             </div>
           </div>
         </div>
