@@ -20,11 +20,19 @@ export default function AgentApply() {
     has_experience: false,
     application_reason: "",
   });
+  const [selectedPlan, setSelectedPlan] = useState("starter");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+
+    // Block checkout inside iframe (preview)
+    if (window.self !== window.top) {
+      alert("Checkout is only available from the published app. Please open the app in a new tab to complete signup.");
+      setIsSubmitting(false);
+      return;
+    }
 
     try {
       const user = await base44.auth.me();
@@ -33,6 +41,7 @@ export default function AgentApply() {
         user_id: user.id,
         email: user.email,
         ...formData,
+        plan: selectedPlan,
         role: "agent",
         status: "pending",
         applied_at: new Date().toISOString(),
@@ -40,12 +49,23 @@ export default function AgentApply() {
 
       await base44.entities.ActivityLog.create({
         action: "Agent Application Submitted",
-        description: `${formData.full_name} applied to become an agent`,
+        description: `${formData.full_name} applied as ${selectedPlan} agent`,
         performed_by: user.email,
       });
 
-      toast.success("Application submitted successfully!");
-      window.location.href = createPageUrl("AgentPending");
+      // Redirect to Stripe Checkout
+      const res = await base44.functions.invoke("createCheckoutSession", {
+        plan: selectedPlan,
+        successUrl: window.location.origin + "/Dashboard?checkout=success",
+        cancelUrl: window.location.origin + "/AgentApply?checkout=cancelled",
+      });
+
+      if (res.data?.url) {
+        window.location.href = res.data.url;
+      } else {
+        toast.error("Could not start checkout. Please try again.");
+        setIsSubmitting(false);
+      }
     } catch (error) {
       toast.error("Failed to submit application: " + error.message);
       setIsSubmitting(false);
