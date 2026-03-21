@@ -51,36 +51,28 @@ const comparisonRows = [
 
 const faqs = [
 {
+  question: "Do you provide leads?",
+  answer: "We provide import tools. You bring your own data — from county websites, tax records, court filings, or anywhere else. Starter agents import via CSV or manual entry. Pro agents also upload PDFs, screenshots, or paste URLs for AI extraction."
+},
+{
+  question: "What about skip tracing?",
+  answer: "We link to free lookup tools inside the platform. A skip trace add-on is coming. For now, use any people-finder tool and manually log contact info — the contact logger is built in."
+},
+{
   question: "What's the difference between Starter and Pro?",
-  answer: "Starter ($50/mo) gives you the full CRM, pipeline, state compliance engine, county directory, manual/CSV import, contact logging, and email templates. Pro ($97/mo) adds the homeowner self-serve portal, PDF/screenshot/URL AI import, letter generator, packet builder, form library, and file manager."
+  answer: "Starter ($50/mo): full CRM, pipeline, manual/CSV import, state compliance engine, county directory, contact logging, email templates, training guides. Pro ($97/mo): everything in Starter plus the homeowner self-serve portal, PDF/screenshot/URL AI import, packet builder, form library, advanced templates, and file manager."
+},
+{
+  question: "Is there a contract?",
+  answer: "No. Month to month. Cancel anytime from Settings → Manage Subscription. No cancellation fees, no lock-in."
 },
 {
   question: "What's the difference between a tax sale and a sheriff sale?",
-  answer: "Tax sale surplus comes from properties sold at auction for unpaid property taxes — these are typically filed administratively with the county. Sheriff sale surplus comes from mortgage foreclosures — these usually require a court motion and sometimes an attorney. TENNO tracks both types separately and shows you the correct fee cap and process for each."
-},
-{
-  question: "Can I work cases without the homeowner portal?",
-  answer: "Yes. Starter agents run their entire business manually. You advance pipeline stages yourself — upload the signed agreement, ID photos, and notarized packet manually. The pipeline is identical to Pro; the difference is that Pro lets homeowners complete those steps themselves online."
-},
-{
-  question: "How does the state compliance engine work?",
-  answer: "When you create a case, TENNO shows you the fee cap for that state and surplus type (tax sale vs. sheriff sale), registration requirements, waiting periods, and PI/attorney rules. You get a warning if your fee exceeds the legal cap for that state."
-},
-{
-  question: "What is the homeowner portal? (Pro only)",
-  answer: "A TENNO-branded web portal where homeowners sign agreements, upload their ID, complete intake forms, and upload notarized documents — entirely on their own. Stages auto-advance when they complete each step. You just watch the pipeline move."
-},
-{
-  question: "Is there a per-case or per-lead fee?",
-  answer: "No. $50 or $97/month flat — unlimited cases, unlimited homeowners. No per-lead fees, no credits, no surprises."
-},
-{
-  question: "Can I cancel anytime?",
-  answer: "Yes. Cancel from Settings → Manage Subscription. Your account stays read-only for 90 days so your data isn't lost."
+  answer: "Tax sale surplus comes from properties sold at auction for unpaid property taxes — filed administratively with the county. Sheriff sale surplus comes from mortgage foreclosures — typically requires a court motion and sometimes an attorney. TENNO tracks both types separately and shows the correct fee cap, filing method, and process for each."
 },
 {
   question: "Is my data private from other agents?",
-  answer: "Yes — row-level security means each agent sees only their own cases and homeowners. Multiple agents can work the same lead independently (common in the industry) — they'll never know about each other."
+  answer: "Yes — row-level security means each agent sees only their own cases and homeowners. Multiple agents can work the same lead independently (common in the industry) — they'll never see each other's data."
 }];
 
 
