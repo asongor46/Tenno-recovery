@@ -157,6 +157,9 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Lead Management */}
+      <AdminLeadManagement />
     </div>
   );
 }

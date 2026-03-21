@@ -193,112 +193,23 @@ export default function Dashboard() {
         <p className="text-sm sm:text-base text-slate-400 mt-1">Welcome back. Here's your overview.</p>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
-        <KPICard
-          title="Active Cases"
-          value={activeCases}
-          icon={Briefcase}
-          href="Cases?status=active"
-          color="emerald"
-          delay={0}
-        />
-        <KPICard
-          title="Hot Cases"
-          value={hotCases}
-          icon={Flame}
-          href="Cases"
-          color="orange"
-          delay={0.05}
-        />
-        <KPICard
-          title="Verified Cases"
-          value={verifiedCases}
-          icon={Target}
-          href="Cases"
-          color="purple"
-          delay={0.1}
-        />
-        <KPICard
-          title="Awaiting Notary"
-          value={awaitingNotary}
-          icon={FileCheck}
-          href="Cases?notary_status=pending"
-          color="blue"
-          delay={0.15}
-        />
-        <KPICard
-          title="Packets Ready"
-          value={packetsReady}
-          icon={PackageCheck}
-          href="Cases?stage=packet_ready"
-          color="amber"
-          delay={0.2}
-        />
+      {/* 1. KPI Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+        <KPICard title="Active Cases" value={activeCases} icon={Briefcase} href="Cases?status=active" color="emerald" delay={0} />
+        <KPICard title="Hot Cases" value={hotCases} icon={Flame} href="Cases" color="orange" delay={0.05} />
+        <KPICard title="Verified Cases" value={verifiedCases} icon={Target} href="Cases" color="purple" delay={0.1} />
+        <KPICard title="Awaiting Notary" value={awaitingNotary} icon={FileCheck} href="Cases?notary_status=pending" color="blue" delay={0.15} />
+        <KPICard title="Packets Ready" value={packetsReady} icon={PackageCheck} href="Cases?stage=packet_ready" color="amber" delay={0.2} />
       </div>
 
-      {/* Charts Row */}
+      {/* 2. Today's Tasks */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-        {/* Pipeline Distribution */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Pipeline Distribution</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={250}>
-              <PieChart>
-                <Pie
-                  data={stageData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {stageData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        {/* Revenue Trend */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Revenue Trend (Last 30 Days)</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={250}>
-              <LineChart data={revenueData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip formatter={(value) => `$${value.toLocaleString()}`} />
-                <Line type="monotone" dataKey="revenue" stroke="#10b981" strokeWidth={2} />
-              </LineChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+        <AlertsPanel alerts={alerts} isLoading={alertsLoading} />
+        <TodoPanel todos={todos} isLoading={todosLoading} />
       </div>
 
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-        {/* Cases Table - Takes 2 columns */}
-        <div className="lg:col-span-2">
-          <CasesTable cases={recentCases} isLoading={casesLoading} />
-        </div>
-
-        {/* Side Panels */}
-        <div className="space-y-4 sm:space-y-6">
-          <AlertsPanel alerts={alerts} isLoading={alertsLoading} />
-          <TodoPanel todos={todos} isLoading={todosLoading} />
-        </div>
-      </div>
+      {/* 3. Lead Feed */}
+      <LeadFeed user={user} profile={profile} />
     </div>
   );
 }
