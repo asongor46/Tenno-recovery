@@ -63,19 +63,20 @@ export default function PortalNotary() {
 
   useEffect(() => {
     async function loadCase() {
-      if (!caseId || !userEmail) {
+      const sessionToken = sessionStorage.getItem("portal_session_token") || localStorage.getItem("portal_session_token");
+      if (!caseId || !sessionToken) {
         window.location.href = createPageUrl("PortalLogin");
         return;
       }
-      const cases = await base44.entities.Case.filter({ id: caseId });
-      const c = cases[0];
-      if (!c || c.owner_email?.toLowerCase() !== userEmail?.toLowerCase()) {
+      const res = await base44.functions.invoke("getPortalCaseData", { session_token: sessionToken, case_id: caseId });
+      if (!res.data?.success) {
         window.location.href = createPageUrl("PortalDashboard");
         setIsLoading(false);
         return;
       }
+      const c = res.data.case;
       setCaseData(c);
-      if (c.notary_packet_generated && c.notary_packet_url) {
+      if (c.notary_packet_uploaded && c.notary_packet_url) {
         setPacketInfo({
           url: c.notary_packet_url,
           generated_at: c.notary_packet_generated_at
@@ -84,7 +85,7 @@ export default function PortalNotary() {
       setIsLoading(false);
     }
     loadCase();
-  }, [caseId, userEmail]);
+  }, [caseId]);
 
   const handleGeneratePacket = async () => {
     setIsGeneratingPacket(true);
@@ -145,37 +146,27 @@ export default function PortalNotary() {
     
     setIsSubmitting(true);
 
+    const sessionToken = sessionStorage.getItem("portal_session_token") || localStorage.getItem("portal_session_token");
+
     try {
       const uploadedUrls = [];
       for (let i = 0; i < notaryFiles.length; i++) {
         const { file_url } = await base44.integrations.Core.UploadFile({ file: notaryFiles[i].file });
         uploadedUrls.push(file_url);
-        
-        await base44.entities.Document.create({
-          case_id: caseData.id,
-          category: "notary_page",
-          file_url,
-          name: `Notarized Document ${i + 1}`,
-          uploaded_by: "homeowner",
-          is_primary: i === 0,
-        });
       }
 
-      await base44.entities.Case.update(caseData.id, {
-        notary_type: "in_person",
-        notary_packet_uploaded: true,
-        notary_packet_upload_url: uploadedUrls[0],
-        notary_verified: "pending",
-        stage: "notary_completed",
+      const res = await base44.functions.invoke("updatePortalCase", {
+        session_token: sessionToken,
+        case_id: caseData.id,
+        action: "submit_notary",
+        payload: { primary_url: uploadedUrls[0] },
       });
 
-      await base44.entities.ActivityLog.create({
-        case_id: caseData.id,
-        action: "Notarization Packet Uploaded",
-        description: `Homeowner uploaded ${notaryFiles.length} notarized document(s) via portal`,
-        performed_by: "Homeowner",
-        is_client_visible: true,
-      });
+      if (!res.data?.success) {
+        toast.error(res.data?.error || 'Upload failed');
+        setIsSubmitting(false);
+        return;
+      }
 
       toast.success('Notarization packet submitted successfully!');
       navigate(createPageUrl(`PortalComplete?id=${caseId}`));
