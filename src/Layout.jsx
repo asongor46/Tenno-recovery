@@ -38,6 +38,7 @@ import { Badge } from "@/components/ui/badge";
 import { Toaster } from "@/components/ui/toaster";
 import AgentChatbot from "@/components/dashboard/AgentChatbot";
 import ErrorBoundary from "@/components/shared/ErrorBoundary";
+import SubscriptionBanner from "@/components/stripe/SubscriptionBanner";
 
 function buildNavigation(role, plan) {
   const isPro = plan === "pro" || role === "admin";
