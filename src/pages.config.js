@@ -1,6 +1,5 @@
 import AgentApply from './pages/AgentApply';
 import AgentOnboarding from './pages/AgentOnboarding';
-import AgentPending from './pages/AgentPending';
 import CaseDetail from './pages/CaseDetail';
 import Cases from './pages/Cases';
 import Counties from './pages/Counties';
@@ -28,7 +27,6 @@ import __Layout from './Layout.jsx';
 export const PAGES = {
     "AgentApply": AgentApply,
     "AgentOnboarding": AgentOnboarding,
-    "AgentPending": AgentPending,
     "CaseDetail": CaseDetail,
     "Cases": Cases,
     "Counties": Counties,
