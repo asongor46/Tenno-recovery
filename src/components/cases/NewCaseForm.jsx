@@ -59,6 +59,16 @@ export default function NewCaseForm({ counties, onSuccess }) {
       return;
     }
 
+    // Get agent profile to stamp agent_id
+    let agentId = null;
+    try {
+      const user = await base44.auth.me();
+      if (user?.email) {
+        const profiles = await base44.entities.AgentProfile.filter({ email: user.email });
+        agentId = profiles[0]?.id || null;
+      }
+    } catch (_) {}
+
     const caseData = {
       ...formData,
       surplus_amount: parseFloat(formData.surplus_amount) || 0,
