@@ -231,7 +231,7 @@ export default function Layout({ children, currentPageName }) {
         )}
 
         {/* Navigation */}
-        <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto h-[calc(100vh-64px)]">
+        <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto h-[calc(100vh-100px)]">
           {navigation.map((item) => (
             <div key={item.name}>
               {item.children ? (
