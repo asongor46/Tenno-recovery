@@ -2,7 +2,6 @@ import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
-// [ENHANCED - Tier 2]
 import {
   CheckCircle2,
   AlertCircle,
