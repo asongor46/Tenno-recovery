@@ -9,11 +9,10 @@ import {
   Target,
 } from "lucide-react";
 import KPICard from "@/components/dashboard/KPICard";
-import CasesTable from "@/components/dashboard/CasesTable";
 import AlertsPanel from "@/components/dashboard/AlertsPanel";
 import TodoPanel from "@/components/dashboard/TodoPanel";
+import LeadFeed from "@/components/dashboard/LeadFeed";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import LoadingState from "@/components/shared/LoadingState";
 
 export default function Dashboard() {
