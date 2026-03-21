@@ -7,8 +7,19 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { FileText, Upload, Search, Eye, Trash2, CheckCircle2 } from "lucide-react";
 import { useStandardToast } from "@/components/shared/useStandardToast";
+import ProUpgradePrompt from "@/components/shared/ProUpgradePrompt";
 
 export default function FormLibrary() {
+  const { data: currentUser } = useQuery({
+    queryKey: ["currentUser"],
+    queryFn: () => base44.auth.me(),
+  });
+  const { data: agentProfile } = useQuery({
+    queryKey: ["agentProfile", currentUser?.email],
+    queryFn: () => base44.entities.AgentProfile.filter({ email: currentUser.email }).then(r => r[0] || null),
+    enabled: !!currentUser?.email,
+  });
+  const isPro = currentUser?.role === "admin" || agentProfile?.plan === "pro";
   const [searchQuery, setSearchQuery] = useState("");
   const toast = useStandardToast();
   const queryClient = useQueryClient();
