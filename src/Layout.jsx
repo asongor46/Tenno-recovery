@@ -411,6 +411,9 @@ export default function Layout({ children, currentPageName }) {
           </div>
         </header>
 
+        {/* Subscription status banner */}
+        <SubscriptionBanner planStatus={profile?.plan_status} />
+
         {/* Page content */}
         <main className="p-3 sm:p-4 lg:p-8 pb-20 lg:pb-8 bg-slate-900">
           <ErrorBoundary>
