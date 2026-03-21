@@ -428,8 +428,12 @@ export default function LandingPage() {
               </ul>
             </div>
           </div>
-          <div className="pt-8 border-t border-slate-800 text-center text-xs text-slate-600">
-            © 2026 TENNO Asset Recovery. All rights reserved.
+          <div className="pt-8 border-t border-slate-800 text-center text-xs text-slate-600 space-y-2">
+            <p>© 2026 TENNO Asset Recovery. All rights reserved.</p>
+            <p>
+              TENNO is a software platform for surplus recovery professionals. TENNO is not a law firm and does not provide legal advice.{" "}
+              <Link to={createPageUrl("TermsPage")} className="text-slate-400 hover:text-white underline">Terms & Conditions</Link>
+            </p>
           </div>
         </div>
       </footer>

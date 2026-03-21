@@ -207,12 +207,11 @@ export default function PortalAgreement() {
                 <FileText className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
                 <div>
                   <p className="text-sm text-blue-700">
-                    This is a private service agreement between you and Tenno Recovery. Your digital 
-                    signature below is legally binding under the E-SIGN Act.
+                    This agreement is between you and the agent identified below. Your digital 
+                    signature is legally binding under the E-SIGN Act.
                   </p>
                   <p className="text-sm text-blue-700 mt-2">
-                    <em>Note: The county claim forms will require notarization, but we'll guide you through 
-                    that simple process later.</em>
+                    <strong>Platform notice:</strong> TENNO Recovery provides the technology platform connecting you with your agent. TENNO is not a party to this agreement and does not guarantee recovery outcomes. You may always claim surplus directly from your county at no cost.
                   </p>
                 </div>
               </div>
