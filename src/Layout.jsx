@@ -83,7 +83,7 @@ export default function Layout({ children, currentPageName }) {
   const [searchQuery, setSearchQuery] = useState("");
 
   // Public pages (no auth, no layout)
-  const isPublicPage = ['LandingPage', 'HowItWorks', 'About', 'Contact', 'AgentApply', 'AgentPending'].includes(currentPageName);
+  const isPublicPage = ['LandingPage', 'HowItWorks', 'About', 'Contact', 'AgentApply'].includes(currentPageName);
   const isPortalPage = currentPageName?.startsWith("Portal");
 
   // Auth check for agent pages
@@ -138,23 +138,19 @@ export default function Layout({ children, currentPageName }) {
     base44.auth.logout();
   };
 
-  // [ENHANCED - Tier 3] Redirect based on profile status + onboarding
+  // Redirect based on profile status + onboarding
   React.useEffect(() => {
     // Skip all agent profile checks for admins
     if (user?.role === "admin") return;
     
     if (user && profile !== undefined && !isPublicPage && !isPortalPage) {
-      if (!profile) {
+      if (!profile || !profile.plan_status || profile.plan_status === "pending_payment") {
         window.location.href = createPageUrl("AgentApply");
-      } else if (profile.status === "pending") {
-        window.location.href = createPageUrl("AgentPending");
-      } else if (profile.status === "rejected") {
-        alert("Your application has been rejected. Please contact support.");
-        base44.auth.logout();
-      } else if (profile.status === "approved" && !(profile.notes || "").includes("Completed onboarding") && currentPageName !== "AgentOnboarding") {
-        // Approved but hasn't completed onboarding
+      } else if (profile.plan_status === "active" && !profile.onboarding_completed && currentPageName !== "AgentOnboarding") {
         window.location.href = createPageUrl("AgentOnboarding");
       }
+      // active/past_due/cancelled with onboarding done → show app
+      // SubscriptionBanner handles past_due and cancelled states
     }
   }, [user, profile, currentPageName, isPublicPage, isPortalPage]);
 
