@@ -52,7 +52,11 @@ Deno.serve(async (req) => {
     const session = await stripe.checkout.sessions.create(sessionParams);
 
     console.log(`Created embedded checkout session for ${user.email}, plan=${plan}, session=${session.id}`);
-    return Response.json({ clientSecret: session.client_secret, sessionId: session.id });
+    return Response.json({
+      clientSecret: session.client_secret,
+      sessionId: session.id,
+      publishableKey: Deno.env.get("STRIPE_PUBLISHABLE_KEY"),
+    });
   } catch (err) {
     console.error("Error creating checkout session:", err.message);
     return Response.json({ error: err.message }, { status: 500 });

@@ -1,22 +1,20 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import { EmbeddedCheckoutProvider, EmbeddedCheckout } from "@stripe/react-stripe-js";
 import { base44 } from "@/api/base44Client";
 import { X } from "lucide-react";
 
-// The publishable key is safe to hardcode in frontend; loaded from env or Settings
-const STRIPE_PK = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || window.__STRIPE_PK__ || "";
-const stripePromise = STRIPE_PK ? loadStripe(STRIPE_PK) : null;
-
 export default function StripeEmbeddedCheckout({ plan, onClose, onSuccess }) {
   const [clientSecret, setClientSecret] = useState(null);
+  const [stripePromise, setStripePromise] = useState(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     async function fetchClientSecret() {
       try {
         const res = await base44.functions.invoke("createCheckoutSession", { plan });
-        if (res.data?.clientSecret) {
+        if (res.data?.clientSecret && res.data?.publishableKey) {
+          setStripePromise(loadStripe(res.data.publishableKey));
           setClientSecret(res.data.clientSecret);
         } else {
           setError(res.data?.error || "Could not start checkout");
@@ -27,8 +25,6 @@ export default function StripeEmbeddedCheckout({ plan, onClose, onSuccess }) {
     }
     fetchClientSecret();
   }, [plan]);
-
-  const options = useCallback(() => ({ clientSecret }), [clientSecret]);
 
   if (error) {
     return (
