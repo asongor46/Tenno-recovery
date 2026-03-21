@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { Upload, Trash2, Edit2, RefreshCw, AlertTriangle, CheckCircle, X } from "lucide-react";
+import { Upload, Trash2, Edit2, RefreshCw, CheckCircle, X, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
