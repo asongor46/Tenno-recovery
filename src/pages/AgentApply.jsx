@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
+import StripeEmbeddedCheckout from "@/components/stripe/EmbeddedCheckout";
 
 export default function AgentApply() {
   const [formData, setFormData] = useState({
@@ -22,6 +23,8 @@ export default function AgentApply() {
   });
   const [selectedPlan, setSelectedPlan] = useState("starter");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showCheckout, setShowCheckout] = useState(false);
+  const [checkoutPlan, setCheckoutPlan] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -36,7 +39,7 @@ export default function AgentApply() {
 
     try {
       const user = await base44.auth.me();
-      
+
       await base44.entities.AgentProfile.create({
         user_id: user.id,
         email: user.email,
@@ -53,23 +56,12 @@ export default function AgentApply() {
         performed_by: user.email,
       });
 
-      // Redirect to Stripe Checkout
-      const res = await base44.functions.invoke("createCheckoutSession", {
-        plan: selectedPlan,
-        successUrl: window.location.origin + "/Dashboard?checkout=success",
-        cancelUrl: window.location.origin + "/AgentApply?checkout=cancelled",
-      });
-
-      if (res.data?.url) {
-        window.location.href = res.data.url;
-      } else {
-        toast.error("Could not start checkout. Please try again.");
-        setIsSubmitting(false);
-      }
+      setCheckoutPlan(selectedPlan);
+      setShowCheckout(true);
     } catch (error) {
       toast.error("Failed to submit application: " + error.message);
-      setIsSubmitting(false);
     }
+    setIsSubmitting(false);
   };
 
   return (
