@@ -3,9 +3,10 @@ import { createClientFromRequest } from "npm:@base44/sdk@0.8.21";
 
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY"));
 
-const PRICE_IDS = {
-  starter: "price_1TDFvZLH99WPSqLvCsERmQuw",
-  pro: "price_1TDFvZLH99WPSqLv1r2wIkLg",
+// Stripe payment links for direct checkout
+const PAYMENT_LINKS = {
+  starter: "https://buy.stripe.com/bJe14n0MEaic9GNdTndAk01",
+  pro: "https://buy.stripe.com/eVq5kD66Y3TOg5baHbdAk00",
 };
 
 Deno.serve(async (req) => {
@@ -16,46 +17,29 @@ Deno.serve(async (req) => {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { plan, successUrl, cancelUrl } = await req.json();
+    const { plan } = await req.json();
 
-    if (!PRICE_IDS[plan]) {
+    if (!PAYMENT_LINKS[plan]) {
       return Response.json({ error: "Invalid plan" }, { status: 400 });
     }
 
-    // Check if existing Stripe customer
+    // Get payment link
+    const paymentLink = PAYMENT_LINKS[plan];
+    
+    // Store plan preference on user profile for webhook tracking
     const profiles = await base44.asServiceRole.entities.AgentProfile.filter({ email: user.email });
     const profile = profiles[0];
-    const existingCustomerId = profile?.stripe_customer_id;
+    
+    if (profile && !profile.stripe_customer_id) {
+      await base44.asServiceRole.entities.AgentProfile.update(profile.id, {
+        plan: plan,
+      });
+    }
 
-    const appUrl = Deno.env.get("BASE44_APP_URL") || req.headers.get("origin") || "https://tenno-recovery.base44.app";
-
-    const sessionParams = {
-      mode: "subscription",
-      ui_mode: "embedded",
-      line_items: [{ price: PRICE_IDS[plan], quantity: 1 }],
-      return_url: `${appUrl}/Dashboard?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
-      customer_email: existingCustomerId ? undefined : user.email,
-      customer: existingCustomerId || undefined,
-      subscription_data: {
-        metadata: {
-          base44_user_email: user.email,
-          plan,
-        },
-      },
-      metadata: {
-        base44_app_id: Deno.env.get("BASE44_APP_ID"),
-        base44_user_email: user.email,
-        plan,
-      },
-    };
-
-    const session = await stripe.checkout.sessions.create(sessionParams);
-
-    console.log(`Created embedded checkout session for ${user.email}, plan=${plan}, session=${session.id}`);
+    console.log(`Returning payment link for ${user.email}, plan=${plan}`);
     return Response.json({
-      clientSecret: session.client_secret,
-      sessionId: session.id,
-      publishableKey: Deno.env.get("STRIPE_PUBLISHABLE_KEY"),
+      paymentLink: paymentLink,
+      plan: plan,
     });
   } catch (err) {
     console.error("Error creating checkout session:", err.message);
