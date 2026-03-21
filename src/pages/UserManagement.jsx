@@ -134,6 +134,16 @@ export default function UserManagement() {
   const adminCount = users.filter(u => u.role === "admin").length;
   const userCount = users.filter(u => u.role === "user").length;
 
+  // MRR calculation from AgentProfile plans
+  const { data: allProfiles = [] } = useQuery({
+    queryKey: ["allAgentProfiles"],
+    queryFn: () => base44.entities.AgentProfile.filter({ status: "approved" }),
+    staleTime: 30000,
+  });
+  const starterAgents = allProfiles.filter(p => !p.plan || p.plan === "starter").length;
+  const proAgents = allProfiles.filter(p => p.plan === "pro").length;
+  const mrr = starterAgents * 50 + proAgents * 97;
+
   if (isLoading) {
     return (
       <RoleGuard allowedRoles={["admin"]}>
