@@ -32,8 +32,19 @@ import { Checkbox } from "@/components/ui/checkbox";
 import BulkPacketGenerator from "@/components/packet/BulkPacketGenerator";
 
 import RoleGuard from "@/components/rbac/RoleGuard";
+import ProUpgradePrompt from "@/components/shared/ProUpgradePrompt";
 
 export default function PacketBuilder() {
+  const { data: currentUser } = useQuery({
+    queryKey: ["currentUser"],
+    queryFn: () => base44.auth.me(),
+  });
+  const { data: agentProfile } = useQuery({
+    queryKey: ["agentProfile", currentUser?.email],
+    queryFn: () => base44.entities.AgentProfile.filter({ email: currentUser.email }).then(r => r[0] || null),
+    enabled: !!currentUser?.email,
+  });
+  const isPro = currentUser?.role === "admin" || agentProfile?.plan === "pro";
   const [selectedCaseId, setSelectedCaseId] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [bulkMode, setBulkMode] = useState(false);
