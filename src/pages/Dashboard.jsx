@@ -214,7 +214,6 @@ export default function Dashboard() {
           color="orange"
           delay={0.05}
         />
-        {/* ADDED: Verified Cases KPI */}
         <KPICard
           title="Verified Cases"
           value={verifiedCases}
@@ -238,15 +237,6 @@ export default function Dashboard() {
           href="Cases?stage=packet_ready"
           color="amber"
           delay={0.2}
-        />
-        {/* ADDED: Identity Issues KPI */}
-        <KPICard
-          title="Identity Issues"
-          value={identityIssues}
-          icon={AlertTriangle}
-          href="Cases"
-          color="rose"
-          delay={0.25}
         />
       </div>
 
@@ -308,8 +298,6 @@ export default function Dashboard() {
 
         {/* Side Panels */}
         <div className="space-y-4 sm:space-y-6">
-          {/* ADDED: AI Suggestions Panel */}
-          <AISuggestionsPanel />
           <AlertsPanel alerts={alerts} isLoading={alertsLoading} />
           <TodoPanel todos={todos} isLoading={todosLoading} />
         </div>
