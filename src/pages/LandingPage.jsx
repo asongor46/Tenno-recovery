@@ -385,10 +385,9 @@ export default function LandingPage() {
             size="lg"
             className="bg-emerald-600 hover:bg-emerald-500 text-base px-10 h-12 font-semibold"
             onClick={() => window.location.href = createPageUrl("AgentApply")}>
-            
-            Subscribe — $50/month <ArrowRight className="w-5 h-5 ml-1" />
+            Get Started — From $50/mo <ArrowRight className="w-5 h-5 ml-1" />
           </Button>
-          <p className="mt-4 text-sm text-slate-500">No contracts · Cancel anytime</p>
+          <p className="mt-4 text-sm text-slate-500">No contracts · Cancel anytime · Starter $50 · Pro $97</p>
         </div>
       </section>
 
