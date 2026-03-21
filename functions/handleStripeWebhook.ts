@@ -61,10 +61,11 @@ Deno.serve(async (req) => {
           await base44.asServiceRole.entities.AgentProfile.update(profile.id, {
             plan,
             plan_status: "active",
+            status: "approved",  // Payment confirmed — approve the agent
             stripe_customer_id: customerId,
             stripe_subscription_id: subscriptionId,
           });
-          console.log(`checkout.session.completed: updated profile ${profile.email} → plan=${plan}`);
+          console.log(`checkout.session.completed: updated profile ${profile.email} → plan=${plan}, status=approved`);
         } else {
           console.warn(`checkout.session.completed: no profile found for email=${customerEmail}, customer=${customerId}`);
         }

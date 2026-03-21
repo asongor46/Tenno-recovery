@@ -29,12 +29,12 @@ export default function SubscriptionBanner({ planStatus }) {
 
   if (planStatus === "past_due") {
     return (
-      <div className="bg-amber-50 border-b border-amber-200 px-4 py-2 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-2 text-amber-700 text-sm">
+      <div className="bg-amber-500/10 border-b border-amber-500/30 px-4 py-2 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-2 text-amber-400 text-sm">
           <AlertTriangle className="w-4 h-4 flex-shrink-0" />
           <span>Your payment is past due. Please update your billing info to avoid service interruption.</span>
         </div>
-        <Button size="sm" variant="outline" className="border-amber-400 text-amber-700 hover:bg-amber-100 flex-shrink-0" onClick={openPortal} disabled={loading}>
+        <Button size="sm" variant="outline" className="border-amber-500/50 text-amber-400 hover:bg-amber-500/10 flex-shrink-0" onClick={openPortal} disabled={loading}>
           {loading ? "..." : "Update Billing"}
         </Button>
       </div>
@@ -43,8 +43,8 @@ export default function SubscriptionBanner({ planStatus }) {
 
   if (planStatus === "cancelled") {
     return (
-      <div className="bg-red-50 border-b border-red-200 px-4 py-2 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-2 text-red-700 text-sm">
+      <div className="bg-red-500/10 border-b border-red-500/30 px-4 py-2 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-2 text-red-400 text-sm">
           <XCircle className="w-4 h-4 flex-shrink-0" />
           <span>Your subscription has been cancelled. You are in read-only mode.</span>
         </div>
