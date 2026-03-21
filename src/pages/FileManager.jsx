@@ -87,6 +87,17 @@ const categoryColors = {
 };
 
 export default function FileManager() {
+  const { data: currentUser } = useQuery({
+    queryKey: ["currentUser"],
+    queryFn: () => base44.auth.me(),
+  });
+  const { data: agentProfile } = useQuery({
+    queryKey: ["agentProfile", currentUser?.email],
+    queryFn: () => base44.entities.AgentProfile.filter({ email: currentUser.email }).then(r => r[0] || null),
+    enabled: !!currentUser?.email,
+  });
+  const isPro = currentUser?.role === "admin" || agentProfile?.plan === "pro";
+
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [viewMode, setViewMode] = useState("list");
