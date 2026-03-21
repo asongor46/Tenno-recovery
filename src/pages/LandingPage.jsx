@@ -239,7 +239,7 @@ export default function LandingPage() {
                   <th className="text-left px-5 py-4 text-slate-400 font-medium">Feature</th>
                   <th className="px-5 py-4 text-center">
                     <span className="text-emerald-400 font-bold text-base">TENNO</span>
-                    <span className="block text-slate-500 text-xs font-normal">$50/mo</span>
+                    <span className="block text-slate-500 text-xs font-normal">$50–$97/mo</span>
                   </th>
                   <th className="px-5 py-4 text-center text-slate-400 font-medium">
                     Excess Elite<span className="block text-xs font-normal text-slate-500">$200–400+</span>
