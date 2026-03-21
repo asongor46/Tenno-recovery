@@ -157,19 +157,23 @@ export default function LandingPage() {
             
 
             
+            <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold px-4 py-1.5 rounded-full mb-6 tracking-wide uppercase">
+              Surplus Recovery SaaS — Starter $50 · Pro $97
+            </div>
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold leading-tight tracking-tight">
-              Tenno Recovery
+              Every decision.{" "}
+              <span className="text-emerald-400">Every screen.</span>
+              <br />Every prompt.
             </h1>
             <p className="mt-6 text-xl text-slate-400 max-w-2xl mx-auto">
-              Import leads. Manage cases. Stay compliant. Close deals.
+              Import leads. Stay compliant across all 50 states. Move homeowners through a pipeline — manually on Starter, or self-serve on Pro.
             </p>
             <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
               <Button
                 size="lg"
                 className="bg-emerald-600 hover:bg-emerald-500 text-base px-8 h-12 font-semibold"
                 onClick={() => window.location.href = createPageUrl("AgentApply")}>
-                
-                Subscribe — $50/month <ArrowRight className="w-5 h-5 ml-1" />
+                Get Started — From $50/mo <ArrowRight className="w-5 h-5 ml-1" />
               </Button>
               <a href="#slideshow">
                 <Button size="lg" variant="outline" className="border-slate-700 text-slate-300 hover:bg-slate-800 text-base px-8 h-12">
@@ -177,6 +181,7 @@ export default function LandingPage() {
                 </Button>
               </a>
             </div>
+            <p className="mt-5 text-sm text-slate-500">Unlimited cases · No per-lead fees · Cancel anytime</p>
             
           </motion.div>
         </div>
