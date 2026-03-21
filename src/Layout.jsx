@@ -312,7 +312,7 @@ export default function Layout({ children, currentPageName }) {
             <div className="flex items-center gap-4 flex-1">
               <button
                 onClick={() => setSidebarOpen(true)}
-                className="lg:hidden text-slate-600 hover:text-slate-900"
+                className="lg:hidden text-slate-400 hover:text-white"
               >
                 <Menu className="w-6 h-6" />
               </button>
@@ -323,7 +323,7 @@ export default function Layout({ children, currentPageName }) {
                   placeholder="Search cases, counties..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 bg-slate-100/50 border-0 focus-visible:ring-emerald-500/20 focus-visible:ring-2"
+                  className="pl-10 bg-slate-800 border-slate-700 text-white placeholder:text-slate-500 focus-visible:ring-emerald-500/20 focus-visible:ring-2"
                 />
               </div>
             </div>
@@ -334,7 +334,7 @@ export default function Layout({ children, currentPageName }) {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="relative">
-                    <Bell className="w-5 h-5 text-slate-600" />
+                    <Bell className="w-5 h-5 text-slate-300" />
                     {alerts.length > 0 && (
                       <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
                     )}
@@ -364,7 +364,7 @@ export default function Layout({ children, currentPageName }) {
               {/* Settings */}
               <Link to={createPageUrl("Settings")}>
                 <Button variant="ghost" size="icon">
-                  <Settings className="w-5 h-5 text-slate-600" />
+                  <Settings className="w-5 h-5 text-slate-300" />
                 </Button>
               </Link>
 
@@ -377,7 +377,7 @@ export default function Layout({ children, currentPageName }) {
                         {user?.full_name?.charAt(0) || "U"}
                       </span>
                     </div>
-                    <span className="hidden sm:inline text-sm font-medium text-slate-700">
+                    <span className="hidden sm:inline text-sm font-medium text-slate-200">
                       {user?.full_name || "User"}
                     </span>
                   </Button>
