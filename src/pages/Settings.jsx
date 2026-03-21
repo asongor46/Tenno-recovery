@@ -12,6 +12,12 @@ import {
   Save,
   Loader2,
   Workflow,
+  CreditCard,
+  FileText,
+  Crown,
+  Plus,
+  Trash2,
+  Edit2,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import CustomStageEditor from "@/components/workflow/CustomStageEditor";
