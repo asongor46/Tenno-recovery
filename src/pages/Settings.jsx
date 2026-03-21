@@ -178,6 +178,12 @@ export default function Settings() {
               <Building2 className="w-4 h-4" /> Company
             </TabsTrigger>
           )}
+          <TabsTrigger value="templates" className="gap-2">
+            <FileText className="w-4 h-4" /> Templates
+          </TabsTrigger>
+          <TabsTrigger value="subscription" className="gap-2">
+            <CreditCard className="w-4 h-4" /> Subscription
+          </TabsTrigger>
         </TabsList>
 
         {/* Profile Tab */}
