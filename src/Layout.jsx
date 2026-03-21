@@ -39,7 +39,44 @@ import { Toaster } from "@/components/ui/toaster";
 import AgentChatbot from "@/components/dashboard/AgentChatbot";
 import ErrorBoundary from "@/components/shared/ErrorBoundary";
 
-// Navigation is built dynamically per role — see buildNavigation() below
+function buildNavigation(role, plan) {
+  const isPro = plan === "pro" || role === "admin";
+  const isAdmin = role === "admin";
+
+  const base = [
+    { name: "Dashboard", href: "Dashboard", icon: LayoutDashboard },
+    { name: "Cases", href: "Cases", icon: Briefcase },
+    { name: "Counties", href: "Counties", icon: Building2 },
+    { name: "How-To", href: "HowTo", icon: BookOpen },
+  ];
+
+  if (isPro) {
+    base.push({
+      name: "Tools",
+      icon: Wrench,
+      children: [
+        { name: "Packet Builder", href: "PacketBuilder", icon: PackageOpen },
+        { name: "Form Library", href: "FormLibrary", icon: FileCode },
+        { name: "File Manager", href: "FileManager", icon: FolderOpen },
+      ],
+    });
+  }
+
+  base.push({ name: "Settings", href: "Settings", icon: Settings });
+
+  if (isAdmin) {
+    base.push({
+      name: "Admin",
+      icon: Users,
+      children: [
+        { name: "User Management", href: "UserManagement", icon: Users },
+        { name: "Admin Dashboard", href: "AdminDashboard", icon: LayoutDashboard },
+      ],
+    });
+  }
+
+  return base;
+}
 
 export default function Layout({ children, currentPageName }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
