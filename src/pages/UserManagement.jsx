@@ -394,9 +394,10 @@ export default function UserManagement() {
                         </DropdownMenu>
                       </TableCell>
                     </TableRow>
-                  ))
-                )}
-              </TableBody>
+                  );
+                  })
+                  )}
+                  </TableBody>
             </Table>
           </CardContent>
         </Card>
