@@ -102,6 +102,10 @@ export default function PacketBuilder() {
     }));
   };
 
+  if (!isPro && agentProfile !== undefined) {
+    return <ProUpgradePrompt feature="Packet Builder" onDismiss={() => window.history.back()} />;
+  }
+
   return (
     <RoleGuard allowedRoles={["admin", "agent"]}>
     <div className="space-y-6">
