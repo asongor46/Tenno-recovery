@@ -67,13 +67,6 @@ export default function NewCaseForm({ counties, onSuccess }) {
     try {
       const newCase = await base44.entities.Case.create(caseData);
       
-      // Auto-trigger classification
-      try {
-        await base44.functions.invoke("classifyCase", { case_id: newCase.id });
-      } catch (classifyError) {
-        console.warn("Classification failed:", classifyError);
-      }
-      
       toast.success("Case created successfully!");
       onSuccess();
     } catch (error) {

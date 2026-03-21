@@ -77,9 +77,12 @@ Deno.serve(async (req) => {
       accessCode = generateAccessCode();
     }
     console.log(`[generatePortalLink] Access code generated: ${accessCode}`);
-    const appUrl = Deno.env.get('BASE44_APP_URL') || 'https://your-app.base44.com';
-    if (!Deno.env.get('BASE44_APP_URL')) {
-      console.log('[generatePortalLink] WARNING: BASE44_APP_URL not set, using fallback URL');
+    const appUrl = Deno.env.get('BASE44_APP_URL');
+    if (!appUrl) {
+      return Response.json({
+        status: 'error', success: false,
+        details: 'BASE44_APP_URL not set. Configure it in Base44 project settings.',
+      }, { status: 500 });
     }
     const portalUrl = `${appUrl}/PortalLogin`;
     console.log(`[generatePortalLink] Portal URL: ${portalUrl}`);

@@ -114,8 +114,6 @@ export default function URLCaseBuilder({ onSuccess, onCancel }) {
         stage: "imported",
       });
       
-      // Auto-classify the case
-      await base44.functions.invoke("classifyCase", { case_id: newCase.id });
     }
 
     setIsImporting(false);

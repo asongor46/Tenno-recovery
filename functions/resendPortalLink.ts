@@ -32,7 +32,13 @@ Deno.serve(async (req) => {
       newCode += chars[array[i] % chars.length];
     }
 
-    const appUrl = Deno.env.get('BASE44_APP_URL') || 'https://your-app.base44.com';
+    const appUrl = Deno.env.get('BASE44_APP_URL');
+    if (!appUrl) {
+      return Response.json({
+        status: 'error', success: false,
+        details: 'BASE44_APP_URL not set. Configure it in Base44 project settings.',
+      }, { status: 500 });
+    }
     const portalUrl = `${appUrl}/PortalLogin`;
 
     // Update ALL cases for this email with the new code

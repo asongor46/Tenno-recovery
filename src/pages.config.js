@@ -21,7 +21,6 @@ import PortalLostLink from './pages/PortalLostLink';
 import PortalNotary from './pages/PortalNotary';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
-import Templates from './pages/Templates';
 import UserManagement from './pages/UserManagement';
 import __Layout from './Layout.jsx';
 
@@ -50,7 +49,6 @@ export const PAGES = {
     "PortalNotary": PortalNotary,
     "Profile": Profile,
     "Settings": Settings,
-    "Templates": Templates,
     "UserManagement": UserManagement,
 }
 

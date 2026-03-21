@@ -141,8 +141,6 @@ ${text}`,
           stage: "imported",
         });
         
-        // Auto-classify the case
-        await base44.functions.invoke("classifyCase", { case_id: newCase.id });
       }
 
       alert(`Successfully imported ${casesToImport.length} cases`);
