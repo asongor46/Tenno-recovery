@@ -29,11 +29,13 @@ export default function AdminLeadManagement() {
   const qc = useQueryClient();
   const fileRef = useRef();
 
+  const [uploadMode, setUploadMode] = useState("csv"); // "csv" | "pdf"
   const [csvRows, setCsvRows] = useState([]);
   const [batchState, setBatchState] = useState("");
   const [batchCounty, setBatchCounty] = useState("");
   const [batchType, setBatchType] = useState("tax_sale");
   const [uploading, setUploading] = useState(false);
+  const [pdfStatus, setPdfStatus] = useState(""); // status message during PDF processing
   const [editingId, setEditingId] = useState(null);
   const [editData, setEditData] = useState({});
   const [statusFilter, setStatusFilter] = useState("all");
