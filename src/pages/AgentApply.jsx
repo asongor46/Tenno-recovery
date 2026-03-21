@@ -66,6 +66,13 @@ export default function AgentApply() {
 
   return (
     <div className="min-h-screen bg-slate-900">
+      {showCheckout && checkoutPlan && (
+        <StripeEmbeddedCheckout
+          plan={checkoutPlan}
+          onClose={() => setShowCheckout(false)}
+          onSuccess={() => { setShowCheckout(false); window.location.href = "/Dashboard?checkout=success"; }}
+        />
+      )}
       <header className="bg-slate-900/80 backdrop-blur-xl border-b border-slate-800">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <img 
@@ -207,7 +214,7 @@ export default function AgentApply() {
                   className="w-full bg-emerald-600 hover:bg-emerald-700"
                   size="lg"
                 >
-                  {isSubmitting ? "Redirecting to Checkout..." : `Apply & Subscribe to ${selectedPlan === "pro" ? "Pro ($97/mo)" : "Starter ($50/mo)"}`}
+                  {isSubmitting ? "Processing..." : `Apply & Subscribe to ${selectedPlan === "pro" ? "Pro ($97/mo)" : "Starter ($50/mo)"}`}
                 </Button>
               </form>
             </CardContent>
