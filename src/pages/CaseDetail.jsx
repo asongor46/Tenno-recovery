@@ -209,6 +209,13 @@ export default function CaseDetail() {
                   <Flame className="w-3 h-3 mr-1" /> Hot Case
                 </Badge>
               )}
+              {/* Surplus type badge */}
+              {caseData.source_type === "pdf_import" || caseData.source_type === "manual" ? null : null}
+              {caseData.sale_amount && caseData.judgment_amount ? (
+                <Badge className="bg-blue-100 text-blue-700 border-0">Tax Sale</Badge>
+              ) : caseData.sale_amount && !caseData.judgment_amount ? (
+                <Badge className="bg-purple-100 text-purple-700 border-0">Sheriff Sale</Badge>
+              ) : null}
               {/* ADDED: Verification status badge */}
               {caseData.verification_status && caseData.verification_status !== "pending" && (
                 <Badge className={`border-0 ${
