@@ -96,8 +96,6 @@ export default function Layout({ children, currentPageName }) {
   });
 
   const userRole = user?.role || "user";
-  const agentPlan = profile?.plan || "starter"; // "starter" | "pro"
-  const navigation = buildNavigation(userRole, agentPlan);
 
   const { data: alerts = [] } = useQuery({
     queryKey: ["unreadAlerts"],
