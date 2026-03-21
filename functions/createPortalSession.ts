@@ -24,9 +24,10 @@ Deno.serve(async (req) => {
     const portalSession = await stripe.billingPortal.sessions.create({
       customer: profile.stripe_customer_id,
       return_url: returnUrl,
+      configuration: "bpc_1TDGlNLH99WPSqLvN5oIWBSx", // Enables cancel & pause options
     });
 
-    console.log(`Created portal session for ${user.email}`);
+    console.log(`Created billing portal session for ${user.email}`);
     return Response.json({ url: portalSession.url });
   } catch (err) {
     console.error("Error creating portal session:", err.message);

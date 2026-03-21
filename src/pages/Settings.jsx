@@ -505,8 +505,7 @@ export default function Settings() {
                   <p className="font-semibold text-amber-400 mb-1">Upgrade to Pro — $97/month</p>
                   <p className="text-sm text-amber-400/80 mb-3">Unlock Packet Builder, Form Library, File Manager, AI imports, and the Homeowner Portal.</p>
                   <Button className="bg-amber-500 hover:bg-amber-600 text-white" onClick={() => {
-                    if (window.self !== window.top) { alert("Checkout only works from the published app."); return; }
-                    setShowCheckout(true);
+                    window.location.href = "https://buy.stripe.com/eVq5kD66Y3TOg5baHbdAk00";
                   }}>
                     <Crown className="w-4 h-4 mr-2" /> Upgrade to Pro
                   </Button>
