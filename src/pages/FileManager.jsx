@@ -53,6 +53,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import RoleGuard from "@/components/rbac/RoleGuard";
 import { toast } from "sonner";
+import ProUpgradePrompt from "@/components/shared/ProUpgradePrompt";
 
 // MODIFIED: Expanded category labels to match entity enum
 const categoryLabels = {
