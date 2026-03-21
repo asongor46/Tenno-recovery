@@ -19,8 +19,6 @@ import {
   X, // ADDED: For tag removal
   Tag, // ADDED: For tag icon
   CheckSquare, // ADDED: For bulk selection
-  Sparkles, // ADDED: For AI analysis indicator
-  AlertCircle, // ADDED: For discrepancy warnings
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
