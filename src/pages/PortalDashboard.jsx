@@ -23,7 +23,6 @@ import { Progress } from "@/components/ui/progress";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
 import PortalAuthGuard from "@/components/portal/PortalAuthGuard";
-import ClientAIAssistant from "@/components/portal/ClientAIAssistant";
 import PortalWelcomeModal from "@/components/portal/PortalWelcomeModal";
 import PortalErrorBoundary from "@/components/portal/PortalErrorBoundary";
 
@@ -344,9 +343,6 @@ function PortalDashboardContent() {
           </CardContent>
         </Card>
       </div>
-
-      {/* [NEW - Tier 3] AI Assistant */}
-      <ClientAIAssistant caseId={cases[0]?.id} userEmail={userEmail} />
 
       {/* Welcome Modal */}
       <PortalWelcomeModal open={showWelcome} onClose={handleWelcomeClose} />
