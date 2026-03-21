@@ -29,12 +29,12 @@ import FeatureSlideshow from "@/components/landing/FeatureSlideshow";
 const LOGO = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6935380f41db07237f45b1db/11ed7b05d_Screenshot_20251213_181447_Chrome.jpg";
 
 const features = [
-{ icon: FileText, title: "CRM + Pipeline", description: "Manage every case from import to payment in a structured visual pipeline." },
-{ icon: Map, title: "State Compliance Engine", description: "Fee caps, registration rules, waiting periods — all 50 states + DC built in." },
-{ icon: Users, title: "Homeowner Portal", description: "Homeowners sign, upload IDs, and complete notary through a self-serve portal." },
-{ icon: Package, title: "Packet Builder", description: "Generate county-specific filing packets with one click." },
-{ icon: Zap, title: "Lead Import Tools", description: "Import from county PDFs, screenshots, manual entry, or CSV." },
-{ icon: Shield, title: "Secure by Default", description: "Row-level security — each agent sees only their own cases and homeowners." }];
+{ icon: FileText, title: "CRM + Pipeline", description: "Manage every case from import to payment. Manual stage control on Starter, auto-advance on Pro." },
+{ icon: Map, title: "State Compliance Engine", description: "Fee caps, PI/attorney rules, waiting periods — all 50 states + DC. Tax sale vs. sheriff sale, broken out." },
+{ icon: Users, title: "Homeowner Self-Serve Portal", description: "Pro plan: homeowners sign agreements, upload IDs, and complete notary entirely on their own." },
+{ icon: Package, title: "Packet Builder", description: "Pro plan: generate county-specific filing packets with one click — affidavit-based or court-motion-based." },
+{ icon: Zap, title: "Lead Import Tools", description: "Starter: manual entry + CSV. Pro: also PDF with AI extraction, screenshot, and URL paste." },
+{ icon: Shield, title: "Secure by Default", description: "Row-level security — each agent sees only their own cases. Agents are completely invisible to each other." }];
 
 
 const comparisonRows = [
