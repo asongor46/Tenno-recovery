@@ -48,6 +48,7 @@ Deno.serve(async (req) => {
               properties: {
                 case_number: { type: "string" },
                 defendant_name: { type: "string" },
+                surplus_type: { type: "string", enum: ["tax_sale", "sheriff_sale"], description: "tax_sale if from tax deed/tax certificate sale; sheriff_sale if from foreclosure/mortgage default" },
                 owner_address: { type: "string", description: "Owner's mailing address if different from property" },
                 property_address: { type: "string" },
                 county: { type: "string", description: "County name where property is located" },
@@ -74,6 +75,11 @@ Deno.serve(async (req) => {
       }
     });
 
+    // Detect surplus_type from document_type
+    const surplusType = result.document_type === "surplus_list" 
+      ? "tax_sale"  // standalone surplus lists are often tax sale
+      : "sheriff_sale"; // return_of_sale and upcoming_sale are typically sheriff sales
+
     // Filter and enrich results
     const enrichedCases = result.cases
       .filter(c => !c.is_corporate_defendant) // Remove corporate defendants
@@ -98,6 +104,7 @@ Deno.serve(async (req) => {
         sale_date: c.sale_date || result.sale_date || null,
         county: c.county || county || extractCountyFromAddress(c.property_address),
         state: c.state || state || "PA",
+        surplus_type: c.surplus_type || surplusType,
         source_type: "pdf_import",
         is_hot: c.surplus_amount >= 30000,
         internal_notes: `Plaintiff: ${c.plaintiff_name || 'Unknown'}\nInterested Parties: ${c.interested_parties?.join(', ') || 'None'}`,
@@ -140,7 +147,7 @@ Deno.serve(async (req) => {
 });
 
 function buildExtractionPrompt(extraction_type, county, state) {
-  return `You are analyzing a sheriff sale / foreclosure document. This is likely a "Return of Sale" or "Sheriff's Return" document showing properties that have ALREADY been sold at auction.
+  return `You are analyzing a surplus / foreclosure document. This could be a sheriff sale "Return of Sale", a tax sale surplus list, or any document listing properties sold at auction with excess proceeds owed to prior owners.
 
 CRITICAL INSTRUCTIONS:
 1. Extract ALL rows from the document that contain sale information
@@ -183,10 +190,12 @@ CRITICAL INSTRUCTIONS:
    - Otherwise, it should be calculated as: Sale Amount - Judgment Amount - Costs
    - Only include cases where surplus > 0
 
-5. DOCUMENT TYPE:
-   - "return_of_sale" = properties already sold, showing results
-   - "upcoming_sale" = properties scheduled for future sale
-   - "surplus_list" = explicit list of surplus funds available
+5. DOCUMENT TYPE & SURPLUS TYPE:
+   - "return_of_sale" = sheriff/foreclosure sale results (surplus_type = sheriff_sale)
+   - "upcoming_sale" = properties scheduled for future auction
+   - "surplus_list" = explicit list of surplus funds (could be tax_sale or sheriff_sale — look for keywords like "tax deed", "tax certificate", "tax lien" for tax_sale; "foreclosure", "mortgage", "judgment" for sheriff_sale)
+   - "unknown" = cannot determine
+   Per-case surplus_type: detect from document keywords. "tax sale", "tax deed", "delinquent taxes" → tax_sale. "foreclosure", "sheriff", "mortgage" → sheriff_sale.
 
 6. LOCATION & DATE EXTRACTION:
    - Look for county name in document header/title (e.g., "Montgomery County Sheriff Sale")
