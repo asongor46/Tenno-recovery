@@ -7,7 +7,6 @@ import {
   LayoutDashboard,
   Briefcase,
   Building2,
-  FileText,
   BookOpen,
   Wrench,
   ChevronDown,
@@ -23,7 +22,8 @@ import {
   PackageOpen,
   Users,
   FolderOpen,
-  DollarSign
+  Lock,
+  Crown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
