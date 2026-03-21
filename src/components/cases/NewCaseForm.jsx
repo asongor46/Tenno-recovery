@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
+import { Loader2, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 
 export default function NewCaseForm({ counties, onSuccess }) {
@@ -34,8 +35,32 @@ export default function NewCaseForm({ counties, onSuccess }) {
     fee_percent: 20,
   });
 
+  // Fetch StateCompliance when state changes
+  const { data: stateCompliance } = useQuery({
+    queryKey: ["stateCompliance", formData.state],
+    queryFn: async () => {
+      if (!formData.state) return null;
+      const results = await base44.entities.StateCompliance.filter({ 
+        state_abbrev: formData.state 
+      });
+      return results[0] || null;
+    },
+    enabled: !!formData.state,
+  });
+
   const handleChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData(prev => {
+      const updated = { ...prev, [field]: value };
+      // Auto-set fee percent when state compliance loads
+      if (field === "state" && stateCompliance) {
+        const feeCapField = updated.surplus_type === 'tax_sale' 
+          ? 'tax_sale_fee_cap_pct' 
+          : 'sheriff_sale_fee_cap_pct';
+        const suggestedFee = Math.min(stateCompliance[feeCapField] || 20, 20);
+        updated.fee_percent = suggestedFee;
+      }
+      return updated;
+    });
   };
 
   const handleCountyChange = (countyId) => {
@@ -220,6 +245,27 @@ export default function NewCaseForm({ counties, onSuccess }) {
         </div>
       </div>
 
+      {/* Compliance Banner */}
+      {stateCompliance && formData.surplus_type && (
+        <div className={`p-4 rounded-lg border-2 ${
+          stateCompliance.hassle_rating <= 2 ? 'bg-emerald-500/10 border-emerald-500/30' :
+          stateCompliance.hassle_rating === 3 ? 'bg-amber-500/10 border-amber-500/30' :
+          'bg-red-500/10 border-red-500/30'
+        }`}>
+          <h4 className="font-semibold text-sm mb-2">
+            {stateCompliance.state_name} — {formData.surplus_type === 'tax_sale' ? `${stateCompliance.tax_sale_fee_cap}% fee cap` : `${stateCompliance.sheriff_sale_fee_cap}% fee cap`}
+          </h4>
+          <div className="text-sm space-y-1">
+            <div><strong>Registration:</strong> {stateCompliance.registration_required ? stateCompliance.registration_detail : 'None required'}</div>
+            <div><strong>PI/Attorney:</strong> {stateCompliance.pi_attorney_required ? stateCompliance.pi_attorney_detail : 'Not required'}</div>
+            <div className="flex justify-between">
+              <span><strong>Hassle Rating:</strong> {stateCompliance.hassle_rating}/5</span>
+              <span className="text-xs">{stateCompliance.remote_friendly ? '✓ Remote friendly' : '⚠ May require in-person'}</span>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-3 gap-4">
         <div>
           <Label htmlFor="sale_date">Sale Date</Label>
@@ -260,7 +306,7 @@ export default function NewCaseForm({ counties, onSuccess }) {
         </div>
       </div>
 
-      {/* ADDED: Fee Percentage Selector */}
+      {/* Fee Percentage Selector */}
       <div>
         <Label htmlFor="fee_percent">Finder Fee Percentage *</Label>
         <div className="grid grid-cols-4 gap-3 mt-2">
@@ -283,6 +329,20 @@ export default function NewCaseForm({ counties, onSuccess }) {
           Selected fee: {formData.fee_percent}% of ${formData.surplus_amount || 0} = $
           {((parseFloat(formData.surplus_amount) || 0) * (formData.fee_percent / 100)).toFixed(2)}
         </p>
+        
+        {/* Fee cap warning */}
+        {stateCompliance && formData.surplus_type && (
+          <div className={`mt-3 p-3 rounded-lg border text-sm ${
+            formData.fee_percent > (formData.surplus_type === 'tax_sale' ? stateCompliance.tax_sale_fee_cap_pct : stateCompliance.sheriff_sale_fee_cap_pct)
+              ? 'bg-amber-500/10 border-amber-500/30 text-amber-700'
+              : 'hidden'
+          }`}>
+            <div className="flex gap-2">
+              <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+              <span>Your fee of {formData.fee_percent}% exceeds the {stateCompliance.state_name} cap of {formData.surplus_type === 'tax_sale' ? stateCompliance.tax_sale_fee_cap_pct : stateCompliance.sheriff_sale_fee_cap_pct}% for {formData.surplus_type} cases. Verify this is permitted before proceeding.</span>
+            </div>
+          </div>
+        )}
       </div>
 
       <div>

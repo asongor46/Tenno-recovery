@@ -37,6 +37,15 @@ Deno.serve(async (req) => {
             enum: ["return_of_sale", "upcoming_sale", "surplus_list", "unknown"],
             description: "Type of document detected"
           },
+          source_format: {
+            type: "string",
+            enum: ["sheriff_sale_return", "tax_claim_disbursement", "mixed", "unknown"],
+            description: "Detected format of the document"
+          },
+          form_pages_detected: {
+            type: "boolean",
+            description: "True if blank form/affidavit pages detected"
+          },
           sale_date: { 
             type: "string",
             description: "Sale date if mentioned in document"
@@ -65,7 +74,8 @@ Deno.serve(async (req) => {
                   description: "Other interested parties (junior lienholders, heirs, etc.)"
                 },
                 is_corporate_defendant: { type: "boolean" },
-                parcel_number: { type: "string" }
+                parcel_number: { type: "string" },
+                has_check_number: { type: "boolean", description: "True if check number found (funds may be disbursed)" }
               },
               required: ["defendant_name"]
             }
@@ -74,11 +84,6 @@ Deno.serve(async (req) => {
         required: ["document_type", "cases"]
       }
     });
-
-    // Detect surplus_type from document_type
-    const surplusType = result.document_type === "surplus_list" 
-      ? "tax_sale"  // standalone surplus lists are often tax sale
-      : "sheriff_sale"; // return_of_sale and upcoming_sale are typically sheriff sales
 
     // Filter and enrich results
     const enrichedCases = result.cases
@@ -89,26 +94,41 @@ Deno.serve(async (req) => {
           const costs = c.costs || 0;
           c.surplus_amount = c.sale_amount - c.judgment_amount - costs;
         }
-        // Only keep cases with positive surplus
-        return c.surplus_amount && c.surplus_amount > 0;
+        // Keep cases with positive surplus OR cases from tax sales with null surplus (needs verification)
+        return (c.surplus_amount && c.surplus_amount > 0) || (c.surplus_type === "tax_sale" && !c.surplus_amount);
       })
-      .map(c => ({
-        owner_name: c.defendant_name,
-        owner_address: c.owner_address || c.property_address,
-        property_address: c.property_address,
-        case_number: c.case_number,
-        parcel_number: c.parcel_number,
-        surplus_amount: c.surplus_amount,
-        sale_amount: c.sale_amount,
-        judgment_amount: c.judgment_amount,
-        sale_date: c.sale_date || result.sale_date || null,
-        county: c.county || county || extractCountyFromAddress(c.property_address),
-        state: c.state || state || "PA",
-        surplus_type: c.surplus_type || surplusType,
-        source_type: "pdf_import",
-        is_hot: c.surplus_amount >= 30000,
-        internal_notes: `Plaintiff: ${c.plaintiff_name || 'Unknown'}\nInterested Parties: ${c.interested_parties?.join(', ') || 'None'}`,
-      }));
+      .map(c => {
+        // Calculate surplus if not provided
+        if (!c.surplus_amount && c.sale_amount && c.judgment_amount) {
+          const costs = c.costs || 0;
+          c.surplus_amount = c.sale_amount - c.judgment_amount - costs;
+        }
+        
+        const caseRecord = {
+          owner_name: c.defendant_name,
+          owner_address: c.owner_address || c.property_address,
+          property_address: c.property_address,
+          case_number: c.case_number,
+          parcel_number: c.parcel_number,
+          surplus_amount: c.surplus_amount || null,
+          sale_amount: c.sale_amount,
+          judgment_amount: c.judgment_amount,
+          sale_date: c.sale_date || result.sale_date || null,
+          county: c.county || county || extractCountyFromAddress(c.property_address),
+          state: c.state || state || "PA",
+          surplus_type: c.surplus_type || "sheriff_sale",
+          source_type: "pdf_import",
+          is_hot: c.surplus_amount >= 30000,
+          internal_notes: `Plaintiff: ${c.plaintiff_name || 'Unknown'}\nInterested Parties: ${c.interested_parties?.join(', ') || 'None'}`,
+        };
+        
+        // Flag for verification if surplus is null but from tax sale
+        if (!c.surplus_amount && c.surplus_type === "tax_sale") {
+          caseRecord.internal_notes = `${caseRecord.internal_notes}\nNEEDS SURPLUS VERIFICATION: Amount not shown on list`;
+        }
+        
+        return caseRecord;
+      });
 
     // Auto-add new counties to directory
     const uniqueCounties = [...new Set(enrichedCases.map(c => c.county).filter(Boolean))];
@@ -130,6 +150,8 @@ Deno.serve(async (req) => {
     return Response.json({
       status: 'success',
       document_type: result.document_type,
+      source_format: result.source_format || "unknown",
+      form_pages_detected: result.form_pages_detected || false,
       sale_date: result.sale_date,
       total_found: result.cases.length,
       surplus_cases_found: enrichedCases.length,
@@ -149,23 +171,56 @@ Deno.serve(async (req) => {
 function buildExtractionPrompt(extraction_type, county, state) {
   return `You are analyzing a surplus / foreclosure document. This could be a sheriff sale "Return of Sale", a tax sale surplus list, or any document listing properties sold at auction with excess proceeds owed to prior owners.
 
+DOCUMENT FORMAT DETECTION:
+First, identify the document format:
+
+FORMAT A — SHERIFF SALE / RETURN OF SALE:
+Contains case/docket numbers, defendant names, judgment amounts, 
+sale amounts, property addresses, plaintiff names.
+Keywords: Sheriff, Foreclosure, Return of Sale, Mortgage, Judgment.
+→ Set surplus_type: sheriff_sale for all cases.
+→ Set source_format: "sheriff_sale_return"
+
+FORMAT B — TAX CLAIM BUREAU / TAX SALE SURPLUS:
+Contains parcel numbers, sale years, sale types (Upset Sale, 
+Judicial Sale, Continued Sale), payee names, possibly check numbers.
+Keywords: Tax Claim Bureau, Upset Sale, Judicial Sale, Tax Sale, 
+Disbursement, Tax Collector, Delinquent Tax, Sale Disbursement Check.
+→ Set surplus_type: tax_sale for all cases.
+→ Map payee_name to defendant_name (owner name field).
+→ Map parcel to parcel_number.
+→ Surplus amount may NOT be present — set to null if not shown.
+→ If a check number is present, mark has_check_number: true (funds may be disbursed).
+→ Set source_format: "tax_claim_disbursement"
+
+FORMAT C — MIXED (claim forms + data pages):
+Some PDFs contain both form templates (affidavit pages with blank 
+lines and signature blocks) AND data pages (surplus lists).
+→ Extract cases from the data pages only.
+→ Set form_pages_detected: true
+→ Set source_format: "mixed"
+
+FORMAT UNKNOWN:
+If you cannot determine the format, set source_format: "unknown" and do your best to extract data.
+
 CRITICAL INSTRUCTIONS:
 1. Extract ALL rows from the document that contain sale information
-2. For each case/property, extract ALL 14 REQUIRED FIELDS:
-   - Case number (docket number, file number)
-   - Defendant name (property owner - this is who we care about)
+2. For each case/property, extract ALL 15 REQUIRED FIELDS:
+   - Case number (docket number, file number, or parcel if no case number)
+   - Defendant name (property owner - this is who we care about. For tax sales, this is the payee name)
    - Owner address (mailing address if different from property, often in parentheses)
    - Property address (full street address where property is located)
    - County name (extract from document header, title, or property address)
    - State (extract from document or property address - use 2-letter abbreviation)
    - Sale date (in YYYY-MM-DD format - look for sale date in header or each row)
-   - Judgment Amount / Debt / Upset Price (what was owed)
+   - Judgment Amount / Debt / Upset Price (what was owed - may be null for tax sales)
    - Costs / Fees (sheriff fees, legal costs)
    - Sale Amount / Winning Bid / Amount Realized (what property sold for)
-   - Surplus / Overplus / Excess / Balance (if explicitly stated)
-   - Plaintiff name (usually the bank/lender)
+   - Surplus / Overplus / Excess / Balance (if explicitly stated - may be null for tax sale lists)
+   - Plaintiff name (usually the bank/lender - may be null for tax sales)
    - Interested parties (other lienholders, heirs, co-owners - extract all named)
    - Parcel number / Tax ID (if available)
+   - has_check_number (boolean) - true if check number found in that row
 
 3. CORPORATE DEFENDANT DETECTION:
    Mark is_corporate_defendant = true if defendant name contains:
@@ -188,7 +243,8 @@ CRITICAL INSTRUCTIONS:
 4. SURPLUS CALCULATION:
    - If surplus is explicitly stated in a "Surplus" or "Overplus" column, use that
    - Otherwise, it should be calculated as: Sale Amount - Judgment Amount - Costs
-   - Only include cases where surplus > 0
+   - For tax sale lists where no surplus amount is shown, set to null
+   - Only include cases where surplus > 0 OR surplus is null (for verification)
 
 5. DOCUMENT TYPE & SURPLUS TYPE:
    - "return_of_sale" = sheriff/foreclosure sale results (surplus_type = sheriff_sale)

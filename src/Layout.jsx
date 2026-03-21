@@ -113,7 +113,7 @@ export default function Layout({ children, currentPageName }) {
     staleTime: 0,
   });
 
-  // Check if user has approved AgentProfile
+  // Check agent profile and subscription status
   const { data: profile } = useQuery({
     queryKey: ["agentProfile", user?.email],
     queryFn: async () => {

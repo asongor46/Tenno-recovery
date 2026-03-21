@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { base44 } from "@/api/base44Client";
 
-const slides = [
+const defaultSlides = [
 {
   title: "Command Center Dashboard",
   description: "Pipeline value, active cases, daily tasks, and live lead feed — everything at a glance.",
@@ -65,21 +67,47 @@ export default function FeatureSlideshow() {
   const [current, setCurrent] = useState(0);
   const [paused, setPaused] = useState(false);
 
+  // Fetch slides from SlideshowSlide entity
+  const { data: slideshowData = [] } = useQuery({
+    queryKey: ["slideshowSlides"],
+    queryFn: async () => {
+      try {
+        const slides = await base44.entities.SlideshowSlide.filter({ is_active: true });
+        return slides.sort((a, b) => a.slide_index - b.slide_index);
+      } catch (error) {
+        console.error("Error fetching slideshow slides:", error);
+        return [];
+      }
+    },
+  });
+
+  // Use fetched slides or fall back to defaults
+  const slides = slideshowData.length > 0 
+    ? slideshowData.map(s => ({
+        title: s.title,
+        description: s.description,
+        screenshot: s.image_url,
+        tag: s.tag,
+        color: "from-slate-500/10 to-slate-500/10", // default color since not stored
+        fallback: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&q=80"
+      }))
+    : defaultSlides;
+
   const next = useCallback(() => {
     setCurrent((c) => (c + 1) % slides.length);
-  }, []);
+  }, [slides.length]);
 
   const prev = useCallback(() => {
     setCurrent((c) => (c - 1 + slides.length) % slides.length);
-  }, []);
+  }, [slides.length]);
 
   useEffect(() => {
-    if (paused) return;
+    if (paused || slides.length === 0) return;
     const timer = setInterval(next, 4500);
     return () => clearInterval(timer);
-  }, [next, paused]);
+  }, [next, paused, slides.length]);
 
-  const slide = slides[current];
+  const slide = slides[current] || slides[0];
 
   return (
     <div

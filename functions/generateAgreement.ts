@@ -35,6 +35,19 @@ Deno.serve(async (req) => {
       }, { status: 404 });
     }
 
+    // Get agent profile for company info
+    const agentProfiles = await base44.asServiceRole.entities.AgentProfile.filter({ id: caseData.agent_id });
+    const agentProfile = agentProfiles[0];
+    
+    const companyName = agentProfile?.company_name || 'Recovery Services';
+    const companyAddress = agentProfile?.company_address || '';
+    const companyPhone = agentProfile?.company_phone || '';
+    const companyEmail = agentProfile?.company_email || '';
+
+    // Get state compliance info
+    const stateComplianceResults = await base44.asServiceRole.entities.StateCompliance.filter({ state_abbrev: caseData.state });
+    const stateCompliance = stateComplianceResults[0];
+
     // Idempotency: block if already signed, delete old unsigned doc before regenerating
     const existingDocs = await base44.entities.Document.filter({ case_id, category: 'agreement', is_primary: true });
     if (existingDocs.length > 0) {
@@ -79,7 +92,9 @@ Address: {OWNER_ADDRESS}
 
 and
 
-TENNO RECOVERY
+{COMPANY_NAME}
+{COMPANY_ADDRESS}
+{COMPANY_PHONE} | {COMPANY_EMAIL}
 
 RE: Surplus Funds from Tax Sale
 Property: {PROPERTY_ADDRESS}
@@ -89,13 +104,13 @@ Surplus Amount: ${caseData.surplus_amount?.toLocaleString() || '0'}
 
 TERMS:
 
-1. SERVICES: TENNO RECOVERY agrees to prepare, file, and pursue the claim for surplus funds on behalf of the Property Owner.
+1. SERVICES: {COMPANY_NAME} agrees to prepare, file, and pursue the claim for surplus funds on behalf of the Property Owner.
 
-2. COMPENSATION: Property Owner agrees to pay TENNO RECOVERY a finder's fee of {FINDER_FEE_PERCENT}% of the total surplus funds recovered.
+2. COMPENSATION: Property Owner agrees to pay {COMPANY_NAME} a finder's fee of {FINDER_FEE_PERCENT}% of the total surplus funds recovered.
 
 3. PAYMENT: Fee shall be paid within 5 business days of Property Owner receiving surplus funds from the County Treasurer.
 
-4. AUTHORIZATION: Property Owner authorizes TENNO RECOVERY to:
+4. AUTHORIZATION: Property Owner authorizes {COMPANY_NAME} to:
    - File all necessary documents with ${caseData.county} County Court
    - Communicate with court officials and county treasurer
    - Obtain certified copies of necessary documents
@@ -109,12 +124,14 @@ TERMS:
 
 6. REPRESENTATIONS: Property Owner represents that they are the rightful owner or authorized representative for these surplus funds.
 
+DISCLOSURE: You may be entitled to claim these surplus funds directly from {COUNTY} County at no cost, without hiring a third-party agent.
+
 SIGNATURES:
 
 Property Owner: ______________________________  Date: __________
 Name: {OWNER_NAME}
 
-TENNO RECOVERY: ______________________  Date: __________
+{COMPANY_NAME}: ______________________  Date: __________
 `;
     }
 
@@ -122,7 +139,7 @@ TENNO RECOVERY: ______________________  Date: __________
     const feeAmount = (caseData.surplus_amount || 0) * ((caseData.fee_percent || 20) / 100);
 
     // Fill merge fields
-    const filledAgreement = agreementTemplate
+    let filledAgreement = agreementTemplate
       .replace(/{DATE}/g, new Date().toLocaleDateString())
       .replace(/{OWNER_NAME}/g, caseData.owner_name || '[NAME]')
       .replace(/{OWNER_ADDRESS}/g, caseData.owner_address || '[ADDRESS]')
@@ -133,7 +150,16 @@ TENNO RECOVERY: ______________________  Date: __________
       .replace(/{FINDER_FEE_PERCENT}/g, (caseData.fee_percent || 20).toString())
       .replace(/{FINDER_FEE_AMOUNT}/g, feeAmount.toLocaleString())
       .replace(/{SURPLUS_AMOUNT}/g, (caseData.surplus_amount || 0).toLocaleString())
-      .replace(/{SALE_DATE}/g, caseData.sale_date ? new Date(caseData.sale_date).toLocaleDateString() : '[SALE_DATE]');
+      .replace(/{SALE_DATE}/g, caseData.sale_date ? new Date(caseData.sale_date).toLocaleDateString() : '[SALE_DATE]')
+      .replace(/{COMPANY_NAME}/g, companyName)
+      .replace(/{COMPANY_ADDRESS}/g, companyAddress)
+      .replace(/{COMPANY_PHONE}/g, companyPhone)
+      .replace(/{COMPANY_EMAIL}/g, companyEmail);
+
+    // Append state compliance disclaimer if available
+    if (stateCompliance?.legal_disclaimer) {
+      filledAgreement += `\n\nLEGAL NOTICE: ${stateCompliance.legal_disclaimer}`;
+    }
 
     // Generate PDF
     const doc = new jsPDF();
@@ -205,7 +231,7 @@ ${filledAgreement}
 If you have questions, please reply to this email.
 
 Best regards,
-TENNO RECOVERY`
+${companyName}`
       });
     }
 
