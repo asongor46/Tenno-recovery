@@ -215,7 +215,7 @@ export default function AgentApply() {
                   className="w-full bg-emerald-600 hover:bg-emerald-700"
                   size="lg"
                 >
-                  {isSubmitting ? "Submitting..." : "Submit Application"}
+                  {isSubmitting ? "Redirecting to Checkout..." : `Apply & Subscribe to ${selectedPlan === "pro" ? "Pro ($97/mo)" : "Starter ($50/mo)"}`}
                 </Button>
               </form>
             </CardContent>
