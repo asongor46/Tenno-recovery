@@ -57,6 +57,34 @@ export default function Settings() {
     queryFn: () => base44.auth.me(),
   });
 
+  const { data: templates = [], refetch: refetchTemplates } = useQuery({
+    queryKey: ["myTemplates"],
+    queryFn: () => base44.entities.Template.list("-created_date", 50),
+  });
+
+  const [showTemplateForm, setShowTemplateForm] = useState(false);
+  const [editingTemplate, setEditingTemplate] = useState(null);
+  const [templateForm, setTemplateForm] = useState({ name: "", category: "email", subject: "", body: "" });
+
+  const saveTemplate = async () => {
+    if (!templateForm.name || !templateForm.body) return;
+    if (editingTemplate) {
+      await base44.entities.Template.update(editingTemplate.id, templateForm);
+    } else {
+      await base44.entities.Template.create(templateForm);
+    }
+    refetchTemplates();
+    setShowTemplateForm(false);
+    setEditingTemplate(null);
+    setTemplateForm({ name: "", category: "email", subject: "", body: "" });
+  };
+
+  const deleteTemplate = async (id) => {
+    if (!window.confirm("Delete this template?")) return;
+    await base44.entities.Template.delete(id);
+    refetchTemplates();
+  };
+
   const { data: existingSettings } = useQuery({
     queryKey: ["appSettings"],
     queryFn: () => base44.entities.AppSettings.list(),
