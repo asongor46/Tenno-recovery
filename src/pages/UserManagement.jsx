@@ -173,7 +173,7 @@ export default function UserManagement() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
@@ -187,23 +187,25 @@ export default function UserManagement() {
           </Card>
           <Card>
             <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-2xl font-bold">{adminCount}</p>
-                  <p className="text-sm text-slate-500">Administrators</p>
-                </div>
-                <Shield className="w-8 h-8 text-purple-500" />
+              <div>
+                <p className="text-2xl font-bold">{starterAgents}</p>
+                <p className="text-sm text-slate-500">Starter × $50</p>
               </div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-2xl font-bold">{userCount}</p>
-                  <p className="text-sm text-slate-500">Standard Users</p>
-                </div>
-                <Users className="w-8 h-8 text-blue-500" />
+              <div>
+                <p className="text-2xl font-bold text-amber-600">{proAgents}</p>
+                <p className="text-sm text-slate-500">Pro × $97</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <div>
+                <p className="text-2xl font-bold text-emerald-600">${mrr.toLocaleString()}</p>
+                <p className="text-sm text-slate-500">Monthly MRR</p>
               </div>
             </CardContent>
           </Card>
