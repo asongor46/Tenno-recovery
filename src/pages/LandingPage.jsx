@@ -270,44 +270,83 @@ export default function LandingPage() {
 
       {/* Pricing */}
       <section id="pricing" className="py-20">
-        <div className="max-w-lg mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold mb-12">Simple Pricing</h2>
-          <div className="bg-slate-800 border-2 border-emerald-500/40 rounded-3xl p-8 relative shadow-2xl shadow-emerald-500/10">
-            <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-              <span className="bg-emerald-500 text-white text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-wider">
-                Everything Included
-              </span>
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl sm:text-4xl font-bold mb-4">Simple Pricing</h2>
+          <p className="text-slate-400 mb-12">Start solo. Upgrade when you're ready for the portal and AI tools.</p>
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Starter */}
+            <div className="bg-slate-800 border border-slate-700 rounded-3xl p-8 text-left">
+              <h3 className="text-xl font-bold text-white mb-1">Starter</h3>
+              <p className="text-slate-400 text-sm mb-6">For solo agents getting started.</p>
+              <div className="mb-6">
+                <span className="text-5xl font-bold text-white">$50</span>
+                <span className="text-slate-400 text-lg">/month</span>
+              </div>
+              <ul className="space-y-2.5 text-sm text-slate-300 mb-8">
+                {[
+                  "Unlimited cases",
+                  "Full CRM & pipeline",
+                  "Manual case entry + CSV import",
+                  "State compliance engine — all 50 states",
+                  "County directory with filing rules",
+                  "Contact logging & email templates",
+                  "Case notes & document uploads",
+                  "How-to training guides",
+                ].map((item) => (
+                  <li key={item} className="flex items-center gap-3">
+                    <CheckCircle2 className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <Button
+                size="lg"
+                variant="outline"
+                className="w-full border-slate-600 text-slate-300 hover:bg-slate-700 text-base font-semibold h-12"
+                onClick={() => window.location.href = createPageUrl("AgentApply")}>
+                Start with Starter <ArrowRight className="w-5 h-5 ml-1" />
+              </Button>
             </div>
-            <h3 className="text-2xl font-bold mt-2">TENNO Recovery Pro</h3>
-            <div className="mt-4 mb-6">
-              <span className="text-6xl font-bold text-emerald-400">$50</span>
-              <span className="text-slate-400 text-lg">/month</span>
+
+            {/* Pro */}
+            <div className="bg-slate-800 border-2 border-emerald-500/50 rounded-3xl p-8 text-left relative shadow-2xl shadow-emerald-500/10">
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                <span className="bg-emerald-500 text-white text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-wider">
+                  Most Popular
+                </span>
+              </div>
+              <h3 className="text-xl font-bold text-white mb-1">Pro</h3>
+              <p className="text-slate-400 text-sm mb-6">For full-time agents who want every tool.</p>
+              <div className="mb-6">
+                <span className="text-5xl font-bold text-emerald-400">$97</span>
+                <span className="text-slate-400 text-lg">/month</span>
+              </div>
+              <ul className="space-y-2.5 text-sm text-slate-300 mb-8">
+                {[
+                  "Everything in Starter",
+                  "Homeowner self-serve portal",
+                  "PDF import with AI extraction",
+                  "Screenshot & URL import",
+                  "Letter generator (mail-ready PDFs)",
+                  "Packet builder",
+                  "Form library",
+                  "Advanced email templates + custom creation",
+                  "File manager",
+                ].map((item) => (
+                  <li key={item} className="flex items-center gap-3">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <Button
+                size="lg"
+                className="w-full bg-emerald-600 hover:bg-emerald-500 text-base font-semibold h-12"
+                onClick={() => window.location.href = createPageUrl("AgentApply")}>
+                Start with Pro <ArrowRight className="w-5 h-5 ml-1" />
+              </Button>
+              <p className="mt-4 text-xs text-slate-500 text-center">7-day money-back guarantee · Cancel anytime</p>
             </div>
-            <ul className="space-y-3 text-sm text-slate-300 mb-8 text-left">
-              {[
-              "Unlimited cases",
-              "Full CRM & pipeline",
-              "Homeowner portal (TENNO-branded)",
-              "State compliance engine — all 50 states",
-              "Packet builder & form library",
-              "Lead import (PDF, screenshot, manual, CSV)",
-              "Email templates & contact logging",
-              "No per-lead fees, no credits"].
-              map((item) =>
-              <li key={item} className="flex items-center gap-3">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                  {item}
-                </li>
-              )}
-            </ul>
-            <Button
-              size="lg"
-              className="w-full bg-emerald-600 hover:bg-emerald-500 text-base font-semibold h-12"
-              onClick={() => window.location.href = createPageUrl("AgentApply")}>
-              
-              Subscribe — $50/month <ArrowRight className="w-5 h-5 ml-1" />
-            </Button>
-            <p className="mt-4 text-xs text-slate-500">7-day money-back guarantee · Cancel anytime</p>
           </div>
         </div>
       </section>
