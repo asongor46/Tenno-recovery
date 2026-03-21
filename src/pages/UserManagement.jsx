@@ -395,9 +395,9 @@ export default function UserManagement() {
                       </TableCell>
                     </TableRow>
                   );
-                  })
-                  )}
-                  </TableBody>
+                  }))
+                }
+                </TableBody>
             </Table>
           </CardContent>
         </Card>
