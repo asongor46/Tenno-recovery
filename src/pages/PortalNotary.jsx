@@ -102,10 +102,9 @@ export default function PortalNotary() {
         });
         toast.success(`Notarization packet generated with ${data.document_count} documents`);
         
-        const cases = await base44.entities.Case.filter({ id: caseId });
-        if (cases.length > 0) {
-          setCaseData(cases[0]);
-        }
+        const sessionToken = sessionStorage.getItem("portal_session_token") || localStorage.getItem("portal_session_token");
+        const refreshRes = await base44.functions.invoke("getPortalCaseData", { session_token: sessionToken, case_id: caseId });
+        if (refreshRes.data?.success) setCaseData(refreshRes.data.case);
       } else {
         toast.error(data.error || 'Failed to generate packet');
       }

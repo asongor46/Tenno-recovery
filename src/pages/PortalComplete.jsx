@@ -14,22 +14,22 @@ export default function PortalComplete() {
 
   useEffect(() => {
     async function loadCase() {
-      if (!caseId || !userEmail) {
+      const sessionToken = sessionStorage.getItem("portal_session_token") || localStorage.getItem("portal_session_token");
+      if (!caseId || !sessionToken) {
         window.location.href = "/PortalLogin";
         return;
       }
-      const cases = await base44.entities.Case.filter({ id: caseId });
-      const c = cases[0];
-      if (!c || c.owner_email?.toLowerCase() !== userEmail?.toLowerCase()) {
+      const res = await base44.functions.invoke("getPortalCaseData", { session_token: sessionToken, case_id: caseId });
+      if (!res.data?.success) {
         window.location.href = "/PortalDashboard";
         setIsLoading(false);
         return;
       }
-      setCaseData(c);
+      setCaseData(res.data.case);
       setIsLoading(false);
     }
     loadCase();
-  }, [caseId, userEmail]);
+  }, [caseId]);
 
   if (isLoading) {
     return (
