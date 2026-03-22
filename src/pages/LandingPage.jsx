@@ -122,7 +122,7 @@ export default function LandingPage() {
               </div>
               <Link to={createPageUrl("PortalLogin")}>
                 <Button variant="outline" size="sm" className="bg-background text-green-500 px-3 text-xs font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border shadow-sm hover:text-accent-foreground h-8 border-slate-600 hover:bg-slate-800">
-                  Homeowner Portal
+                  Client Portal
                 </Button>
               </Link>
             </nav>
@@ -139,7 +139,7 @@ export default function LandingPage() {
               <a href="#pricing" className="text-slate-300" onClick={() => setMobileMenuOpen(false)}>Pricing</a>
               <a href="#faq" className="text-slate-300" onClick={() => setMobileMenuOpen(false)}>FAQ</a>
               <button onClick={handleAgentLogin} className="text-slate-300 text-left">Agent Login</button>
-              <Link to={createPageUrl("PortalLogin")} className="text-slate-300">Homeowner Portal</Link>
+              <Link to={createPageUrl("PortalLogin")} className="text-slate-300">Client Portal</Link>
             </div>
           }
         </div>
@@ -420,7 +420,7 @@ export default function LandingPage() {
                 </li>
                 <li>
                   <Link to={createPageUrl("PortalLogin")} className="hover:text-white">
-                    Homeowner? Access your portal
+                    Client Portal
                   </Link>
                 </li>
                 <li>
