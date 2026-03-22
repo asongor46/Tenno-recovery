@@ -256,9 +256,22 @@ export default function UserManagement() {
                       <TableCell>{user.email}</TableCell>
                       <TableCell>
                         {agentProfile ? (
-                          <Badge className={agentProfile.plan === "pro" ? "bg-amber-100 text-amber-700 border-0" : "bg-slate-100 text-slate-600 border-0"}>
-                            {agentProfile.plan || "starter"}
-                          </Badge>
+                          <Select
+                            value={agentProfile.plan || "starter"}
+                            onValueChange={(newPlan) =>
+                              base44.entities.AgentProfile.update(agentProfile.id, { plan: newPlan }).then(() =>
+                                queryClient.invalidateQueries({ queryKey: ["allAgentProfiles"] })
+                              )
+                            }
+                          >
+                            <SelectTrigger className="h-7 w-24 text-xs border-0 bg-transparent p-0 focus:ring-0">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="starter">Starter</SelectItem>
+                              <SelectItem value="pro">Pro</SelectItem>
+                            </SelectContent>
+                          </Select>
                         ) : (
                           <PermissionBadge role={user.role} />
                         )}
@@ -323,6 +336,13 @@ export default function UserManagement() {
             </Table>
           </CardContent>
         </Card>
+
+        {/* Invite Agent Dialog */}
+        <InviteAgentDialog
+          open={showInviteDialog}
+          onOpenChange={setShowInviteDialog}
+          onSuccess={() => queryClient.invalidateQueries({ queryKey: ["allAgentProfiles"] })}
+        />
 
         {/* Delete Confirmation */}
         <ConfirmDialog

@@ -159,6 +159,12 @@ export default function AdminDashboard() {
         </Card>
       </div>
 
+      {/* Analytics */}
+      <div>
+        <h2 className="text-base font-semibold text-white mb-3">Detailed Analytics</h2>
+        <AdminAnalytics />
+      </div>
+
       {/* Lead Management */}
       <AdminLeadManagement />
     </div>
