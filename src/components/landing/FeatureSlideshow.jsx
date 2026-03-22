@@ -88,7 +88,8 @@ export default function FeatureSlideshow() {
         description: s.description,
         screenshot: s.image_url,
         tag: s.tag,
-        color: "from-slate-500/10 to-slate-500/10", // default color since not stored
+        media_type: s.media_type || "image",
+        color: "from-slate-500/10 to-slate-500/10",
         fallback: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&q=80"
       }))
     : defaultSlides;
@@ -140,12 +141,24 @@ export default function FeatureSlideshow() {
               transition={{ duration: 0.4, ease: "easeInOut" }}
               className="absolute inset-0">
               
-              {/* Screenshot */}
-              <img
-                src={slide.screenshot}
-                alt={slide.title}
-                className="w-full h-full object-cover"
-                onError={(e) => { if (slide.fallback) e.target.src = slide.fallback; }} />
+              {/* Screenshot or Video */}
+              {slide.media_type === "video" ? (
+                <video
+                  src={slide.screenshot}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <img
+                  src={slide.screenshot}
+                  alt={slide.title}
+                  className="w-full h-full object-cover"
+                  onError={(e) => { if (slide.fallback) e.target.src = slide.fallback; }}
+                />
+              )}
               
               {/* Gradient overlay */}
               <div className={`absolute inset-0 bg-gradient-to-br ${slide.color} opacity-60`} />
