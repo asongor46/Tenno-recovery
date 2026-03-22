@@ -27,6 +27,15 @@ export default function SubscriptionBanner({ planStatus }) {
 
   if (planStatus === "active" || !planStatus) return null;
 
+  if (planStatus === "suspended") {
+    return (
+      <div className="bg-red-500/10 border-b border-red-500/30 px-4 py-2 flex items-center gap-2">
+        <XCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
+        <span className="text-red-400 text-sm">Your account has been suspended by the administrator. Please contact support at <a href="mailto:tennoassetrecovery@gmail.com" className="underline">tennoassetrecovery@gmail.com</a> to restore access.</span>
+      </div>
+    );
+  }
+
   if (planStatus === "past_due") {
     return (
       <div className="bg-amber-500/10 border-b border-amber-500/30 px-4 py-2 flex items-center justify-between gap-4">

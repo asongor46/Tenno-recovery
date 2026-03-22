@@ -48,11 +48,15 @@ export default function AdminDashboard() {
     );
   }
 
-  // MRR calc
-  const approvedAgents = agents.filter((a) => a.status === "approved");
-  const starterCount = approvedAgents.filter((a) => !a.plan || a.plan === "starter").length;
-  const proCount = approvedAgents.filter((a) => a.plan === "pro").length;
+  // MRR calc — uses plan_status field (not legacy status)
+  const activeAgents = agents.filter((a) => a.plan_status === "active");
+  const starterCount = activeAgents.filter((a) => !a.plan || a.plan === "starter").length;
+  const proCount = activeAgents.filter((a) => a.plan === "pro").length;
   const mrr = starterCount * 50 + proCount * 97;
+
+  const pastDueCount = agents.filter((a) => a.plan_status === "past_due").length;
+  const cancelledCount = agents.filter((a) => a.plan_status === "cancelled").length;
+  const suspendedCount = agents.filter((a) => a.plan_status === "suspended").length;
 
   // New signups this week
   const oneWeekAgo = new Date();
@@ -72,10 +76,13 @@ export default function AdminDashboard() {
   }));
 
   const kpis = [
-    { label: "Total Agents", value: approvedAgents.length, icon: Users, color: "text-blue-400" },
-    { label: "Starter Agents", value: `${starterCount} × $50`, icon: UserCheck, color: "text-slate-400" },
-    { label: "Pro Agents", value: `${proCount} × $97`, icon: UserCheck, color: "text-amber-400" },
+    { label: "Active Agents", value: activeAgents.length, icon: Users, color: "text-blue-400" },
+    { label: "Starter × $50", value: starterCount, icon: UserCheck, color: "text-slate-400" },
+    { label: "Pro × $97", value: proCount, icon: UserCheck, color: "text-amber-400" },
     { label: "Monthly MRR", value: `$${mrr.toLocaleString()}`, icon: DollarSign, color: "text-emerald-400" },
+    { label: "Past Due", value: pastDueCount, icon: TrendingUp, color: pastDueCount > 0 ? "text-amber-400" : "text-slate-400" },
+    { label: "Suspended", value: suspendedCount, icon: TrendingUp, color: suspendedCount > 0 ? "text-red-400" : "text-slate-400" },
+    { label: "Cancelled", value: cancelledCount, icon: TrendingUp, color: cancelledCount > 0 ? "text-red-400" : "text-slate-400" },
     { label: "Total Cases", value: cases.length, icon: Briefcase, color: "text-purple-400" },
     { label: "New Signups (7d)", value: newThisWeek, icon: TrendingUp, color: "text-cyan-400" },
   ];
@@ -88,7 +95,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {kpis.map((k) => (
           <Card key={k.label} className="bg-slate-800 border-slate-700">
             <CardContent className="pt-5 pb-4">
@@ -137,7 +144,7 @@ export default function AdminDashboard() {
             <CardTitle className="text-white text-base">Recent Agents</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            {approvedAgents.slice(0, 8).map((agent) => (
+            {activeAgents.slice(0, 8).map((agent) => (
               <div key={agent.id} className="flex items-center justify-between py-1.5 border-b border-slate-700/50 last:border-0">
                 <div>
                   <p className="text-sm text-white font-medium">{agent.full_name || agent.email}</p>
@@ -150,9 +157,9 @@ export default function AdminDashboard() {
                 </div>
               </div>
             ))}
-            {approvedAgents.length > 8 && (
+            {activeAgents.length > 8 && (
               <Link to={createPageUrl("UserManagement")} className="block text-center text-xs text-emerald-400 hover:underline pt-2">
-                View all {approvedAgents.length} agents →
+                View all {activeAgents.length} active agents →
               </Link>
             )}
           </CardContent>
