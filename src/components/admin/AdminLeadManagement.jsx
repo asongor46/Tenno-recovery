@@ -100,7 +100,7 @@ export default function AdminLeadManagement() {
 
       let success = 0;
       for (const row of rows) {
-        if (!row.owner_name || !row.property_address) continue;
+        if (!row.owner_name) continue;
         await base44.entities.Lead.create({
           owner_name: row.owner_name,
           property_address: row.property_address,
@@ -159,7 +159,7 @@ export default function AdminLeadManagement() {
         uploaded_at: new Date().toISOString().split("T")[0],
         uploaded_by: "system",
       };
-      if (!lead.owner_name || !lead.property_address) continue;
+      if (!lead.owner_name) continue;
       await base44.entities.Lead.create(lead);
       success++;
     }

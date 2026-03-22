@@ -54,6 +54,7 @@ export default function LeadFeed({ user, profile }) {
       const feePercent = profile?.default_fee_percent || 20;
 
       const newCase = await base44.entities.Case.create({
+        agent_id: profile?.id,
         owner_name: lead.owner_name,
         owner_email: lead.owner_email || "",
         owner_phone: lead.owner_phone || "",

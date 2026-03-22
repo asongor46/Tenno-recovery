@@ -40,45 +40,25 @@ export default function URLCaseBuilder({ onSuccess, onCancel }) {
     setIsScanning(true);
 
     try {
-      // First try web scraping
-      const { data } = await base44.functions.invoke("scrapeSurplusPage", {
-        url,
+      const { data } = await base44.functions.invoke("extractPDFData", {
+        file_url: url,
+        extraction_type: "surplus_list",
+        county: null,
+        state: "PA",
       });
 
-      if (data.status === "success" && data.cases?.length > 0) {
-        setScrapedCases(data.cases || []);
-        setSelectedRows(data.cases?.map((_, i) => i) || []);
-        
+      if (data?.cases?.length > 0) {
+        setScrapedCases(data.cases);
+        setSelectedRows(data.cases.map((_, i) => i));
         if (data.filtered_out > 0) {
           alert(
-            `Found ${data.total_found || data.cases.length} entries.\n` +
+            `Found ${data.total_found} entries.\n` +
             `${data.filtered_out} filtered out (corporate/LLC or no surplus).\n` +
-            `${data.cases.length} valid cases ready to import.`
+            `${data.surplus_cases_found} valid cases ready to import.`
           );
         }
       } else {
-        // Fallback: Try LLM extraction if scraping didn't work
-        const { data: llmData } = await base44.functions.invoke("extractPDFData", {
-          file_url: url,
-          extraction_type: "surplus_list",
-          county: null,
-          state: "PA",
-        });
-
-        if (llmData.status === "success") {
-          setScrapedCases(llmData.cases || []);
-          setSelectedRows(llmData.cases?.map((_, i) => i) || []);
-          
-          if (llmData.filtered_out > 0) {
-            alert(
-              `Found ${llmData.total_found} entries.\n` +
-              `${llmData.filtered_out} filtered out (corporate/LLC or no surplus).\n` +
-              `${llmData.surplus_cases_found} valid cases ready to import.`
-            );
-          }
-        } else {
-          alert("Scan failed: " + (data.error || llmData.details || "Could not extract data"));
-        }
+        alert("Scan failed: " + (data?.details || "Could not extract data from this URL"));
       }
     } catch (error) {
       alert("Scan error: " + error.message);
