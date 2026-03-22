@@ -45,7 +45,7 @@ export default function ProUpgradeModal({ open, onClose }) {
             This is a <strong>Pro feature</strong>. Upgrade to Pro ($97/month) to unlock:
           </p>
           <ul className="text-sm text-slate-500 space-y-1.5 pl-4 list-disc">
-            <li>Homeowner self-serve portal</li>
+            <li>Client self-serve portal</li>
             <li>AI imports (PDF, screenshot, URL)</li>
             <li>Packet Builder</li>
             <li>Form Library & File Manager</li>

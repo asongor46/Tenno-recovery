@@ -21,7 +21,7 @@ export default function ProUpgradePrompt({ feature = "This feature", onDismiss }
       <p className="text-slate-400 text-sm mb-6 leading-relaxed">
         Upgrade to Pro ($97/month) to unlock:
         <br />
-        AI imports · Homeowner portal · Packet builder · Form library · Advanced templates
+        AI imports · Client portal · Packet builder · Form library · Advanced templates
       </p>
       <div className="flex flex-col sm:flex-row gap-3 w-full">
         <Button
