@@ -29,6 +29,7 @@ import {
   Edit2,
   Trash2,
 } from "lucide-react";
+import InviteAgentDialog from "@/components/admin/InviteAgentDialog";
 import {
   DropdownMenu,
   DropdownMenuContent,

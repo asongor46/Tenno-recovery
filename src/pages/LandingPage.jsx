@@ -114,9 +114,12 @@ export default function LandingPage() {
               <a href="#features" className="text-slate-400 hover:text-white transition-colors">Features</a>
               <a href="#pricing" className="text-slate-400 hover:text-white transition-colors">Pricing</a>
               <a href="#faq" className="text-slate-400 hover:text-white transition-colors">FAQ</a>
-              <button onClick={handleAgentLogin} className="text-slate-400 hover:text-white transition-colors">
-                Agent Login
-              </button>
+              <div className="flex flex-col items-center">
+                <button onClick={handleAgentLogin} className="text-slate-400 hover:text-white transition-colors">
+                  Agent Login
+                </button>
+                <span className="text-xs text-slate-600 mt-0.5">New here? Get started above</span>
+              </div>
               <Link to={createPageUrl("PortalLogin")}>
                 <Button variant="outline" size="sm" className="bg-background text-green-500 px-3 text-xs font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border shadow-sm hover:text-accent-foreground h-8 border-slate-600 hover:bg-slate-800">
                   Homeowner Portal

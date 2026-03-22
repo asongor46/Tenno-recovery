@@ -1,3 +1,5 @@
+import AdminDashboard from './pages/AdminDashboard';
+import TermsPage from './pages/TermsPage';
 import AgentApply from './pages/AgentApply';
 import AgentOnboarding from './pages/AgentOnboarding';
 import CaseDetail from './pages/CaseDetail';

@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Users, Briefcase, DollarSign, TrendingUp, UserCheck } from "lucide-react";
 import AdminLeadManagement from "@/components/admin/AdminLeadManagement";
+import AdminAnalytics from "@/components/admin/AdminAnalytics";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";

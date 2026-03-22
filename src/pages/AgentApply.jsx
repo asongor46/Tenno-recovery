@@ -110,6 +110,15 @@ export default function AgentApply() {
             <p className="text-slate-400">
               Choose your plan, create your account, and start managing surplus recovery cases today.
             </p>
+            <p className="text-sm text-slate-500 mt-3">
+              Already have an account?{" "}
+              <button
+                onClick={() => base44.auth.redirectToLogin(createPageUrl("Dashboard"))}
+                className="text-emerald-400 hover:underline"
+              >
+                Log in →
+              </button>
+            </p>
           </div>
 
           {/* Plan Selection */}
