@@ -20,13 +20,14 @@ import PortalInfo from './pages/PortalInfo';
 import PortalLogin from './pages/PortalLogin';
 import PortalLostLink from './pages/PortalLostLink';
 import PortalNotary from './pages/PortalNotary';
-import Profile from './pages/Profile';
 import Settings from './pages/Settings';
 import UserManagement from './pages/UserManagement';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
+    "AdminDashboard": AdminDashboard,
+    "TermsPage": TermsPage,
     "AgentApply": AgentApply,
     "AgentOnboarding": AgentOnboarding,
     "CaseDetail": CaseDetail,
@@ -47,7 +48,6 @@ export const PAGES = {
     "PortalLogin": PortalLogin,
     "PortalLostLink": PortalLostLink,
     "PortalNotary": PortalNotary,
-    "Profile": Profile,
     "Settings": Settings,
     "UserManagement": UserManagement,
 }
