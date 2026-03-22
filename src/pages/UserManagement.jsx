@@ -48,6 +48,7 @@ export default function UserManagement() {
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
   const [deleteUser, setDeleteUser] = useState(null);
+  const [showInviteDialog, setShowInviteDialog] = useState(false);
   const toast = useStandardToast();
   const queryClient = useQueryClient();
 
@@ -135,9 +136,9 @@ export default function UserManagement() {
               <p className="text-sm sm:text-base text-slate-500 mt-1">Manage user accounts and permissions</p>
             </div>
           </div>
-          <Button className="bg-purple-600 hover:bg-purple-700 w-full sm:w-auto">
+          <Button className="bg-purple-600 hover:bg-purple-700 w-full sm:w-auto" onClick={() => setShowInviteDialog(true)}>
             <UserPlus className="w-4 h-4 mr-2" />
-            Invite User
+            Invite Agent
           </Button>
         </div>
 
