@@ -242,7 +242,11 @@ export default function UserManagement() {
                   filteredUsers.map((user) => {
                     const agentProfile = allProfiles.find(p => p.email === user.email);
                     return (
-                    <TableRow key={user.id}>
+                    <TableRow key={user.id} className={
+                      agentProfile?.plan_status === "suspended" ? "bg-red-500/5 border-l-2 border-l-red-500/50" :
+                      agentProfile?.plan_status === "past_due" ? "bg-amber-500/5 border-l-2 border-l-amber-500/50" :
+                      ""
+                    }>
                       <TableCell>
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full flex items-center justify-center">
@@ -278,13 +282,15 @@ export default function UserManagement() {
                       </TableCell>
                       <TableCell>
                         {agentProfile ? (
-                          <Badge className={
-                            agentProfile.plan_status === "active" ? "bg-green-100 text-green-700 border-0" :
-                            agentProfile.plan_status === "past_due" ? "bg-red-100 text-red-700 border-0" :
-                            "bg-slate-100 text-slate-500 border-0"
-                          }>
-                            {agentProfile.plan_status || "active"}
-                          </Badge>
+                           <Badge className={
+                             agentProfile.plan_status === "active" ? "bg-green-100 text-green-700 border-0" :
+                             agentProfile.plan_status === "past_due" ? "bg-amber-100 text-amber-700 border-0" :
+                             agentProfile.plan_status === "suspended" ? "bg-red-100 text-red-700 border-0" :
+                             agentProfile.plan_status === "cancelled" ? "bg-red-100 text-red-700 border-0" :
+                             "bg-slate-100 text-slate-500 border-0"
+                           }>
+                             {agentProfile.plan_status || "active"}
+                           </Badge>
                         ) : (
                           <Badge className="bg-slate-100 text-slate-500 border-0">—</Badge>
                         )}
