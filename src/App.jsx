@@ -10,7 +10,7 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
-// Add page imports here
+// Add page imports here (AdminDashboard and TermsPage now in pages.config)
 import AdminDashboard from './pages/AdminDashboard';
 import TermsPage from './pages/TermsPage';
 
