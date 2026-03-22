@@ -383,9 +383,9 @@ export default function Layout({ children, currentPageName }) {
                     <p className="text-xs text-slate-500">{user?.email}</p>
                   </div>
                   <DropdownMenuItem asChild>
-                    <Link to={createPageUrl("Profile")} className="cursor-pointer">
+                    <Link to={createPageUrl("Settings")} className="cursor-pointer">
                       <User className="w-4 h-4 mr-2" />
-                      Profile
+                      My Account
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
