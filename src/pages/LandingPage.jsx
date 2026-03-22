@@ -61,7 +61,7 @@ const faqs = [
 },
 {
   question: "What's the difference between Starter and Pro?",
-  answer: "Starter ($50/mo): full CRM, pipeline, manual/CSV import, state compliance engine, county directory, contact logging, email templates, training guides. Pro ($97/mo): everything in Starter plus the homeowner self-serve portal, PDF/screenshot/URL AI import, packet builder, form library, advanced templates, and file manager."
+  answer: "Starter ($50/mo): full CRM, pipeline, manual/CSV import, state compliance engine, county directory, contact logging, email templates, training guides. Pro ($97/mo): everything in Starter plus the client self-serve portal, PDF/screenshot/URL AI import, packet builder, form library, advanced templates, and file manager."
 },
 {
   question: "Is there a contract?",
@@ -325,7 +325,7 @@ export default function LandingPage() {
               <ul className="space-y-2.5 text-sm text-slate-300 mb-8">
                 {[
                 "Everything in Starter",
-                "Homeowner self-serve portal",
+                "Client self-serve portal",
                 "PDF import with AI extraction",
                 "Screenshot & URL import",
                 "Letter generator (mail-ready PDFs)",
