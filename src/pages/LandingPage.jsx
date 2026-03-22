@@ -32,7 +32,7 @@ const LOGO = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/
 const features = [
 { icon: FileText, title: "CRM + Pipeline", description: "Manage every case from import to payment. Manual stage control on Starter, auto-advance on Pro." },
 { icon: Map, title: "State Compliance Engine", description: "Fee caps, PI/attorney rules, waiting periods — all 50 states + DC. Tax sale vs. sheriff sale, broken out." },
-{ icon: Users, title: "Homeowner Self-Serve Portal", description: "Pro plan: homeowners sign agreements, upload IDs, and complete notary entirely on their own." },
+{ icon: Users, title: "Client Self-Serve Portal", description: "Pro plan: clients sign agreements, upload IDs, and complete notary entirely on their own." },
 { icon: Package, title: "Packet Builder", description: "Pro plan: generate county-specific filing packets with one click — affidavit-based or court-motion-based." },
 { icon: Zap, title: "Lead Import Tools", description: "Starter: manual entry + CSV. Pro: also PDF with AI extraction, screenshot, and URL paste." },
 { icon: Shield, title: "Secure by Default", description: "Row-level security — each agent sees only their own cases. Agents are completely invisible to each other." }];
@@ -44,7 +44,7 @@ const comparisonRows = [
 { feature: "PDF / Screenshot AI Import", tenno: "Pro only", excessElite: true, surplusSystems: "Partial", spreadsheet: false },
 { feature: "State Compliance Engine", tenno: true, excessElite: false, surplusSystems: false, spreadsheet: false },
 { feature: "Tax Sale vs Sheriff Sale Rules", tenno: true, excessElite: false, surplusSystems: false, spreadsheet: false },
-{ feature: "Homeowner Self-Serve Portal", tenno: "Pro only", excessElite: false, surplusSystems: false, spreadsheet: false },
+{ feature: "Client Self-Serve Portal", tenno: "Pro only", excessElite: false, surplusSystems: false, spreadsheet: false },
 { feature: "Packet Builder", tenno: "Pro only", excessElite: false, surplusSystems: "Partial", spreadsheet: false },
 { feature: "Power Dialer", tenno: false, excessElite: true, surplusSystems: true, spreadsheet: false },
 { feature: "Monthly Price", tenno: "$50–$97", excessElite: "$200–400+", surplusSystems: "$197–497", spreadsheet: "Free" }];

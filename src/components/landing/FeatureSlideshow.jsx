@@ -38,10 +38,10 @@ const defaultSlides = [
   fallback: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=1200&q=80"
 },
 {
-  title: "Homeowner Portal",
-  description: "Homeowners sign agreements, upload IDs, and complete notary — entirely self-serve.",
+  title: "Client Portal",
+  description: "Clients sign agreements, upload IDs, and complete notary — entirely self-serve.",
   screenshot: "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6935380f41db07237f45b1db/portal-screenshot.png",
-  tag: "Homeowner Portal",
+  tag: "Client Portal",
   color: "from-cyan-500/10 to-blue-500/10",
   fallback: "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=1200&q=80"
 },

@@ -4,6 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { Users, Briefcase, DollarSign, TrendingUp, UserCheck } from "lucide-react";
 import AdminLeadManagement from "@/components/admin/AdminLeadManagement";
 import AdminAnalytics from "@/components/admin/AdminAnalytics";
+import SlideshowManager from "@/components/admin/SlideshowManager";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
@@ -170,6 +171,12 @@ export default function AdminDashboard() {
       <div>
         <h2 className="text-base font-semibold text-white mb-3">Detailed Analytics</h2>
         <AdminAnalytics />
+      </div>
+
+      {/* Slideshow Management */}
+      <div>
+        <h2 className="text-base font-semibold text-white mb-3">Manage Feature Slideshow</h2>
+        <SlideshowManager />
       </div>
 
       {/* Lead Management */}
