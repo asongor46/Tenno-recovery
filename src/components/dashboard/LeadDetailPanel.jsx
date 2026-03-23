@@ -41,11 +41,24 @@ export default function LeadDetailPanel({ lead, onClose, onAdd, onFlag, alreadyF
           <div>
             <p className="text-xs text-slate-400">Surplus Amount</p>
             <p className="text-3xl font-bold text-emerald-400">${lead.surplus_amount?.toLocaleString()}</p>
+            {(!lead.surplus_amount || lead.surplus_amount === 0) ? (
+              <Badge className="mt-1 bg-slate-600 text-slate-300 border-0 text-xs">Verify amount</Badge>
+            ) : lead.surplus_amount < 500 ? (
+              <Badge className="mt-1 bg-red-500/20 text-red-400 border-0 text-xs">Very low value</Badge>
+            ) : lead.surplus_amount < 1000 ? (
+              <Badge className="mt-1 bg-amber-500/20 text-amber-400 border-0 text-xs">Low value</Badge>
+            ) : null}
           </div>
           <Badge className={lead.surplus_type === "tax_sale" ? "bg-emerald-500/20 text-emerald-400 border-0" : "bg-blue-500/20 text-blue-400 border-0"}>
             {lead.surplus_type === "tax_sale" ? "Tax Sale" : "Sheriff Sale"}
           </Badge>
         </div>
+        {lead.surplus_amount > 0 && lead.surplus_amount < 1000 && (
+          <div className="flex items-start gap-2 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2 text-xs text-amber-400">
+            <AlertTriangle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+            At 20% fee, this lead would earn ~${Math.round(lead.surplus_amount * 0.2).toLocaleString()}. Consider prioritizing higher-value cases.
+          </div>
+        )}
 
         {/* Details grid */}
         <div className="grid grid-cols-2 gap-3 text-sm">
