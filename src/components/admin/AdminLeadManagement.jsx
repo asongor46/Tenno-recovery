@@ -235,7 +235,12 @@ export default function AdminLeadManagement() {
   const resolvedRows = csvRows.map(resolveRow);
   const namedRows = resolvedRows.filter((r) => !!r.owner_name);
   const corporateRows = namedRows.filter((r) => isCorporateEntity(r.owner_name));
-  const importableRows = namedRows.filter((r) => includeCorporate || !isCorporateEntity(r.owner_name));
+  const lowValueRows = namedRows.filter((r) => !isCorporateEntity(r.owner_name) && r.surplus_amount < minSurplus);
+  const importableRows = namedRows.filter((r) => {
+    if (!includeCorporate && isCorporateEntity(r.owner_name)) return false;
+    if (!includeLowValue && r.surplus_amount < minSurplus) return false;
+    return true;
+  });
   const skippedNoName = csvRows.length - namedRows.length;
 
   const handleImport = async () => {
