@@ -153,6 +153,15 @@ export default function FormLibrary() {
                         <Badge className={formTypeColors[form.form_type] || formTypeColors.other}>
                           {form.form_type}
                         </Badge>
+                        {(form.is_verified || form.uploaded_by_role === "admin") ? (
+                          <Badge className="bg-emerald-500/15 text-emerald-400 border-0 text-xs flex items-center gap-1">
+                            <ShieldCheck className="w-3 h-3" /> Verified
+                          </Badge>
+                        ) : (
+                          <Badge className="bg-slate-700 text-slate-400 border-0 text-xs flex items-center gap-1">
+                            <Clock className="w-3 h-3" /> Pending review
+                          </Badge>
+                        )}
                         {form.requires_notary && (
                           <Badge variant="outline" className="text-xs">
                             <CheckCircle2 className="w-3 h-3 mr-1" />
@@ -200,14 +209,16 @@ export default function FormLibrary() {
                           View
                         </Button>
                       )}
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => deleteMutation.mutate(form.id)}
-                        disabled={deleteMutation.isPending}
-                      >
-                        <Trash2 className="w-4 h-4 text-red-500" />
-                      </Button>
+                      {isAdmin && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => deleteMutation.mutate(form.id)}
+                          disabled={deleteMutation.isPending}
+                        >
+                          <Trash2 className="w-4 h-4 text-red-500" />
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </div>
