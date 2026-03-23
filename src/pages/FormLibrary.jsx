@@ -5,9 +5,8 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Upload, Search, Eye, Trash2, CheckCircle2 } from "lucide-react";
+import { FileText, Upload, Search, Eye, Trash2, CheckCircle2, ShieldCheck, Clock } from "lucide-react";
 import { useStandardToast } from "@/components/shared/useStandardToast";
-import ProUpgradePrompt from "@/components/shared/ProUpgradePrompt";
 
 export default function FormLibrary() {
   const { data: currentUser } = useQuery({

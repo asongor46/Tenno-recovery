@@ -120,6 +120,14 @@ Be exhaustive - this will be used to auto-fill the form.`,
       (formAnalysis.form_code && f.form_code === formAnalysis.form_code)
     );
 
+    const isAdmin = user.role === 'admin';
+    const uploadMeta = {
+      uploaded_by_email: user.email,
+      uploaded_by_role: isAdmin ? 'admin' : 'agent',
+      is_verified: isAdmin,
+      upload_source: 'manual_upload'
+    };
+
     let formRecord;
     if (matchingForm) {
       // Update existing form
@@ -134,7 +142,8 @@ Be exhaustive - this will be used to auto-fill the form.`,
         page_count: formAnalysis.page_count,
         is_fillable_pdf: formAnalysis.is_fillable_pdf || false,
         instructions_on_form: formAnalysis.instructions_on_form || [],
-        attachments_required: formAnalysis.attachments_required || []
+        attachments_required: formAnalysis.attachments_required || [],
+        ...uploadMeta
       });
     } else {
       // Create new form
@@ -155,7 +164,20 @@ Be exhaustive - this will be used to auto-fill the form.`,
         is_fillable_pdf: formAnalysis.is_fillable_pdf || false,
         instructions_on_form: formAnalysis.instructions_on_form || [],
         attachments_required: formAnalysis.attachments_required || [],
-        times_used: 0
+        times_used: 0,
+        ...uploadMeta
+      });
+    }
+
+    // Notify admin when a non-admin agent uploads a form
+    if (!isAdmin) {
+      const county = formAnalysis.county || county_hint || 'Unknown';
+      const state = formAnalysis.state || state_hint || '';
+      await base44.asServiceRole.entities.Alert.create({
+        title: 'New form uploaded',
+        message: `${user.email} uploaded "${formAnalysis.form_name || 'Untitled Form'}" for ${county}${state ? ', ' + state : ''}`,
+        type: 'form_upload',
+        severity: 'info'
       });
     }
 
