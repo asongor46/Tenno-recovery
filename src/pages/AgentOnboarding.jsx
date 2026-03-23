@@ -162,16 +162,52 @@ export default function AgentOnboarding() {
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.25 }}
           >
-            {/* Step 0: Company Details */}
+            {/* Step 0: How It Works */}
             {step === 0 && (
               <Card className="bg-slate-800 border-slate-700">
                 <CardHeader>
                   <CardTitle className="text-white flex items-center gap-2">
-                    <Building2 className="w-5 h-5 text-emerald-400" /> Company Details
+                    <Lightbulb className="w-5 h-5 text-amber-400" /> How TENNO Recovery Works
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <p className="text-slate-400 text-sm">This information will appear on documents and agreements you send to homeowners.</p>
+                  <p className="text-slate-400 text-sm">Here's how the platform works — five steps from lead to payday:</p>
+                  <div className="space-y-3">
+                    {[
+                      { num: "1", title: "FIND LEADS", desc: "Browse the Lead Feed on your Dashboard. We upload surplus lists from counties across the US. You can also import your own via PDF, CSV, or manual entry." },
+                      { num: "2", title: "WORK THE CASE", desc: "Create a Case for each lead. Research the owner, verify the surplus amount, make contact." },
+                      { num: "3", title: "SIGN THE AGREEMENT", desc: "Generate a fee agreement with your company name and fee %. Send the client a secure portal link to review and e-sign." },
+                      { num: "4", title: "COLLECT DOCUMENTS", desc: "The Client Portal guides them through: signing, uploading ID, and notarization. You track progress from your dashboard." },
+                      { num: "5", title: "FILE & GET PAID", desc: "Assemble your filing packet, submit to the county, and record payment when funds are released." },
+                    ].map(item => (
+                      <div key={item.num} className="flex gap-3 p-3 bg-slate-900/60 rounded-lg border border-slate-700">
+                        <div className="w-7 h-7 bg-emerald-600 rounded-full flex items-center justify-center flex-shrink-0 text-white text-xs font-bold">{item.num}</div>
+                        <div>
+                          <p className="font-semibold text-emerald-400 text-xs tracking-wider">{item.title}</p>
+                          <p className="text-slate-400 text-sm mt-0.5">{item.desc}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex justify-end pt-2">
+                    <Button onClick={() => setStep(1)} className="bg-emerald-600 hover:bg-emerald-700">
+                      Continue <ChevronRight className="w-4 h-4 ml-1" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Step 1: Company Details */}
+            {step === 1 && (
+              <Card className="bg-slate-800 border-slate-700">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center gap-2">
+                    <Building2 className="w-5 h-5 text-emerald-400" /> Your Business
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-slate-400 text-sm">This info appears on fee agreements and filing documents. Make sure it matches your registered business name.</p>
                   <div>
                     <Label className="text-slate-300">Company / Business Name</Label>
                     <Input
