@@ -257,22 +257,34 @@ export default function NewCaseForm({ counties, onSuccess }) {
 
       {/* Compliance Banner */}
       {stateCompliance && formData.surplus_type && (
-        <div className={`p-4 rounded-lg border-2 ${
+        <div className={`p-4 rounded-lg border-2 space-y-3 ${
           stateCompliance.hassle_rating <= 2 ? 'bg-emerald-500/10 border-emerald-500/30' :
           stateCompliance.hassle_rating === 3 ? 'bg-amber-500/10 border-amber-500/30' :
           'bg-red-500/10 border-red-500/30'
         }`}>
-          <h4 className="font-semibold text-sm mb-2">
+          <h4 className="font-semibold text-sm">
             {stateCompliance.state_name} — {formData.surplus_type === 'tax_sale' ? `${stateCompliance.tax_sale_fee_cap}% fee cap` : `${stateCompliance.sheriff_sale_fee_cap}% fee cap`}
           </h4>
           <div className="text-sm space-y-1">
-            <div><strong>Registration:</strong> {stateCompliance.registration_required ? stateCompliance.registration_detail : 'None required'}</div>
+            <div><strong>State Registration:</strong> {stateCompliance.registration_required ? stateCompliance.registration_detail : 'None required'}</div>
             <div><strong>PI/Attorney:</strong> {stateCompliance.pi_attorney_required ? stateCompliance.pi_attorney_detail : 'Not required'}</div>
             <div className="flex justify-between">
               <span><strong>Hassle Rating:</strong> {stateCompliance.hassle_rating}/5</span>
               <span className="text-xs">{stateCompliance.remote_friendly ? '✓ Remote friendly' : '⚠ May require in-person'}</span>
             </div>
           </div>
+          {/* County filing note */}
+          {formData.county && counties.length > 0 && (() => {
+            const selectedCounty = counties.find(c => c.name === formData.county);
+            const agentCanFile = selectedCounty?.rep_allowed || selectedCounty?.allows_filing_on_behalf;
+            if (!selectedCounty) return null;
+            return (
+              <div className={`text-xs p-2 rounded border ${agentCanFile ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-700' : 'bg-amber-500/10 border-amber-500/20 text-amber-700'}`}>
+                <strong>{formData.county} County — County Filing:</strong>{" "}
+                {agentCanFile ? "Agent can file directly on behalf of owner." : "Owner must file personally. You prepare documents; owner submits."}
+              </div>
+            );
+          })()}
         </div>
       )}
 
