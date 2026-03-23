@@ -37,6 +37,7 @@ import { Badge } from "@/components/ui/badge";
 import { Toaster } from "@/components/ui/toaster";
 import ErrorBoundary from "@/components/shared/ErrorBoundary";
 import SubscriptionBanner from "@/components/stripe/SubscriptionBanner";
+import { SubscriptionContext } from "@/lib/SubscriptionContext";
 
 function buildNavigation(role, plan) {
   const isPro = plan === "pro" || role === "admin";
@@ -83,7 +84,7 @@ export default function Layout({ children, currentPageName }) {
   const [searchQuery, setSearchQuery] = useState("");
 
   // Public pages (no auth, no layout)
-  const isPublicPage = ['LandingPage', 'HowItWorks', 'About', 'Contact', 'AgentApply'].includes(currentPageName);
+  const isPublicPage = ['LandingPage', 'HowItWorks', 'About', 'Contact', 'AgentApply', 'Demo'].includes(currentPageName);
   const isPortalPage = currentPageName?.startsWith("Portal");
 
   // Auth check for agent pages
@@ -411,7 +412,9 @@ export default function Layout({ children, currentPageName }) {
         {/* Page content */}
         <main className="p-3 sm:p-4 lg:p-8 pb-20 lg:pb-8 bg-slate-900">
           <ErrorBoundary>
-            {children}
+            <SubscriptionContext.Provider value={{ isReadOnly: profile?.plan_status === "cancelled" || profile?.plan_status === "suspended" }}>
+              {children}
+            </SubscriptionContext.Provider>
           </ErrorBoundary>
         </main>
         </div>
