@@ -30,7 +30,8 @@ import {
   MapPin,
   FileCheck,
   Mail,
-  } from "lucide-react";
+  Building2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -200,7 +201,7 @@ export default function CaseDetail() {
           </Link>
           <div>
             <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-              <h1 className="text-xl sm:text-2xl font-bold text-slate-900">{caseData.owner_name}</h1>
+              <h1 className="text-xl sm:text-2xl font-bold text-white">{caseData.owner_name}</h1>
               {caseData.is_hot && (
               <Badge className="bg-orange-500/10 text-orange-400 border-0">
                   <Flame className="w-3 h-3 mr-1" /> Hot Case
@@ -261,7 +262,7 @@ export default function CaseDetail() {
                   queryClient.invalidateQueries({ queryKey: ["case", caseId] });
                   queryClient.invalidateQueries({ queryKey: ["activities", caseId] });
                   if (data.email_sent) {
-                    toast.success("Portal link emailed to homeowner");
+                    toast.success("Portal link emailed to client");
                   } else {
                     const email = data.email_content || {};
                     const mailto = `mailto:${encodeURIComponent(email.to || '')}?subject=${encodeURIComponent(email.subject || '')}&body=${encodeURIComponent(email.body || '')}`;
@@ -306,8 +307,8 @@ export default function CaseDetail() {
           <TabsTrigger value="documents" className="gap-2">
             <FileText className="w-4 h-4" /> Documents
           </TabsTrigger>
-          <TabsTrigger value="homeowner" className="gap-2">
-            <User className="w-4 h-4" /> Homeowner Info
+          <TabsTrigger value="client" className="gap-2">
+            <User className="w-4 h-4" /> Client Info
           </TabsTrigger>
           {/* People Finder merged into Homeowner tab */}
           <TabsTrigger value="notary" className="gap-2">
@@ -378,7 +379,7 @@ export default function CaseDetail() {
                   </div>
                   <div>
                     <p className="text-sm text-slate-500">Surplus Amount</p>
-                    <p className="font-bold text-xl text-emerald-600 mt-1">
+                    <p className="font-bold text-xl text-emerald-400 mt-1">
                       ${caseData.surplus_amount?.toLocaleString() || "0"}
                     </p>
                   </div>
@@ -400,10 +401,7 @@ export default function CaseDetail() {
                       {caseData.judgment_amount ? `$${caseData.judgment_amount.toLocaleString()}` : "—"}
                     </p>
                   </div>
-                  <div>
-                    <p className="text-sm text-slate-500">Status</p>
-                    <p className="font-semibold mt-1 capitalize">{caseData.status}</p>
-                  </div>
+
                 </div>
               </CardContent>
             </Card>
@@ -471,7 +469,7 @@ export default function CaseDetail() {
                         }}
                       >
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-transform group-hover:scale-110 ${
-                          isComplete ? stageConfig[stage].color : "bg-slate-200"
+                          isComplete ? stageConfig[stage].color : "bg-slate-700"
                         }`}>
                           {isComplete ? (
                             <CheckCircle2 className="w-5 h-5 text-white" />
@@ -479,7 +477,7 @@ export default function CaseDetail() {
                             <Circle className="w-5 h-5 text-slate-400" />
                           )}
                         </div>
-                        <p className={`text-xs mt-2 text-center ${isCurrent ? "font-semibold text-slate-900" : "text-slate-500 group-hover:text-slate-700"}`}>
+                        <p className={`text-xs mt-2 text-center ${isCurrent ? "font-semibold text-white" : "text-slate-500 group-hover:text-slate-300"}`}>
                           {stageConfig[stage].label}
                         </p>
                       </div>
@@ -487,7 +485,7 @@ export default function CaseDetail() {
                   })}
                 </div>
                 {/* Progress bar */}
-                <div className="absolute top-4 left-0 right-0 h-0.5 bg-slate-200 -z-10">
+                <div className="absolute top-4 left-0 right-0 h-0.5 bg-slate-700 -z-10">
                   <div
                     className="h-full bg-emerald-500 transition-all"
                     style={{ width: `${(getCurrentStageIndex() / (stages.length - 1)) * 100}%` }}
@@ -578,7 +576,7 @@ export default function CaseDetail() {
         </TabsContent>
 
         {/* Contacts & People (merged) */}
-        <TabsContent value="homeowner" className="space-y-6">
+        <TabsContent value="client" className="space-y-6">
           <div className="grid lg:grid-cols-2 gap-6">
             <div className="lg:col-span-2 space-y-6">
               {/* ADDED: Agreement Panel */}
@@ -643,22 +641,22 @@ export default function CaseDetail() {
               <div className="mt-8">
                 <h3 className="font-semibold mb-4">ID Documents</h3>
                 <div className="grid md:grid-cols-2 gap-4">
-                  <div className="border rounded-xl p-4">
+                  <div className="border border-slate-700 rounded-xl p-4">
                     <p className="text-sm text-slate-400 mb-2">ID Front</p>
                     {caseData.id_front_url ? (
                       <img src={caseData.id_front_url} alt="ID Front" className="rounded-lg w-full" />
                     ) : (
-                      <div className="h-32 bg-slate-100 rounded-lg flex items-center justify-center text-slate-400">
+                      <div className="h-32 bg-slate-800 rounded-lg flex items-center justify-center text-slate-500">
                         Not uploaded
                       </div>
                     )}
                   </div>
-                  <div className="border rounded-xl p-4">
+                  <div className="border border-slate-700 rounded-xl p-4">
                     <p className="text-sm text-slate-400 mb-2">ID Back</p>
                     {caseData.id_back_url ? (
                       <img src={caseData.id_back_url} alt="ID Back" className="rounded-lg w-full" />
                     ) : (
-                      <div className="h-32 bg-slate-100 rounded-lg flex items-center justify-center text-slate-400">
+                      <div className="h-32 bg-slate-800 rounded-lg flex items-center justify-center text-slate-500">
                         Not uploaded
                       </div>
                     )}
@@ -743,7 +741,7 @@ export default function CaseDetail() {
                     )}
                     {portalUser?.last_login_at && (
                       <div className="mt-2 pt-2 border-t">
-                        <p className="text-sm text-emerald-600 font-medium">
+                        <p className="text-sm text-emerald-400 font-medium">
                           ✓ Account active • Last login: {format(new Date(portalUser.last_login_at), "MMM d, yyyy h:mm a")}
                         </p>
                         <p className="text-xs text-slate-500 mt-1">
@@ -874,16 +872,27 @@ export default function CaseDetail() {
 
         {/* County Profile Tab */}
         <TabsContent value="county" className="space-y-4">
-          {!caseData?.county || !caseData?.state || !county ? (
+          {!caseData?.county || !caseData?.state ? (
             <Card>
               <CardContent className="pt-6">
                 <div className="text-center py-8">
-                  <p className="text-slate-500">
-                    {!caseData?.county || !caseData?.state 
-                      ? "County information not available for this case" 
-                      : "Loading county profile..."}
-                  </p>
+                  <p className="text-slate-500">County information not available for this case</p>
                 </div>
+              </CardContent>
+            </Card>
+          ) : !county ? (
+            <Card>
+              <CardContent className="pt-6 text-center py-12">
+                <Building2 className="w-10 h-10 text-slate-500 mx-auto mb-3" />
+                <p className="text-slate-400 mb-2">
+                  No county profile found for {caseData.county}, {caseData.state}
+                </p>
+                <p className="text-sm text-slate-500 mb-4">
+                  County profiles are added as you work cases in new counties.
+                </p>
+                <Button variant="outline" onClick={() => window.location.href = createPageUrl("Counties")}>
+                  + Add {caseData.county} County
+                </Button>
               </CardContent>
             </Card>
           ) : (
