@@ -34,13 +34,17 @@ Deno.serve(async (req) => {
         properties: {
           document_type: { 
             type: "string",
-            enum: ["return_of_sale", "upcoming_sale", "surplus_list", "unknown"],
+            enum: ["return_of_sale", "upcoming_sale", "surplus_list", "form_packet", "unknown"],
             description: "Type of document detected"
           },
           source_format: {
             type: "string",
-            enum: ["sheriff_sale_return", "tax_claim_disbursement", "mixed", "unknown"],
+            enum: ["sheriff_sale_return", "tax_claim_disbursement", "excess_proceeds_list", "form_packet", "mixed", "unknown"],
             description: "Detected format of the document"
+          },
+          form_metadata: {
+            type: "object",
+            description: "Metadata if document is a form packet (form_type, county, state, page_count)"
           },
           form_pages_detected: {
             type: "boolean",
@@ -98,20 +102,20 @@ Deno.serve(async (req) => {
         return (c.surplus_amount && c.surplus_amount > 0) || (c.surplus_type === "tax_sale" && !c.surplus_amount);
       })
       .map(c => {
-        // Calculate surplus if not provided
-        if (!c.surplus_amount && c.sale_amount && c.judgment_amount) {
-          const costs = c.costs || 0;
-          c.surplus_amount = c.sale_amount - c.judgment_amount - costs;
-        }
-        
-        const caseRecord = {
-          owner_name: c.defendant_name,
-          owner_address: c.owner_address || c.property_address,
-          property_address: c.property_address,
-          case_number: c.case_number,
-          parcel_number: c.parcel_number,
-          surplus_amount: c.surplus_amount || null,
-          sale_amount: c.sale_amount,
+      // Calculate surplus if not provided
+      if (!c.surplus_amount && c.sale_amount && c.judgment_amount) {
+        const costs = c.costs || 0;
+        c.surplus_amount = c.sale_amount - c.judgment_amount - costs;
+      }
+
+      const caseRecord = {
+        owner_name: c.defendant_name || c.trustor_name || c.owner_name || "",
+        owner_address: c.owner_address || c.property_address,
+        property_address: c.property_address || "",
+        case_number: c.case_number || c.civil_action_number || null,
+        parcel_number: c.parcel_number,
+        surplus_amount: c.surplus_amount || c.case_balance || null,
+        sale_amount: c.sale_amount || c.amount_received || null,
           judgment_amount: c.judgment_amount,
           sale_date: c.sale_date || result.sale_date || null,
           county: c.county || county || extractCountyFromAddress(c.property_address),
@@ -147,15 +151,56 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Handle form packets - return early with clear message
+    if (result.source_format === "form_packet" || result.document_type === "form_packet") {
+      return Response.json({
+        status: 'success',
+        document_type: "form_packet",
+        source_format: "form_packet",
+        message: "This PDF contains claim forms, not leads. Use the Form Library to store this template.",
+        form_metadata: result.form_metadata || {},
+        total_found: 0,
+        surplus_cases_found: 0,
+        cases: [],
+      });
+    }
+
+    const totalRaw = result.cases.length;
+
+    // Handle empty/unrecognized
+    if (totalRaw === 0 && result.source_format === "unknown") {
+      return Response.json({
+        status: 'success',
+        document_type: result.document_type,
+        source_format: "unknown",
+        message: "Format not recognized. Enter leads manually or try a different PDF.",
+        total_found: 0,
+        surplus_cases_found: 0,
+        cases: [],
+      });
+    }
+
+    if (enrichedCases.length === 0 && totalRaw > 0) {
+      return Response.json({
+        status: 'success',
+        document_type: result.document_type,
+        source_format: result.source_format || "unknown",
+        message: `Found ${totalRaw} entries but all filtered out (likely corporate defendants or zero surplus).`,
+        total_found: totalRaw,
+        surplus_cases_found: 0,
+        cases: [],
+      });
+    }
+
     return Response.json({
       status: 'success',
       document_type: result.document_type,
       source_format: result.source_format || "unknown",
       form_pages_detected: result.form_pages_detected || false,
       sale_date: result.sale_date,
-      total_found: result.cases.length,
+      total_found: totalRaw,
       surplus_cases_found: enrichedCases.length,
-      filtered_out: result.cases.length - enrichedCases.length,
+      filtered_out: totalRaw - enrichedCases.length,
       cases: enrichedCases,
     });
 
@@ -193,7 +238,31 @@ Disbursement, Tax Collector, Delinquent Tax, Sale Disbursement Check.
 → If a check number is present, mark has_check_number: true (funds may be disbursed).
 → Set source_format: "tax_claim_disbursement"
 
-FORMAT C — MIXED (claim forms + data pages):
+FORMAT C — TRUSTEE SALE EXCESS PROCEEDS:
+Contains TRUSTOR names, deposit dates, amount received, case balance, 
+and civil action numbers. From county Treasurer listing excess funds 
+from Deed of Trust/Mortgage foreclosures.
+Keywords: Excess Proceeds, Trustor, Deed of Trust, Mortgage, 
+Treasurer, Case Balance, Civil Action Number, Amount Received.
+Columns: TRUSTOR | DEPOSIT DATE | AMOUNT RECEIVED | CASE BALANCE | CIVIL ACTION NUMBER
+→ surplus_type: sheriff_sale
+→ Set source_format: "excess_proceeds_list"
+→ Map TRUSTOR to defendant_name
+→ Map CASE BALANCE to surplus_amount (current available amount)
+→ Map AMOUNT RECEIVED to sale_amount (original deposit)
+→ Map CIVIL ACTION NUMBER to case_number
+→ Map DEPOSIT DATE to sale_date
+→ No property addresses — set to empty string
+→ If case_balance is much lower than amount_received, the file may be partially claimed
+
+FORMAT D — CLAIM FORMS / FILING PACKET:
+Legal forms, instructions, checklists, blank fields, signature blocks.
+Keywords: Application, Affidavit, Checklist, Instructions, Court, 
+Signature Block, Notary, Claimant Name (blank), Date (blank).
+→ Set document_type: "form_packet", source_format: "form_packet"
+→ Extract 0 cases. Return form metadata instead (form_type, estimated county/state if visible).
+
+FORMAT E — MIXED (claim forms + data pages):
 Some PDFs contain both form templates (affidavit pages with blank 
 lines and signature blocks) AND data pages (surplus lists).
 → Extract cases from the data pages only.
