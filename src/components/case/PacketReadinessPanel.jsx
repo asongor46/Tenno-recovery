@@ -31,9 +31,7 @@ export default function PacketReadinessPanel({ caseData, countyData }) {
   });
 
   const autoAssignForms = useMutation({
-    mutationFn: () => base44.functions.invoke("autoAssignCountyForms", {
-      case_id: caseData.id
-    }),
+    mutationFn: () => base44.functions.invoke("autoAssignCountyForms", { case_id: caseData.id }),
     onSuccess: (response) => {
       const result = response.data.result;
       if (result.ready_for_packet) {
@@ -46,20 +44,15 @@ export default function PacketReadinessPanel({ caseData, countyData }) {
   });
 
   const generatePacket = useMutation({
-    mutationFn: () => base44.functions.invoke("generateFilledPacket", {
-      case_id: caseData.id
-    }),
+    mutationFn: () => base44.functions.invoke("generateFilledPacket", { case_id: caseData.id }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["case-documents", caseData.id] });
       queryClient.invalidateQueries({ queryKey: ["cases"] });
       toast.success("Packet generated successfully");
     },
-    onError: (error) => {
-      toast.error("Failed to generate packet: " + error.message);
-    },
+    onError: (error) => toast.error("Failed to generate packet: " + error.message),
   });
 
-  // Check readiness
   const hasAgreement = documents.some(d => d.category === "agreement" && d.is_primary);
   const hasIDFront = documents.some(d => d.category === "id_front");
   const hasIDBack = documents.some(d => d.category === "id_back");
@@ -83,7 +76,7 @@ export default function PacketReadinessPanel({ caseData, countyData }) {
   const packetExists = !!caseData.packet_url;
 
   return (
-    <Card className={isReady ? "border-emerald-200 bg-emerald-50/30" : "border-amber-200 bg-amber-50/30"}>
+    <Card className={isReady ? "border-emerald-500/30 bg-emerald-500/5" : "border-amber-500/30 bg-amber-500/5"}>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Package className="w-5 h-5" />
@@ -98,22 +91,10 @@ export default function PacketReadinessPanel({ caseData, countyData }) {
       <CardContent className="space-y-4">
         {/* Checklist */}
         <div className="space-y-2">
-          <ChecklistItem 
-            label="Signed Agreement" 
-            complete={hasAgreement}
-          />
-          <ChecklistItem 
-            label="Owner ID (Front & Back)" 
-            complete={hasIDFront && hasIDBack}
-          />
-          <ChecklistItem 
-            label="Notarized Document" 
-            complete={hasNotary}
-          />
-          <ChecklistItem 
-            label="Complete Information" 
-            complete={hasCompletedInfo}
-          />
+          <ChecklistItem label="Signed Agreement" complete={hasAgreement} />
+          <ChecklistItem label="Owner ID (Front & Back)" complete={hasIDFront && hasIDBack} />
+          <ChecklistItem label="Notarized Document" complete={hasNotary} />
+          <ChecklistItem label="Complete Information" complete={hasCompletedInfo} />
           {requiredForms.length > 0 && (
             <ChecklistItem 
               label={`County Forms (${requiredForms.length} required)`}
@@ -124,12 +105,12 @@ export default function PacketReadinessPanel({ caseData, countyData }) {
 
         {/* Missing Items Alert */}
         {!isReady && (
-          <div className="bg-amber-100 border border-amber-300 rounded-lg p-3">
+          <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3">
             <div className="flex items-start gap-2">
-              <AlertTriangle className="w-4 h-4 text-amber-700 mt-0.5" />
+              <AlertTriangle className="w-4 h-4 text-amber-400 mt-0.5" />
               <div className="flex-1">
-                <p className="text-sm font-semibold text-amber-900 mb-1">Missing Items:</p>
-                <ul className="text-xs text-amber-800 space-y-0.5">
+                <p className="text-sm font-semibold text-amber-400 mb-1">Missing Items:</p>
+                <ul className="text-xs text-amber-400/80 space-y-0.5">
                   {missingItems.map((item, i) => (
                     <li key={i}>• {item}</li>
                   ))}
@@ -141,11 +122,11 @@ export default function PacketReadinessPanel({ caseData, countyData }) {
 
         {/* County-Specific Requirements */}
         {countyData && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-            <p className="text-xs font-semibold text-blue-900 mb-2">
+          <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3">
+            <p className="text-xs font-semibold text-blue-400 mb-2">
               {countyData.name} County Requirements:
             </p>
-            <div className="text-xs text-blue-800 space-y-1">
+            <div className="text-xs text-blue-400/80 space-y-1">
               <p>• Filing Method: {countyData.filing_method}</p>
               {countyData.notary_required && (
                 <p>• Notary: {countyData.notary_type} ({countyData.notary_format})</p>
@@ -170,10 +151,7 @@ export default function PacketReadinessPanel({ caseData, countyData }) {
               className="w-full gap-2 text-xs"
             >
               {autoAssignForms.isPending ? (
-                <>
-                  <Loader2 className="w-3 h-3 animate-spin" />
-                  Checking...
-                </>
+                <><Loader2 className="w-3 h-3 animate-spin" />Checking...</>
               ) : (
                 "Check County Requirements"
               )}
@@ -195,15 +173,9 @@ export default function PacketReadinessPanel({ caseData, countyData }) {
             className="w-full gap-2 bg-emerald-600 hover:bg-emerald-700"
           >
             {generatePacket.isPending ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Generating...
-              </>
+              <><Loader2 className="w-4 h-4 animate-spin" />Generating...</>
             ) : (
-              <>
-                <FileText className="w-4 h-4" />
-                {packetExists ? "Regenerate Packet" : "Generate Packet"}
-              </>
+              <><FileText className="w-4 h-4" />{packetExists ? "Regenerate Packet" : "Generate Packet"}</>
             )}
           </Button>
         </div>
@@ -220,13 +192,13 @@ export default function PacketReadinessPanel({ caseData, countyData }) {
 
 function ChecklistItem({ label, complete }) {
   return (
-    <div className="flex items-center gap-2 p-2 bg-white rounded border">
+    <div className="flex items-center gap-2 p-2 bg-slate-800 rounded border border-slate-700">
       {complete ? (
-        <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+        <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
       ) : (
-        <XCircle className="w-4 h-4 text-slate-400 flex-shrink-0" />
+        <XCircle className="w-4 h-4 text-slate-500 flex-shrink-0" />
       )}
-      <span className={`text-sm ${complete ? "text-slate-700" : "text-slate-500"}`}>
+      <span className={`text-sm ${complete ? "text-slate-200" : "text-slate-400"}`}>
         {label}
       </span>
     </div>

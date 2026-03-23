@@ -21,7 +21,7 @@ const verificationColors = {
   green: "bg-emerald-500",
   yellow: "bg-amber-500",
   red: "bg-red-500",
-  pending: "bg-slate-300",
+  pending: "bg-slate-500",
 };
 
 const verificationIcons = {
@@ -70,10 +70,10 @@ export default function VerificationTab({ caseId, caseData }) {
       </div>
 
       <Card className={`border-2 ${
-        overallStatus === "green" ? "border-emerald-500 bg-emerald-50" :
-        overallStatus === "yellow" ? "border-amber-500 bg-amber-50" :
-        overallStatus === "red" ? "border-red-500 bg-red-50" :
-        "border-slate-300 bg-slate-50"
+        overallStatus === "green" ? "border-emerald-500 bg-emerald-500/10" :
+        overallStatus === "yellow" ? "border-amber-500 bg-amber-500/10" :
+        overallStatus === "red" ? "border-red-500 bg-red-500/10" :
+        "border-slate-600 bg-slate-800/50"
       }`}>
         <CardContent className="pt-6">
           <div className="flex items-center justify-between">
@@ -82,11 +82,11 @@ export default function VerificationTab({ caseId, caseData }) {
                 <OverallIcon className="w-8 h-8 text-white" />
               </div>
               <div>
-                <p className="text-sm text-slate-600">Verification Status</p>
-                <p className="text-2xl font-bold text-slate-900">
+                <p className="text-sm text-slate-400">Verification Status</p>
+                <p className="text-2xl font-bold text-white">
                   {verificationLabels[overallStatus]}
                 </p>
-                <p className="text-sm text-slate-600 mt-1">
+                <p className="text-sm text-slate-400 mt-1">
                   {caseData?.verification_summary || 
                    (overallStatus === "pending" ? "Verification not run yet. Click 'Run Verification' to check case status." : "No summary available")}
                 </p>
@@ -96,7 +96,7 @@ export default function VerificationTab({ caseId, caseData }) {
               <p className="text-sm text-slate-500">Complexity</p>
               <div className="flex items-center gap-2 mt-1">
                 <Progress value={complexityScore} className="w-24 h-2" />
-                <span className="font-semibold">{complexityScore}</span>
+                <span className="font-semibold text-slate-100">{complexityScore}</span>
               </div>
             </div>
           </div>
@@ -118,9 +118,9 @@ export default function VerificationTab({ caseId, caseData }) {
           {caseData?.verification_details && (
             <div className="space-y-3 text-sm">
               {Object.entries(caseData.verification_details).map(([key, value]) => (
-                <div key={key} className="flex justify-between p-2 border-b last:border-0">
-                  <span className="text-slate-500 capitalize">{key.replace(/_/g, " ")}</span>
-                  <span className="font-medium">{String(value)}</span>
+                <div key={key} className="flex justify-between p-2 border-b border-slate-700 last:border-0">
+                  <span className="text-slate-400 capitalize">{key.replace(/_/g, " ")}</span>
+                  <span className="font-medium text-slate-100">{String(value)}</span>
                 </div>
               ))}
             </div>
@@ -135,15 +135,15 @@ export default function VerificationTab({ caseId, caseData }) {
         <CardContent>
           <div className="space-y-2">
             {getRecommendedActions(caseData, checks).map((action, i) => (
-              <div key={i} className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
-                <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
+              <div key={i} className="flex items-center gap-3 p-3 bg-slate-800/50 rounded-lg border border-slate-700">
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${
                   action.priority === "high" ? "bg-red-500" :
                   action.priority === "medium" ? "bg-amber-500" :
                   "bg-blue-500"
                 }`}>
                   <span className="text-white font-semibold text-xs">{i + 1}</span>
                 </div>
-                <p className="flex-1 text-sm">{action.text}</p>
+                <p className="flex-1 text-sm text-slate-300">{action.text}</p>
                 {action.actionButton && (
                   <Button size="sm" variant="outline">
                     {action.actionButton}
@@ -160,10 +160,10 @@ export default function VerificationTab({ caseId, caseData }) {
 
 function VerificationCard({ title, icon: Icon, check }) {
   const statusColors = {
-    pass: "text-emerald-600 bg-emerald-50",
-    warning: "text-amber-600 bg-amber-50",
-    fail: "text-red-600 bg-red-50",
-    unknown: "text-slate-500 bg-slate-50",
+    pass: "text-emerald-400 bg-emerald-500/10",
+    warning: "text-amber-400 bg-amber-500/10",
+    fail: "text-red-400 bg-red-500/10",
+    unknown: "text-slate-400 bg-slate-800/50",
   };
 
   const statusIcons = {
@@ -183,16 +183,16 @@ function VerificationCard({ title, icon: Icon, check }) {
             <Icon className="w-5 h-5" />
           </div>
           <div className="flex-1">
-            <p className="font-semibold text-sm mb-1">{title}</p>
+            <p className="font-semibold text-sm mb-1 text-slate-100">{title}</p>
             <div className="flex items-center gap-2 mb-2">
               <StatusIcon className={`w-4 h-4 ${
-                check.status === "pass" ? "text-emerald-600" : 
-                check.status === "warning" ? "text-amber-600" : 
-                check.status === "fail" ? "text-red-600" : "text-slate-500"
+                check.status === "pass" ? "text-emerald-400" : 
+                check.status === "warning" ? "text-amber-400" : 
+                check.status === "fail" ? "text-red-400" : "text-slate-400"
               }`} />
-              <span className="text-sm font-medium capitalize">{check.status}</span>
+              <span className="text-sm font-medium capitalize text-slate-300">{check.status}</span>
             </div>
-            {check.notes && <p className="text-xs text-slate-600">{check.notes}</p>}
+            {check.notes && <p className="text-xs text-slate-400">{check.notes}</p>}
             {check.issues && check.issues.length > 0 && (
               <ul className="text-xs text-slate-500 mt-2 space-y-1">
                 {check.issues.map((issue, i) => (
@@ -216,7 +216,6 @@ function calculateIntegrityCheck(caseData) {
     issues.push("Sale amount does not exceed judgment");
   }
   if (!caseData.sale_date) issues.push("Missing sale date");
-  
   return {
     status: issues.length === 0 ? "pass" : issues.length <= 1 ? "warning" : "unknown",
     notes: issues.length === 0 ? "All basic data present" : "Basic data incomplete or unverified",
@@ -227,17 +226,14 @@ function calculateIntegrityCheck(caseData) {
 function calculateOwnerCheck(caseData) {
   const confidence = caseData.owner_confidence || "unknown";
   const issues = [];
-  
   if (confidence === "unknown") {
     issues.push("Owner not resolved yet - run owner resolver");
   } else if (confidence === "low") {
     issues.push("Owner identity uncertain - needs manual verification");
   }
-  
   if (!caseData.owner_phone && !caseData.owner_email) {
     issues.push("No contact information available");
   }
-  
   return {
     status: confidence === "high" ? "pass" : confidence === "medium" ? "warning" : "unknown",
     notes: confidence === "high" ? "Owner identity confirmed" : 
@@ -249,11 +245,9 @@ function calculateOwnerCheck(caseData) {
 
 function calculateSurplusCheck(caseData) {
   const issues = [];
-  
   if (!caseData.surplus_amount || caseData.surplus_amount <= 0) {
     issues.push("Surplus not calculated yet - run surplus calculator");
   }
-  
   return {
     status: caseData.surplus_amount > 0 ? "pass" : "unknown",
     notes: caseData.surplus_amount > 0 ? 
@@ -294,63 +288,25 @@ function calculateNotaryCheck(caseData, county) {
 
 function getRecommendedActions(caseData, checks) {
   const actions = [];
-  
-  // Owner resolution check
   if (checks.owner.status === "unknown") {
-    actions.push({ 
-      text: "Run owner resolver to identify property owner", 
-      priority: "high", 
-      actionButton: "Resolve Owner" 
-    });
+    actions.push({ text: "Run owner resolver to identify property owner", priority: "high", actionButton: "Resolve Owner" });
   } else if (checks.owner.status !== "pass") {
-    actions.push({ 
-      text: "Run People Finder to verify owner identity and find contact info", 
-      priority: "high", 
-      actionButton: "Run Search" 
-    });
+    actions.push({ text: "Run People Finder to verify owner identity and find contact info", priority: "high", actionButton: "Run Search" });
   }
-  
-  // Surplus calculation check
   if (checks.surplus.status === "unknown") {
-    actions.push({ 
-      text: "Calculate surplus amount from county sale records", 
-      priority: "high", 
-      actionButton: "Calculate" 
-    });
+    actions.push({ text: "Calculate surplus amount from county sale records", priority: "high", actionButton: "Calculate" });
   }
-  
-  // Contact info check
   if (!caseData.owner_phone && !caseData.owner_email && checks.owner.status !== "unknown") {
-    actions.push({ 
-      text: "Obtain contact information for owner", 
-      priority: "high" 
-    });
+    actions.push({ text: "Obtain contact information for owner", priority: "high" });
   }
-  
-  // Notary check
   if (checks.notary.status === "unknown" && checks.notary.issues.length > 0) {
-    actions.push({ 
-      text: "Send portal link to homeowner for notarization", 
-      priority: "medium", 
-      actionButton: "Send Link" 
-    });
+    actions.push({ text: "Send portal link to client for notarization", priority: "medium", actionButton: "Send Link" });
   }
-  
-  // Filing requirements check
   if (checks.filing.status === "warning") {
-    actions.push({ 
-      text: "Review county filing requirements", 
-      priority: "medium" 
-    });
+    actions.push({ text: "Review county filing requirements", priority: "medium" });
   }
-  
-  // All good state
   if (actions.length === 0) {
-    actions.push({ 
-      text: "All verifications passed - ready to proceed with filing", 
-      priority: "low" 
-    });
+    actions.push({ text: "All verifications passed - ready to proceed with filing", priority: "low" });
   }
-  
   return actions;
 }

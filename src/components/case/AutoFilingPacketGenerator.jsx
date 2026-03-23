@@ -1,4 +1,4 @@
-// [NEW - Tier 3] Auto-generate filing packets with county-specific forms
+// Auto-generate filing packets with county-specific forms
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQueryClient } from "@tanstack/react-query";
@@ -12,7 +12,6 @@ import {
   CheckCircle2,
   AlertCircle,
   Download,
-  Sparkles,
   Loader2,
 } from "lucide-react";
 import { useStandardToast } from "@/components/shared/useStandardToast";
@@ -24,30 +23,23 @@ export default function AutoFilingPacketGenerator({ caseData, countyData }) {
   const queryClient = useQueryClient();
   const toast = useStandardToast();
 
-  // Check readiness
   const checkReadiness = () => {
     const missing = [];
-    
     if (!caseData.agreement_status || caseData.agreement_status !== 'signed') {
       missing.push("Fee agreement not signed");
     }
-    
     if (!caseData.id_front_url || !caseData.id_back_url) {
       missing.push("ID documents not uploaded");
     }
-    
     if (countyData?.requires_notarized_authorization && !caseData.notary_packet_uploaded) {
       missing.push("Notarized authorization not uploaded");
     }
-    
     if (!caseData.surplus_amount || caseData.surplus_amount <= 0) {
       missing.push("Surplus amount not set");
     }
-
     if (!caseData.property_address) {
       missing.push("Property address missing");
     }
-
     setMissingItems(missing);
     return missing.length === 0;
   };
@@ -57,31 +49,24 @@ export default function AutoFilingPacketGenerator({ caseData, countyData }) {
       toast.error("Case not ready for packet generation");
       return;
     }
-
     setGenerating(true);
     try {
       const { data } = await base44.functions.invoke("generateFilledPacket", {
         case_id: caseData.id
       });
-
       if (data.success) {
         setPacketUrl(data.packet_url);
-        
-        // Update case stage
         await base44.entities.Case.update(caseData.id, {
           stage: "packet_ready",
           packet_url: data.packet_url,
           packet_generated_at: new Date().toISOString()
         });
-
-        // Log activity
         await base44.entities.ActivityLog.create({
           case_id: caseData.id,
           action: "Filing Packet Generated",
           description: `Auto-generated filing packet for ${countyData?.name || "county"}`,
           performed_by: "system"
         });
-
         queryClient.invalidateQueries({ queryKey: ["case", caseData.id] });
         queryClient.invalidateQueries({ queryKey: ["documents", caseData.id] });
         toast.success("Filing packet generated successfully!");
@@ -103,29 +88,29 @@ export default function AutoFilingPacketGenerator({ caseData, countyData }) {
   const hasExistingPacket = !!caseData.packet_url;
 
   return (
-    <Card className="border-purple-200 bg-gradient-to-br from-purple-50 to-indigo-50">
+    <Card className="border-purple-500/30 bg-purple-500/10">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-purple-600" />
-          AI Filing Packet Generator
+        <CardTitle className="flex items-center gap-2 text-purple-400">
+          <FileText className="w-5 h-5" />
+          Filing Packet Generator
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* County Info */}
         {countyData && (
-          <div className="p-3 bg-white rounded-lg border">
-            <p className="text-sm font-semibold text-slate-900">{countyData.name} County</p>
+          <div className="p-3 bg-slate-800 rounded-lg border border-slate-700">
+            <p className="text-sm font-semibold text-white">{countyData.name} County</p>
             <div className="flex items-center gap-2 mt-2 flex-wrap">
-              <Badge variant="outline" className="text-xs">
+              <Badge variant="outline" className="text-xs border-slate-600 text-slate-300">
                 {countyData.filing_method || "mail"}
               </Badge>
               {countyData.requires_notarized_authorization && (
-                <Badge variant="outline" className="text-xs text-amber-700 border-amber-300">
+                <Badge variant="outline" className="text-xs text-amber-400 border-amber-500/40">
                   Notary Required
                 </Badge>
               )}
               {countyData.claim_deadline_days && (
-                <Badge variant="outline" className="text-xs">
+                <Badge variant="outline" className="text-xs border-slate-600 text-slate-300">
                   {countyData.claim_deadline_days}-day deadline
                 </Badge>
               )}
@@ -135,7 +120,7 @@ export default function AutoFilingPacketGenerator({ caseData, countyData }) {
 
         {/* Readiness Checklist */}
         <div className="space-y-2">
-          <p className="text-sm font-semibold text-slate-900">Readiness Check:</p>
+          <p className="text-sm font-semibold text-slate-100">Readiness Check:</p>
           {[
             { label: "Fee agreement signed", ready: caseData.agreement_status === 'signed' },
             { label: "ID documents uploaded", ready: !!caseData.id_front_url && !!caseData.id_back_url },
@@ -149,11 +134,11 @@ export default function AutoFilingPacketGenerator({ caseData, countyData }) {
           ].filter(item => !item.skip).map((item, i) => (
             <div key={i} className="flex items-center gap-2 text-sm">
               {item.ready ? (
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
               ) : (
-                <AlertCircle className="w-4 h-4 text-amber-600" />
+                <AlertCircle className="w-4 h-4 text-amber-400" />
               )}
-              <span className={item.ready ? "text-slate-700" : "text-amber-700"}>
+              <span className={item.ready ? "text-slate-300" : "text-amber-400"}>
                 {item.label}
               </span>
             </div>
@@ -162,9 +147,9 @@ export default function AutoFilingPacketGenerator({ caseData, countyData }) {
 
         {/* Missing Items Alert */}
         {!isReady && (
-          <Alert>
-            <AlertCircle className="w-4 h-4" />
-            <AlertDescription>
+          <Alert className="bg-amber-500/10 border-amber-500/30">
+            <AlertCircle className="w-4 h-4 text-amber-400" />
+            <AlertDescription className="text-amber-400">
               <p className="font-semibold mb-1">Cannot generate packet yet:</p>
               <ul className="text-sm space-y-1">
                 {missingItems.map((item, i) => (
@@ -177,11 +162,11 @@ export default function AutoFilingPacketGenerator({ caseData, countyData }) {
 
         {/* Forms Included */}
         {countyData?.filing_forms && countyData.filing_forms.length > 0 && (
-          <div className="p-3 bg-white rounded-lg border">
-            <p className="text-xs font-semibold text-slate-700 mb-2">Forms to be included:</p>
+          <div className="p-3 bg-slate-800 rounded-lg border border-slate-700">
+            <p className="text-xs font-semibold text-slate-300 mb-2">Forms to be included:</p>
             <div className="space-y-1">
               {countyData.filing_forms.map((formId, i) => (
-                <div key={i} className="flex items-center gap-2 text-xs text-slate-600">
+                <div key={i} className="flex items-center gap-2 text-xs text-slate-400">
                   <FileText className="w-3 h-3" />
                   Form {i + 1}
                 </div>
@@ -192,13 +177,13 @@ export default function AutoFilingPacketGenerator({ caseData, countyData }) {
 
         {/* Existing Packet */}
         {hasExistingPacket && (
-          <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
+          <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg">
             <div className="flex items-center gap-2 mb-2">
-              <PackageCheck className="w-4 h-4 text-emerald-600" />
-              <p className="text-sm font-semibold text-emerald-900">Packet Already Generated</p>
+              <PackageCheck className="w-4 h-4 text-emerald-400" />
+              <p className="text-sm font-semibold text-emerald-400">Packet Already Generated</p>
             </div>
             {caseData.packet_generated_at && (
-              <p className="text-xs text-emerald-700">
+              <p className="text-xs text-emerald-400/70">
                 Generated: {new Date(caseData.packet_generated_at).toLocaleDateString()}
               </p>
             )}
@@ -213,15 +198,9 @@ export default function AutoFilingPacketGenerator({ caseData, countyData }) {
             className="w-full bg-purple-600 hover:bg-purple-700"
           >
             {generating ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Generating...
-              </>
+              <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Generating...</>
             ) : (
-              <>
-                <Sparkles className="w-4 h-4 mr-2" />
-                {hasExistingPacket ? "Regenerate" : "Generate"} Filing Packet
-              </>
+              <><FileText className="w-4 h-4 mr-2" />{hasExistingPacket ? "Regenerate" : "Generate"} Filing Packet</>
             )}
           </Button>
 
@@ -229,10 +208,7 @@ export default function AutoFilingPacketGenerator({ caseData, countyData }) {
             <Button
               variant="outline"
               className="w-full"
-              onClick={() => {
-                const url = packetUrl || caseData.packet_url;
-                window.open(url, '_blank');
-              }}
+              onClick={() => window.open(packetUrl || caseData.packet_url, '_blank')}
             >
               <Download className="w-4 h-4 mr-2" />
               Download Packet
@@ -240,10 +216,9 @@ export default function AutoFilingPacketGenerator({ caseData, countyData }) {
           )}
         </div>
 
-        {/* Info */}
         <p className="text-xs text-slate-500">
-          The AI will auto-fill all county-specific forms with case data, merge with your documents, 
-          and create a complete filing-ready packet.
+          Auto-fills all county-specific forms with case data, merges with your documents, 
+          and creates a complete filing-ready packet.
         </p>
       </CardContent>
     </Card>

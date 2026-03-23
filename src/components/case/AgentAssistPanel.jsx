@@ -60,102 +60,98 @@ export default function AgentAssistPanel({ caseData }) {
 
   if (loadingScript) {
     return (
-      <Card className="border-purple-200 bg-gradient-to-br from-purple-50 to-indigo-50">
+      <Card className="border-purple-500/30 bg-purple-500/10">
         <CardContent className="pt-6 text-center">
-          <Loader2 className="w-8 h-8 text-purple-600 animate-spin mx-auto mb-3" />
-          <p className="text-slate-600">Preparing your script...</p>
+          <Loader2 className="w-8 h-8 text-purple-400 animate-spin mx-auto mb-3" />
+          <p className="text-slate-300">Preparing your script...</p>
         </CardContent>
       </Card>
     );
   }
 
   return (
-    <Card className="border-purple-200 bg-gradient-to-br from-purple-50 to-indigo-50">
+    <Card className="border-purple-500/30 bg-purple-500/10">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-purple-900">
+        <CardTitle className="flex items-center gap-2 text-purple-400">
           <MessageSquare className="w-5 h-5" />
           Agent Assist
-          <Badge variant="outline" className="ml-auto text-xs border-purple-300 text-purple-700">
-            AI-Powered
-          </Badge>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Quick Actions */}
         <div className="flex gap-2">
           <Button 
             variant="outline" 
             size="sm" 
             onClick={loadCallScript}
-            className="text-xs border-purple-200 hover:bg-purple-100"
+            className="text-xs"
           >
             Regenerate
           </Button>
         </div>
 
         {/* Call Script */}
-        <div className="bg-white rounded-lg p-4 border border-purple-200">
+        <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
-              <Phone className="w-4 h-4 text-purple-700" />
-              <h4 className="font-semibold text-purple-900">Opening Script</h4>
+              <Phone className="w-4 h-4 text-purple-400" />
+              <h4 className="font-semibold text-purple-400">Opening Script</h4>
             </div>
             <Button 
               variant="ghost" 
               size="sm" 
               onClick={() => copyToClipboard(script.opening)}
-              className="text-purple-700 hover:text-purple-900"
+              className="text-slate-300 hover:text-white"
             >
               <Copy className="w-3 h-3 mr-1" /> Copy
             </Button>
           </div>
-          <p className="text-sm text-slate-700 whitespace-pre-line leading-relaxed">
+          <p className="text-sm text-slate-300 whitespace-pre-line leading-relaxed">
             {script.opening}
           </p>
         </div>
 
         {/* Identity Questions */}
-        <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+        <div className="bg-blue-500/10 rounded-lg p-4 border border-blue-500/30">
           <div className="flex items-center gap-2 mb-3">
-            <CheckCircle2 className="w-4 h-4 text-blue-700" />
-            <h4 className="font-semibold text-blue-900">Identity Verification</h4>
+            <CheckCircle2 className="w-4 h-4 text-blue-400" />
+            <h4 className="font-semibold text-blue-400">Identity Verification</h4>
           </div>
           <div className="space-y-2">
             {script.identity_questions.map((q, i) => (
-              <div key={i} className="bg-white p-2 rounded border border-blue-100 text-sm">
-                <p className="font-medium text-slate-800">{q.question}</p>
-                <p className="text-xs text-slate-500 mt-1">Expected: {q.expected_answer}</p>
+              <div key={i} className="bg-slate-800 p-2 rounded border border-blue-500/20 text-sm">
+                <p className="font-medium text-slate-100">{q.question}</p>
+                <p className="text-xs text-slate-400 mt-1">Expected: {q.expected_answer}</p>
               </div>
             ))}
           </div>
         </div>
 
         {/* The Pitch */}
-        <div className="bg-emerald-50 rounded-lg p-4 border border-emerald-200">
+        <div className="bg-green-500/10 rounded-lg p-4 border border-green-500/30">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
-              <Lightbulb className="w-4 h-4 text-emerald-700" />
-              <h4 className="font-semibold text-emerald-900">The Pitch</h4>
+              <Lightbulb className="w-4 h-4 text-green-400" />
+              <h4 className="font-semibold text-green-400">The Pitch</h4>
             </div>
             <Button 
               variant="ghost" 
               size="sm" 
               onClick={() => copyToClipboard(script.pitch)}
-              className="text-emerald-700 hover:text-emerald-900"
+              className="text-slate-300 hover:text-white"
             >
               <Copy className="w-3 h-3 mr-1" /> Copy
             </Button>
           </div>
-          <p className="text-sm text-slate-700 whitespace-pre-line leading-relaxed">
+          <p className="text-sm text-slate-300 whitespace-pre-line leading-relaxed">
             {script.pitch}
           </p>
         </div>
 
         {/* Objection Handling */}
-        <Accordion type="single" collapsible className="bg-white rounded-lg border border-amber-200">
+        <Accordion type="single" collapsible className="bg-slate-800 rounded-lg border border-amber-500/30">
           <AccordionItem value="objections" className="border-0">
             <AccordionTrigger className="px-4 hover:no-underline">
-              <div className="flex items-center gap-2 text-amber-900">
+              <div className="flex items-center gap-2 text-amber-400">
                 <HelpCircle className="w-4 h-4" />
                 <span className="font-semibold">Objection Handling ({script.objection_responses.length})</span>
               </div>
@@ -163,13 +159,13 @@ export default function AgentAssistPanel({ caseData }) {
             <AccordionContent className="px-4 pb-4">
               <div className="space-y-2">
                 {script.objection_responses.map((obj, i) => (
-                  <div key={i} className="bg-amber-50 p-3 rounded border border-amber-100">
-                    <p className="text-sm font-semibold text-amber-900 mb-2">"{obj.objection}"</p>
-                    <p className="text-sm text-slate-700 leading-relaxed">{obj.response}</p>
+                  <div key={i} className="bg-amber-500/10 p-3 rounded border border-amber-500/20">
+                    <p className="text-sm font-semibold text-amber-400 mb-2">"{obj.objection}"</p>
+                    <p className="text-sm text-slate-300 leading-relaxed">{obj.response}</p>
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="mt-2 text-xs text-amber-700"
+                      className="mt-2 text-xs text-amber-400"
                       onClick={() => copyToClipboard(obj.response)}
                     >
                       <Copy className="w-3 h-3 mr-1" /> Copy Response
@@ -182,31 +178,31 @@ export default function AgentAssistPanel({ caseData }) {
         </Accordion>
 
         {/* Voicemail Script */}
-        <div className="bg-slate-100 rounded-lg p-4 border border-slate-300">
+        <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-600">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
-              <Voicemail className="w-4 h-4 text-slate-700" />
-              <h4 className="font-semibold text-slate-900">Voicemail Script</h4>
+              <Voicemail className="w-4 h-4 text-slate-300" />
+              <h4 className="font-semibold text-slate-100">Voicemail Script</h4>
             </div>
             <Button 
               variant="ghost" 
               size="sm" 
               onClick={() => copyToClipboard(script.closing)}
-              className="text-slate-700 hover:text-slate-900"
+              className="text-slate-300 hover:text-white"
             >
               <Copy className="w-3 h-3 mr-1" /> Copy
             </Button>
           </div>
-          <p className="text-sm text-slate-700 whitespace-pre-line leading-relaxed">
+          <p className="text-sm text-slate-300 whitespace-pre-line leading-relaxed">
             {script.closing}
           </p>
         </div>
 
         {/* County Notes */}
         {script.county_notes && (
-          <div className="bg-slate-50 rounded-lg p-3 border border-slate-200">
-            <p className="text-xs font-semibold text-slate-700 mb-1">County-Specific Notes:</p>
-            <p className="text-xs text-slate-600">{script.county_notes}</p>
+          <div className="bg-slate-800/50 rounded-lg p-3 border border-slate-600">
+            <p className="text-xs font-semibold text-slate-300 mb-1">County-Specific Notes:</p>
+            <p className="text-xs text-slate-400">{script.county_notes}</p>
           </div>
         )}
       </CardContent>

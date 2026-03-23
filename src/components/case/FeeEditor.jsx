@@ -14,12 +14,6 @@ import {
 } from "@/components/ui/select";
 import { useStandardToast } from "@/components/shared/useStandardToast";
 
-/**
- * FEE EDITOR COMPONENT
- * Allows agent to view recommended fee and override before agreement
- * Fee locks after agreement is signed
- */
-
 export default function FeeEditor({ caseData }) {
   const [selectedFee, setSelectedFee] = useState(caseData.fee_percent || 20);
   const queryClient = useQueryClient();
@@ -47,14 +41,6 @@ export default function FeeEditor({ caseData }) {
   const isLocked = caseData.fee_locked || caseData.agreement_status === "signed";
   const hasRecommendation = !!caseData.recommended_fee_percent;
 
-  const handleUpdateFee = () => {
-    updateFeeMutation.mutate(selectedFee);
-  };
-
-  const handleCalculateFee = () => {
-    calculateFeeMutation.mutate();
-  };
-
   return (
     <Card>
       <CardHeader>
@@ -62,7 +48,7 @@ export default function FeeEditor({ caseData }) {
           <DollarSign className="w-5 h-5" />
           Fee Structure
           {isLocked && (
-            <Badge className="bg-amber-100 text-amber-700 border-0 ml-auto">
+            <Badge className="bg-amber-500/10 text-amber-400 border-0 ml-auto">
               <Lock className="w-3 h-3 mr-1" /> Locked
             </Badge>
           )}
@@ -70,19 +56,19 @@ export default function FeeEditor({ caseData }) {
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Current Fee */}
-        <div className="bg-slate-50 rounded-lg p-4">
+        <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-slate-500">Current Fee</p>
-              <p className="text-3xl font-bold text-slate-900">{caseData.fee_percent || 20}%</p>
-              <p className="text-sm text-slate-600 mt-1">
+              <p className="text-sm text-slate-400">Current Fee</p>
+              <p className="text-3xl font-bold text-white">{caseData.fee_percent || 20}%</p>
+              <p className="text-sm text-slate-400 mt-1">
                 ${((caseData.surplus_amount || 0) * ((caseData.fee_percent || 20) / 100)).toLocaleString()}
               </p>
             </div>
             {hasRecommendation && (
               <div className="text-right">
-                <p className="text-sm text-slate-500">Recommended</p>
-                <Badge className="bg-purple-100 text-purple-700 border-0">
+                <p className="text-sm text-slate-400">Recommended</p>
+                <Badge className="bg-purple-500/10 text-purple-400 border-0">
                   <Sparkles className="w-3 h-3 mr-1" />
                   {caseData.recommended_fee_percent}%
                 </Badge>
@@ -91,11 +77,10 @@ export default function FeeEditor({ caseData }) {
           </div>
         </div>
 
-        {/* Fee Editor */}
         {!isLocked && (
           <>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Override Fee Percentage</label>
+              <label className="text-sm font-medium text-slate-300">Override Fee Percentage</label>
               <Select value={selectedFee.toString()} onValueChange={(val) => setSelectedFee(parseInt(val))}>
                 <SelectTrigger>
                   <SelectValue />
@@ -112,7 +97,7 @@ export default function FeeEditor({ caseData }) {
             <div className="flex gap-2">
               <Button
                 variant="outline"
-                onClick={handleCalculateFee}
+                onClick={() => calculateFeeMutation.mutate()}
                 disabled={calculateFeeMutation.isPending}
                 className="flex-1"
               >
@@ -120,7 +105,7 @@ export default function FeeEditor({ caseData }) {
                 {calculateFeeMutation.isPending ? "Calculating..." : "Calculate Smart Fee"}
               </Button>
               <Button
-                onClick={handleUpdateFee}
+                onClick={() => updateFeeMutation.mutate(selectedFee)}
                 disabled={updateFeeMutation.isPending || selectedFee === caseData.fee_percent}
                 className="flex-1 bg-emerald-600 hover:bg-emerald-700"
               >
@@ -130,11 +115,10 @@ export default function FeeEditor({ caseData }) {
           </>
         )}
 
-        {/* Locked Notice */}
         {isLocked && (
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start gap-2">
-            <AlertCircle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
-            <p className="text-sm text-amber-800">
+          <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 flex items-start gap-2">
+            <AlertCircle className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
+            <p className="text-sm text-amber-400">
               Fee is locked after agreement signature. Contact support to modify.
             </p>
           </div>

@@ -33,27 +33,21 @@ import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { toast } from "sonner";
 
-/**
- * Filing Workflow Panel - Manage filing, waiting period, and court decisions
- */
 export default function FilingWorkflowPanel({ caseId, caseData }) {
   const [filingMethod, setFilingMethod] = useState("mail");
   const [trackingNumber, setTrackingNumber] = useState("");
   const [filingNotes, setFilingNotes] = useState("");
-  
   const [decisionType, setDecisionType] = useState("");
   const [decisionDate, setDecisionDate] = useState("");
   const [decisionNotes, setDecisionNotes] = useState("");
   const [approvedAmount, setApprovedAmount] = useState("");
   const [checkNumber, setCheckNumber] = useState("");
   const [expectedPaymentDate, setExpectedPaymentDate] = useState("");
-  
   const [paymentAmount, setPaymentAmount] = useState("");
   const [paymentDate, setPaymentDate] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("check");
   const [paymentCheckNumber, setPaymentCheckNumber] = useState("");
   const [paymentNotes, setPaymentNotes] = useState("");
-
   const [showFilingDialog, setShowFilingDialog] = useState(false);
   const [showDecisionDialog, setShowDecisionDialog] = useState(false);
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
@@ -62,10 +56,7 @@ export default function FilingWorkflowPanel({ caseId, caseData }) {
 
   const fileCase = useMutation({
     mutationFn: () => base44.functions.invoke("fileCase", {
-      case_id: caseId,
-      filing_method: filingMethod,
-      tracking_number: trackingNumber,
-      notes: filingNotes
+      case_id: caseId, filing_method: filingMethod, tracking_number: trackingNumber, notes: filingNotes
     }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["case", caseId] });
@@ -74,69 +65,47 @@ export default function FilingWorkflowPanel({ caseId, caseData }) {
       setShowFilingDialog(false);
       toast.success("Case filed successfully!");
     },
-    onError: (error) => {
-      console.error("Error filing case:", error);
-      toast.error("Failed to file case: " + error.message);
-    },
+    onError: (error) => toast.error("Failed to file case: " + error.message),
   });
 
   const recordDecision = useMutation({
     mutationFn: () => base44.functions.invoke("recordCourtDecision", {
-      case_id: caseId,
-      decision_type: decisionType,
-      decision_date: decisionDate,
-      decision_notes: decisionNotes,
-      approved_amount: approvedAmount ? parseFloat(approvedAmount) : null,
-      check_number: checkNumber,
-      expected_payment_date: expectedPaymentDate
+      case_id: caseId, decision_type: decisionType, decision_date: decisionDate,
+      decision_notes: decisionNotes, approved_amount: approvedAmount ? parseFloat(approvedAmount) : null,
+      check_number: checkNumber, expected_payment_date: expectedPaymentDate
     }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["case", caseId] });
       queryClient.invalidateQueries({ queryKey: ["activities", caseId] });
-      queryClient.invalidateQueries({ queryKey: ["todos", caseId] });
       setShowDecisionDialog(false);
       toast.success("Decision recorded successfully!");
     },
-    onError: (error) => {
-      console.error("Error recording decision:", error);
-      toast.error("Failed to record decision: " + error.message);
-    },
+    onError: (error) => toast.error("Failed to record decision: " + error.message),
   });
 
   const recordPayment = useMutation({
     mutationFn: () => base44.functions.invoke("recordPayment", {
-      case_id: caseId,
-      payment_amount: parseFloat(paymentAmount),
-      payment_date: paymentDate,
-      payment_method: paymentMethod,
-      check_number: paymentCheckNumber,
-      notes: paymentNotes
+      case_id: caseId, payment_amount: parseFloat(paymentAmount), payment_date: paymentDate,
+      payment_method: paymentMethod, check_number: paymentCheckNumber, notes: paymentNotes
     }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["case", caseId] });
       queryClient.invalidateQueries({ queryKey: ["activities", caseId] });
-      queryClient.invalidateQueries({ queryKey: ["todos", caseId] });
       setShowPaymentDialog(false);
       toast.success("Payment recorded successfully!");
     },
-    onError: (error) => {
-      console.error("Error recording payment:", error);
-      toast.error("Failed to record payment: " + error.message);
-    },
+    onError: (error) => toast.error("Failed to record payment: " + error.message),
   });
 
   const getWaitingDays = () => {
     if (!caseData.filed_at) return null;
-    const filed = new Date(caseData.filed_at);
-    const now = new Date();
-    return Math.floor((now - filed) / (1000 * 60 * 60 * 24));
+    return Math.floor((new Date() - new Date(caseData.filed_at)) / (1000 * 60 * 60 * 24));
   };
 
   const waitingDays = getWaitingDays();
 
   return (
     <div className="space-y-6">
-      {/* Status Overview */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -146,25 +115,23 @@ export default function FilingWorkflowPanel({ caseId, caseData }) {
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Filing Status */}
-          <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
+          <div className="flex items-center justify-between p-4 bg-slate-800/50 rounded-lg border border-slate-700">
             <div className="flex items-center gap-3">
               <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                caseData.filed_at ? 'bg-green-100' : 'bg-slate-200'
+                caseData.filed_at ? 'bg-green-500/15' : 'bg-slate-700'
               }`}>
                 {caseData.filed_at ? (
-                  <CheckCircle2 className="w-5 h-5 text-green-600" />
+                  <CheckCircle2 className="w-5 h-5 text-green-400" />
                 ) : (
                   <FileCheck className="w-5 h-5 text-slate-400" />
                 )}
               </div>
               <div>
-                <p className="font-medium">Filing Status</p>
+                <p className="font-medium text-slate-100">Filing Status</p>
                 {caseData.filed_at ? (
-                  <p className="text-sm text-slate-500">
-                    Filed on {format(new Date(caseData.filed_at), "MMM d, yyyy")}
-                  </p>
+                  <p className="text-sm text-slate-400">Filed on {format(new Date(caseData.filed_at), "MMM d, yyyy")}</p>
                 ) : (
-                  <p className="text-sm text-slate-500">Not yet filed</p>
+                  <p className="text-sm text-slate-400">Not yet filed</p>
                 )}
               </div>
             </div>
@@ -172,21 +139,16 @@ export default function FilingWorkflowPanel({ caseId, caseData }) {
               <Dialog open={showFilingDialog} onOpenChange={setShowFilingDialog}>
                 <DialogTrigger asChild>
                   <Button size="sm" disabled={!caseData.packet_url}>
-                    <Send className="w-4 h-4 mr-2" />
-                    File Case
+                    <Send className="w-4 h-4 mr-2" /> File Case
                   </Button>
                 </DialogTrigger>
                 <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>File Case</DialogTitle>
-                  </DialogHeader>
+                  <DialogHeader><DialogTitle>File Case</DialogTitle></DialogHeader>
                   <div className="space-y-4">
                     <div>
                       <Label>Filing Method</Label>
                       <Select value={filingMethod} onValueChange={setFilingMethod}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
                         <SelectContent>
                           <SelectItem value="mail">Mail</SelectItem>
                           <SelectItem value="efile">E-File</SelectItem>
@@ -196,26 +158,13 @@ export default function FilingWorkflowPanel({ caseId, caseData }) {
                     </div>
                     <div>
                       <Label>Tracking Number (optional)</Label>
-                      <Input
-                        value={trackingNumber}
-                        onChange={(e) => setTrackingNumber(e.target.value)}
-                        placeholder="USPS, FedEx, etc."
-                      />
+                      <Input value={trackingNumber} onChange={(e) => setTrackingNumber(e.target.value)} placeholder="USPS, FedEx, etc." />
                     </div>
                     <div>
                       <Label>Notes</Label>
-                      <Textarea
-                        value={filingNotes}
-                        onChange={(e) => setFilingNotes(e.target.value)}
-                        placeholder="Filing notes..."
-                        rows={3}
-                      />
+                      <Textarea value={filingNotes} onChange={(e) => setFilingNotes(e.target.value)} placeholder="Filing notes..." rows={3} />
                     </div>
-                    <Button
-                      onClick={() => fileCase.mutate()}
-                      disabled={fileCase.isPending}
-                      className="w-full"
-                    >
+                    <Button onClick={() => fileCase.mutate()} disabled={fileCase.isPending} className="w-full">
                       {fileCase.isPending ? "Filing..." : "Confirm Filing"}
                     </Button>
                   </div>
@@ -226,72 +175,63 @@ export default function FilingWorkflowPanel({ caseId, caseData }) {
 
           {/* Waiting Period */}
           {caseData.filed_at && caseData.stage !== 'approved' && caseData.stage !== 'paid' && (
-            <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
+            <div className="flex items-center justify-between p-4 bg-blue-500/10 rounded-lg border border-blue-500/30">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                  <Clock className="w-5 h-5 text-blue-600" />
+                <div className="w-10 h-10 bg-blue-500/15 rounded-full flex items-center justify-center">
+                  <Clock className="w-5 h-5 text-blue-400" />
                 </div>
                 <div>
-                  <p className="font-medium">Waiting Period</p>
-                  <p className="text-sm text-blue-600">
-                    {waitingDays} days since filing
-                  </p>
+                  <p className="font-medium text-slate-100">Waiting Period</p>
+                  <p className="text-sm text-blue-400">{waitingDays} days since filing</p>
                 </div>
               </div>
               {waitingDays > 90 && (
-                <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
-                  <AlertCircle className="w-3 h-3 mr-1" />
-                  Follow up needed
+                <Badge variant="outline" className="bg-amber-500/10 text-amber-400 border-amber-500/30">
+                  <AlertCircle className="w-3 h-3 mr-1" /> Follow up needed
                 </Badge>
               )}
             </div>
           )}
 
           {/* Court Decision */}
-          <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
+          <div className="flex items-center justify-between p-4 bg-slate-800/50 rounded-lg border border-slate-700">
             <div className="flex items-center gap-3">
               <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                caseData.stage === 'approved' ? 'bg-green-100' :
-                caseData.stage === 'closed' && !caseData.paid_at ? 'bg-red-100' :
-                'bg-slate-200'
+                caseData.stage === 'approved' ? 'bg-green-500/15' :
+                caseData.stage === 'closed' && !caseData.paid_at ? 'bg-red-500/15' :
+                'bg-slate-700'
               }`}>
                 {caseData.stage === 'approved' ? (
-                  <CheckCircle2 className="w-5 h-5 text-green-600" />
+                  <CheckCircle2 className="w-5 h-5 text-green-400" />
                 ) : caseData.stage === 'closed' && !caseData.paid_at ? (
-                  <XCircle className="w-5 h-5 text-red-600" />
+                  <XCircle className="w-5 h-5 text-red-400" />
                 ) : (
                   <FileCheck className="w-5 h-5 text-slate-400" />
                 )}
               </div>
               <div>
-                <p className="font-medium">Court Decision</p>
+                <p className="font-medium text-slate-100">Court Decision</p>
                 {caseData.stage === 'approved' ? (
-                  <p className="text-sm text-green-600">Approved</p>
+                  <p className="text-sm text-green-400">Approved</p>
                 ) : caseData.stage === 'closed' && !caseData.paid_at ? (
-                  <p className="text-sm text-red-600">Denied</p>
+                  <p className="text-sm text-red-400">Denied</p>
                 ) : (
-                  <p className="text-sm text-slate-500">Awaiting decision</p>
+                  <p className="text-sm text-slate-400">Awaiting decision</p>
                 )}
               </div>
             </div>
             {caseData.filed_at && !caseData.paid_at && caseData.stage !== 'approved' && (
               <Dialog open={showDecisionDialog} onOpenChange={setShowDecisionDialog}>
                 <DialogTrigger asChild>
-                  <Button size="sm" variant="outline">
-                    Record Decision
-                  </Button>
+                  <Button size="sm" variant="outline">Record Decision</Button>
                 </DialogTrigger>
                 <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Record Court Decision</DialogTitle>
-                  </DialogHeader>
+                  <DialogHeader><DialogTitle>Record Court Decision</DialogTitle></DialogHeader>
                   <div className="space-y-4">
                     <div>
                       <Label>Decision Type</Label>
                       <Select value={decisionType} onValueChange={setDecisionType}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select decision" />
-                        </SelectTrigger>
+                        <SelectTrigger><SelectValue placeholder="Select decision" /></SelectTrigger>
                         <SelectContent>
                           <SelectItem value="approved">Approved</SelectItem>
                           <SelectItem value="denied">Denied</SelectItem>
@@ -301,55 +241,29 @@ export default function FilingWorkflowPanel({ caseId, caseData }) {
                     </div>
                     <div>
                       <Label>Decision Date</Label>
-                      <Input
-                        type="date"
-                        value={decisionDate}
-                        onChange={(e) => setDecisionDate(e.target.value)}
-                      />
+                      <Input type="date" value={decisionDate} onChange={(e) => setDecisionDate(e.target.value)} />
                     </div>
                     {decisionType === 'approved' && (
                       <>
                         <div>
                           <Label>Approved Amount</Label>
-                          <Input
-                            type="number"
-                            value={approvedAmount}
-                            onChange={(e) => setApprovedAmount(e.target.value)}
-                            placeholder="Amount"
-                          />
+                          <Input type="number" value={approvedAmount} onChange={(e) => setApprovedAmount(e.target.value)} placeholder="Amount" />
                         </div>
                         <div>
                           <Label>Check Number (optional)</Label>
-                          <Input
-                            value={checkNumber}
-                            onChange={(e) => setCheckNumber(e.target.value)}
-                            placeholder="Check #"
-                          />
+                          <Input value={checkNumber} onChange={(e) => setCheckNumber(e.target.value)} placeholder="Check #" />
                         </div>
                         <div>
                           <Label>Expected Payment Date</Label>
-                          <Input
-                            type="date"
-                            value={expectedPaymentDate}
-                            onChange={(e) => setExpectedPaymentDate(e.target.value)}
-                          />
+                          <Input type="date" value={expectedPaymentDate} onChange={(e) => setExpectedPaymentDate(e.target.value)} />
                         </div>
                       </>
                     )}
                     <div>
                       <Label>Notes</Label>
-                      <Textarea
-                        value={decisionNotes}
-                        onChange={(e) => setDecisionNotes(e.target.value)}
-                        placeholder="Decision details..."
-                        rows={3}
-                      />
+                      <Textarea value={decisionNotes} onChange={(e) => setDecisionNotes(e.target.value)} placeholder="Decision details..." rows={3} />
                     </div>
-                    <Button
-                      onClick={() => recordDecision.mutate()}
-                      disabled={recordDecision.isPending || !decisionType}
-                      className="w-full"
-                    >
+                    <Button onClick={() => recordDecision.mutate()} disabled={recordDecision.isPending || !decisionType} className="w-full">
                       {recordDecision.isPending ? "Recording..." : "Record Decision"}
                     </Button>
                   </div>
@@ -359,65 +273,45 @@ export default function FilingWorkflowPanel({ caseId, caseData }) {
           </div>
 
           {/* Payment */}
-          <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
+          <div className="flex items-center justify-between p-4 bg-slate-800/50 rounded-lg border border-slate-700">
             <div className="flex items-center gap-3">
               <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                caseData.paid_at ? 'bg-emerald-100' : 'bg-slate-200'
+                caseData.paid_at ? 'bg-emerald-500/15' : 'bg-slate-700'
               }`}>
-                {caseData.paid_at ? (
-                  <DollarSign className="w-5 h-5 text-emerald-600" />
-                ) : (
-                  <DollarSign className="w-5 h-5 text-slate-400" />
-                )}
+                <DollarSign className={`w-5 h-5 ${caseData.paid_at ? 'text-emerald-400' : 'text-slate-400'}`} />
               </div>
               <div>
-                <p className="font-medium">Payment</p>
+                <p className="font-medium text-slate-100">Payment</p>
                 {caseData.paid_at ? (
-                  <p className="text-sm text-emerald-600">
+                  <p className="text-sm text-emerald-400">
                     Received ${caseData.payment_amount?.toLocaleString()} on{" "}
                     {format(new Date(caseData.paid_at), "MMM d, yyyy")}
                   </p>
                 ) : (
-                  <p className="text-sm text-slate-500">Not received</p>
+                  <p className="text-sm text-slate-400">Not received</p>
                 )}
               </div>
             </div>
             {caseData.stage === 'approved' && !caseData.paid_at && (
               <Dialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>
                 <DialogTrigger asChild>
-                  <Button size="sm">
-                    <DollarSign className="w-4 h-4 mr-2" />
-                    Record Payment
-                  </Button>
+                  <Button size="sm"><DollarSign className="w-4 h-4 mr-2" />Record Payment</Button>
                 </DialogTrigger>
                 <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Record Payment</DialogTitle>
-                  </DialogHeader>
+                  <DialogHeader><DialogTitle>Record Payment</DialogTitle></DialogHeader>
                   <div className="space-y-4">
                     <div>
                       <Label>Payment Amount</Label>
-                      <Input
-                        type="number"
-                        value={paymentAmount}
-                        onChange={(e) => setPaymentAmount(e.target.value)}
-                        placeholder="Amount received"
-                      />
+                      <Input type="number" value={paymentAmount} onChange={(e) => setPaymentAmount(e.target.value)} placeholder="Amount received" />
                     </div>
                     <div>
                       <Label>Payment Date</Label>
-                      <Input
-                        type="date"
-                        value={paymentDate}
-                        onChange={(e) => setPaymentDate(e.target.value)}
-                      />
+                      <Input type="date" value={paymentDate} onChange={(e) => setPaymentDate(e.target.value)} />
                     </div>
                     <div>
                       <Label>Payment Method</Label>
                       <Select value={paymentMethod} onValueChange={setPaymentMethod}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
                         <SelectContent>
                           <SelectItem value="check">Check</SelectItem>
                           <SelectItem value="wire">Wire Transfer</SelectItem>
@@ -428,27 +322,14 @@ export default function FilingWorkflowPanel({ caseId, caseData }) {
                     {paymentMethod === 'check' && (
                       <div>
                         <Label>Check Number</Label>
-                        <Input
-                          value={paymentCheckNumber}
-                          onChange={(e) => setPaymentCheckNumber(e.target.value)}
-                          placeholder="Check #"
-                        />
+                        <Input value={paymentCheckNumber} onChange={(e) => setPaymentCheckNumber(e.target.value)} placeholder="Check #" />
                       </div>
                     )}
                     <div>
                       <Label>Notes</Label>
-                      <Textarea
-                        value={paymentNotes}
-                        onChange={(e) => setPaymentNotes(e.target.value)}
-                        placeholder="Payment notes..."
-                        rows={3}
-                      />
+                      <Textarea value={paymentNotes} onChange={(e) => setPaymentNotes(e.target.value)} placeholder="Payment notes..." rows={3} />
                     </div>
-                    <Button
-                      onClick={() => recordPayment.mutate()}
-                      disabled={recordPayment.isPending || !paymentAmount}
-                      className="w-full bg-emerald-600 hover:bg-emerald-700"
-                    >
+                    <Button onClick={() => recordPayment.mutate()} disabled={recordPayment.isPending || !paymentAmount} className="w-full bg-emerald-600 hover:bg-emerald-700">
                       {recordPayment.isPending ? "Recording..." : "Record Payment"}
                     </Button>
                   </div>

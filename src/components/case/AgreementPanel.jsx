@@ -76,8 +76,6 @@ export default function AgreementPanel({ caseId, caseData }) {
     },
   });
 
-
-
   const defaultTemplate = templates.find((t) => t.is_default) || templates[0];
 
   return (
@@ -90,16 +88,15 @@ export default function AgreementPanel({ caseId, caseData }) {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Agreement Status */}
           {caseData.agreement_signed_at && (
-            <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg">
+            <div className="flex items-center justify-between p-4 bg-green-500/10 rounded-lg border border-green-500/30">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full flex items-center justify-center bg-green-100">
-                  <CheckCircle2 className="w-5 h-5 text-green-600" />
+                <div className="w-10 h-10 rounded-full flex items-center justify-center bg-green-500/15">
+                  <CheckCircle2 className="w-5 h-5 text-green-400" />
                 </div>
                 <div>
-                  <p className="font-medium text-green-900">Agreement Signed</p>
-                  <p className="text-sm text-green-700">
+                  <p className="font-medium text-green-400">Agreement Signed</p>
+                  <p className="text-sm text-green-400/70">
                     {format(new Date(caseData.agreement_signed_at), "MMM d, yyyy h:mm a")}
                   </p>
                 </div>
@@ -108,9 +105,9 @@ export default function AgreementPanel({ caseId, caseData }) {
           )}
 
           {/* Fee Editor */}
-          <div className="pt-4 border-t space-y-3">
+          <div className="pt-4 border-t border-slate-700 space-y-3">
             <div>
-              <Label className="text-sm text-slate-600">Finder Fee Percentage (10-30%)</Label>
+              <Label className="text-sm text-slate-400">Finder Fee Percentage (10-30%)</Label>
               <div className="flex items-center gap-3 mt-2">
                 <Input
                   type="number"
@@ -121,11 +118,7 @@ export default function AgreementPanel({ caseId, caseData }) {
                   onChange={(e) => {
                     const newFee = parseInt(e.target.value);
                     setLocalFee(newFee);
-                    
-                    if (updateTimeoutRef.current) {
-                      clearTimeout(updateTimeoutRef.current);
-                    }
-                    
+                    if (updateTimeoutRef.current) clearTimeout(updateTimeoutRef.current);
                     if (newFee >= 10 && newFee <= 30) {
                       updateTimeoutRef.current = setTimeout(async () => {
                         await base44.entities.Case.update(caseId, { fee_percent: newFee });
@@ -137,22 +130,18 @@ export default function AgreementPanel({ caseId, caseData }) {
                   disabled={caseData.fee_locked || caseData.agreement_status === "signed"}
                   className="w-24"
                 />
-                <span className="font-semibold">%</span>
+                <span className="font-semibold text-slate-100">%</span>
                 {(caseData.fee_locked || caseData.agreement_status === "signed") && (
-                  <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-300">
+                  <Badge variant="outline" className="bg-amber-500/10 text-amber-400 border-amber-500/40">
                     🔒 Locked
                   </Badge>
                 )}
               </div>
             </div>
-            <div className="flex items-center justify-between p-3 bg-emerald-50 rounded-lg">
-              <span className="text-sm text-slate-600">Fee Amount:</span>
-              <span className="font-bold text-emerald-600">
-                $
-                {(
-                  ((caseData.surplus_amount || 0) * localFee) /
-                  100
-                ).toLocaleString()}
+            <div className="flex items-center justify-between p-3 bg-emerald-500/10 rounded-lg border border-emerald-500/30">
+              <span className="text-sm text-slate-400">Fee Amount:</span>
+              <span className="font-bold text-emerald-400">
+                ${(((caseData.surplus_amount || 0) * localFee) / 100).toLocaleString()}
               </span>
             </div>
           </div>
@@ -168,14 +157,9 @@ export default function AgreementPanel({ caseId, caseData }) {
           <div className="space-y-4">
             <div>
               <Label>Agreement Template</Label>
-              <Select
-                value={selectedTemplateId}
-                onValueChange={setSelectedTemplateId}
-              >
+              <Select value={selectedTemplateId} onValueChange={setSelectedTemplateId}>
                 <SelectTrigger>
-                  <SelectValue
-                    placeholder={defaultTemplate ? defaultTemplate.name : "Select template"}
-                  />
+                  <SelectValue placeholder={defaultTemplate ? defaultTemplate.name : "Select template"} />
                 </SelectTrigger>
                 <SelectContent>
                   {templates.map((t) => (
@@ -187,7 +171,7 @@ export default function AgreementPanel({ caseId, caseData }) {
               </Select>
             </div>
 
-            <div className="p-3 bg-blue-50 rounded-lg text-sm text-blue-700">
+            <div className="p-3 bg-blue-500/10 rounded-lg text-sm text-blue-400 border border-blue-500/20">
               Agreement will be sent to: <strong>{caseData.owner_email || "No email on file"}</strong>
             </div>
 
@@ -226,11 +210,11 @@ export default function AgreementPanel({ caseId, caseData }) {
           </DialogHeader>
           {generatedAgreement && (
             <div className="space-y-4">
-              <pre className="whitespace-pre-wrap text-sm bg-slate-50 p-6 rounded-lg">
+              <pre className="whitespace-pre-wrap text-sm bg-slate-800/50 p-6 rounded-lg text-slate-300 border border-slate-700">
                 {generatedAgreement.agreement_text}
               </pre>
-              <div className="flex items-center justify-between p-3 bg-emerald-50 rounded-lg">
-                <span className="text-sm text-emerald-700">
+              <div className="flex items-center justify-between p-3 bg-emerald-500/10 rounded-lg border border-emerald-500/30">
+                <span className="text-sm text-emerald-400">
                   Fee: {caseData.fee_percent}% = ${generatedAgreement.fee_amount?.toLocaleString()}
                 </span>
                 {generatedAgreement.pdf_url && (

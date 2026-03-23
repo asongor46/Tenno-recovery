@@ -1,14 +1,10 @@
-// [NEW - PreCallAssistPanel]
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Phone, Users, CheckCircle2, AlertTriangle, BookOpen } from "lucide-react";
-import { Link } from "react-router-dom";
-import { createPageUrl } from "@/utils";
 
 export default function PreCallAssistPanel({ caseData, county, onOpenScript }) {
-  // Build pre-call checklist
   const checklist = [
     {
       label: "Case verified",
@@ -34,44 +30,45 @@ export default function PreCallAssistPanel({ caseData, county, onOpenScript }) {
   ];
 
   const riskFlags = caseData?.risk_flags || [];
+  const repAllowed = county?.allows_filing_on_behalf !== false;
 
   return (
-    <Card className="border-purple-200 bg-gradient-to-br from-purple-50 to-indigo-50">
+    <Card className="border-slate-700">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-lg">
-          🤖 AI Pre-Call Assistant
+          Pre-Call Checklist
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Case Summary */}
-        <div className="p-3 bg-white rounded-lg border">
-          <p className="text-sm font-semibold text-slate-900">
+        <div className="p-3 bg-slate-800/60 rounded-lg border border-slate-700">
+          <p className="text-sm font-semibold text-white">
             {caseData?.owner_name || "No owner name"}
           </p>
-          <p className="text-xs text-slate-600 mt-1">
+          <p className="text-xs text-slate-400 mt-1">
             {caseData?.property_address || "No property address"}
           </p>
-          <p className="text-sm font-bold text-emerald-600 mt-2">
+          <p className="text-sm font-bold text-emerald-400 mt-2">
             Surplus: ${caseData?.surplus_amount?.toLocaleString() || "0"}
           </p>
         </div>
 
         {/* Pre-Call Checklist */}
         <div>
-          <p className="text-sm font-semibold text-slate-900 mb-2">Before You Call:</p>
+          <p className="text-sm font-semibold text-slate-100 mb-2">Before You Call:</p>
           <div className="space-y-2">
             {checklist.map((item, i) => (
               <div key={i} className="flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2">
                   {item.completed ? (
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                   ) : (
-                    <AlertTriangle className="w-4 h-4 text-amber-600" />
+                    <AlertTriangle className="w-4 h-4 text-amber-400" />
                   )}
-                  <span className="text-slate-700">{item.label}</span>
+                  <span className="text-slate-300">{item.label}</span>
                 </div>
                 {item.showValue && (
-                  <Badge variant="outline" className="text-xs">
+                  <Badge variant="outline" className="text-xs border-slate-600 text-slate-300">
                     {item.status}
                   </Badge>
                 )}
@@ -82,7 +79,7 @@ export default function PreCallAssistPanel({ caseData, county, onOpenScript }) {
 
         {/* Suggested Actions */}
         <div>
-          <p className="text-sm font-semibold text-slate-900 mb-2">Suggested Actions:</p>
+          <p className="text-sm font-semibold text-slate-100 mb-2">Suggested Actions:</p>
           <div className="space-y-2">
             <Button 
               variant="outline" 
@@ -97,16 +94,13 @@ export default function PreCallAssistPanel({ caseData, county, onOpenScript }) {
               size="sm" 
               className="w-full justify-start"
               onClick={() => {
-                // Switch to homeowner tab by finding and clicking the tab trigger
                 setTimeout(() => {
                   const tabs = document.querySelectorAll('button[role="tab"]');
-                  const homeownerTab = Array.from(tabs).find(t => 
-                    t.getAttribute('value') === 'homeowner' || 
-                    t.textContent?.includes('Homeowner Info')
+                  const clientTab = Array.from(tabs).find(t => 
+                    t.getAttribute('value') === 'client' || 
+                    t.textContent?.includes('Client Info')
                   );
-                  if (homeownerTab) {
-                    homeownerTab.click();
-                  }
+                  if (clientTab) clientTab.click();
                 }, 100);
               }}
             >
@@ -117,35 +111,37 @@ export default function PreCallAssistPanel({ caseData, county, onOpenScript }) {
 
         {/* County Notes */}
         {county && (
-          <div className="p-3 bg-white rounded-lg border">
-            <p className="text-xs font-semibold text-slate-700 mb-2">
+          <div className="p-3 bg-slate-800/60 rounded-lg border border-slate-700">
+            <p className="text-xs font-semibold text-slate-300 mb-2">
               County Notes ({county.name}):
             </p>
-            <ul className="space-y-1 text-xs text-slate-600">
+            <ul className="space-y-1 text-xs">
               <li className="flex items-center gap-1">
-                {county.allows_filing_on_behalf ? (
-                  <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                {repAllowed ? (
+                  <CheckCircle2 className="w-3 h-3 text-emerald-400" />
                 ) : (
-                  <AlertTriangle className="w-3 h-3 text-red-600" />
+                  <AlertTriangle className="w-3 h-3 text-amber-400" />
                 )}
-                Representation {county.allows_filing_on_behalf ? "allowed" : "not allowed"}
+                <span className={repAllowed ? "text-emerald-400" : "text-amber-400"}>
+                  {repAllowed ? "Agent can file directly" : "Owner must file personally"}
+                </span>
               </li>
               {county.requires_notarized_authorization && (
                 <li className="flex items-center gap-1">
-                  <AlertTriangle className="w-3 h-3 text-amber-600" />
-                  Requires notarized authorization
+                  <AlertTriangle className="w-3 h-3 text-amber-400" />
+                  <span className="text-amber-400">Requires notarized authorization</span>
                 </li>
               )}
               {county.claim_deadline_days && (
                 <li className="flex items-center gap-1">
-                  <BookOpen className="w-3 h-3 text-blue-600" />
-                  {county.claim_deadline_days}-day claim deadline
+                  <BookOpen className="w-3 h-3 text-blue-400" />
+                  <span className="text-slate-300">{county.claim_deadline_days}-day claim deadline</span>
                 </li>
               )}
               {county.processing_timeline && (
                 <li className="flex items-center gap-1">
-                  <BookOpen className="w-3 h-3 text-slate-500" />
-                  Timeline: {county.processing_timeline}
+                  <BookOpen className="w-3 h-3 text-slate-400" />
+                  <span className="text-slate-400">Timeline: {county.processing_timeline}</span>
                 </li>
               )}
             </ul>
@@ -154,11 +150,11 @@ export default function PreCallAssistPanel({ caseData, county, onOpenScript }) {
 
         {/* Risk Flags */}
         {riskFlags.length > 0 && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-xs font-semibold text-red-900 mb-2">⚠️ Risk Flags:</p>
+          <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+            <p className="text-xs font-semibold text-red-400 mb-2">⚠️ Risk Flags:</p>
             <div className="space-y-1">
               {riskFlags.map((flag, i) => (
-                <p key={i} className="text-xs text-red-700">
+                <p key={i} className="text-xs text-red-400">
                   • {flag.replace(/_/g, " ")}
                 </p>
               ))}
