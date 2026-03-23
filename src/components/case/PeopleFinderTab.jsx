@@ -466,7 +466,7 @@ export default function PeopleFinderTab({ caseId, caseData }) {
               <div className="grid md:grid-cols-3 gap-4">
                 {/* High confidence */}
                 <div>
-                  <Badge className="bg-emerald-100 text-emerald-700 mb-2">HIGH CONFIDENCE</Badge>
+                  <Badge className="bg-emerald-500/15 text-emerald-400 mb-2">HIGH CONFIDENCE</Badge>
                   {primaryContacts.filter(c => c.confidence === "high").length > 0 ? (
                     <div className="space-y-2">
                       {primaryContacts.filter(c => c.confidence === "high").map(contact => (
@@ -485,7 +485,7 @@ export default function PeopleFinderTab({ caseId, caseData }) {
 
                 {/* Medium confidence */}
                 <div>
-                  <Badge className="bg-amber-100 text-amber-700 mb-2">MEDIUM CONFIDENCE</Badge>
+                  <Badge className="bg-amber-500/15 text-amber-400 mb-2">MEDIUM CONFIDENCE</Badge>
                   {primaryContacts.filter(c => c.confidence === "medium").length > 0 ? (
                     <div className="space-y-2">
                       {primaryContacts.filter(c => c.confidence === "medium").map(contact => (
@@ -503,7 +503,7 @@ export default function PeopleFinderTab({ caseId, caseData }) {
 
                 {/* Low confidence */}
                 <div>
-                  <Badge className="bg-slate-100 text-slate-700 mb-2">LOW CONFIDENCE</Badge>
+                  <Badge className="bg-slate-700 text-slate-300 mb-2">LOW CONFIDENCE</Badge>
                   {primaryContacts.filter(c => c.confidence === "low").length > 0 ? (
                     <div className="space-y-2">
                       {primaryContacts.filter(c => c.confidence === "low").map(contact => (
@@ -533,7 +533,7 @@ export default function PeopleFinderTab({ caseId, caseData }) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-slate-600 mb-4">
+          <p className="text-sm text-slate-400 mb-4">
             Click to open pre-filled search in a new tab. Review results and manually add any contacts you find.
           </p>
           <div className="grid md:grid-cols-3 gap-3">
@@ -592,12 +592,12 @@ export default function PeopleFinderTab({ caseId, caseData }) {
               )}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3 p-4 border-2 border-blue-300 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
+              className="flex items-center gap-3 p-4 border-2 border-blue-500/30 bg-blue-500/10 hover:bg-blue-500/20 rounded-lg transition-colors"
             >
-              <ExternalLink className="w-5 h-5 text-blue-700" />
+              <ExternalLink className="w-5 h-5 text-blue-400" />
               <div>
-                <p className="font-semibold text-sm text-blue-900">Facebook</p>
-                <p className="text-xs text-blue-700">Social media search</p>
+                <p className="font-semibold text-sm text-blue-400">Facebook</p>
+                <p className="text-xs text-blue-400/70">Social media search</p>
               </div>
             </a>
 
@@ -608,12 +608,12 @@ export default function PeopleFinderTab({ caseId, caseData }) {
               )}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3 p-4 border-2 border-blue-400 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
+              className="flex items-center gap-3 p-4 border-2 border-blue-500/30 bg-blue-500/10 hover:bg-blue-500/20 rounded-lg transition-colors"
             >
-              <ExternalLink className="w-5 h-5 text-blue-800" />
+              <ExternalLink className="w-5 h-5 text-blue-400" />
               <div>
-                <p className="font-semibold text-sm text-blue-900">LinkedIn</p>
-                <p className="text-xs text-blue-700">Professional network</p>
+                <p className="font-semibold text-sm text-blue-400">LinkedIn</p>
+                <p className="text-xs text-blue-400/70">Professional network</p>
               </div>
             </a>
 
@@ -863,26 +863,26 @@ export default function PeopleFinderTab({ caseId, caseData }) {
               )}
               
               {candidates.some(c => c.candidate_phones?.length === 0 && c.candidate_emails?.length === 0) && (
-                <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                  <AlertCircle className="w-4 h-4 text-amber-600 mt-0.5" />
-                  <div className="flex-1">
-                    <p className="font-medium text-sm text-amber-900">No contact information found</p>
-                    <p className="text-xs text-amber-700 mt-1">
-                      Unable to locate phone or email. Consider skip tracing or mail-only approach.
-                    </p>
-                  </div>
+                <div className="flex items-start gap-2 p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+                 <AlertCircle className="w-4 h-4 text-amber-400 mt-0.5" />
+                 <div className="flex-1">
+                   <p className="font-medium text-sm text-amber-400">No contact information found</p>
+                   <p className="text-xs text-amber-400/80 mt-1">
+                     Unable to locate phone or email. Consider skip tracing or mail-only approach.
+                   </p>
+                 </div>
                 </div>
               )}
               
               {candidates.every(c => c.confidence_level === "low") && (
-                <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                  <XCircle className="w-4 h-4 text-amber-600 mt-0.5" />
-                  <div className="flex-1">
-                    <p className="font-medium text-sm text-amber-900">Low confidence matches only</p>
-                    <p className="text-xs text-amber-700 mt-1">
-                      All candidates are low confidence. Verify identity before proceeding.
-                    </p>
-                  </div>
+                <div className="flex items-start gap-2 p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+                 <XCircle className="w-4 h-4 text-amber-400 mt-0.5" />
+                 <div className="flex-1">
+                   <p className="font-medium text-sm text-amber-400">Low confidence matches only</p>
+                   <p className="text-xs text-amber-400/80 mt-1">
+                     All candidates are low confidence. Verify identity before proceeding.
+                   </p>
+                 </div>
                 </div>
               )}
               
@@ -983,8 +983,8 @@ export default function PeopleFinderTab({ caseId, caseData }) {
               ) : (
                 <div className="space-y-3">
                   {contactAttempts.slice(0, 10).map((attempt) => (
-                    <div key={attempt.id} className="flex items-start gap-3 p-3 bg-white border rounded-lg">
-                      <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
+                    <div key={attempt.id} className="flex items-start gap-3 p-3 bg-slate-800 border border-slate-700 rounded-lg">
+                      <div className="w-8 h-8 rounded-full bg-purple-500/15 flex items-center justify-center flex-shrink-0">
                         {attempt.contact_method === "phone" && <Phone className="w-4 h-4 text-purple-600" />}
                         {attempt.contact_method === "email" && <Mail className="w-4 h-4 text-purple-600" />}
                         {attempt.contact_method === "text" && <MessageSquare className="w-4 h-4 text-purple-600" />}
@@ -1003,10 +1003,10 @@ export default function PeopleFinderTab({ caseId, caseData }) {
                             variant="outline"
                             className={
                               attempt.result === "spoke_to_owner" || attempt.result === "owner_interested"
-                                ? "bg-emerald-50 text-emerald-700 border-emerald-300"
+                                ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"
                                 : attempt.result === "wrong_number" || attempt.result === "disconnected"
-                                ? "bg-red-50 text-red-700 border-red-300"
-                                : "bg-slate-50 text-slate-700"
+                                ? "bg-red-500/10 text-red-400 border-red-500/30"
+                                : "bg-slate-700 text-slate-300 border-slate-600"
                             }
                           >
                             {attempt.result.replace(/_/g, " ")}
