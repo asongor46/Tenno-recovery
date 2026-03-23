@@ -5,6 +5,7 @@ import { Users, Briefcase, DollarSign, TrendingUp, UserCheck } from "lucide-reac
 import AdminLeadManagement from "@/components/admin/AdminLeadManagement";
 import AdminAnalytics from "@/components/admin/AdminAnalytics";
 import SlideshowManager from "@/components/admin/SlideshowManager";
+import AdminFormLibrary from "@/components/admin/AdminFormLibrary";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
@@ -177,6 +178,12 @@ export default function AdminDashboard() {
       <div>
         <h2 className="text-base font-semibold text-white mb-3">Manage Feature Slideshow</h2>
         <SlideshowManager />
+      </div>
+
+      {/* Form Library Management */}
+      <div>
+        <h2 className="text-base font-semibold text-white mb-3">Form Library</h2>
+        <AdminFormLibrary />
       </div>
 
       {/* Lead Management */}
