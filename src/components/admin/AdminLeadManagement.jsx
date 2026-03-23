@@ -102,6 +102,8 @@ export default function AdminLeadManagement() {
   const [editingId, setEditingId] = useState(null);
   const [editData, setEditData] = useState({});
   const [statusFilter, setStatusFilter] = useState("all");
+  const [cleanupThreshold, setCleanupThreshold] = useState(1000);
+  const [cleanupPreview, setCleanupPreview] = useState(null);
 
   const { data: leads = [], isLoading } = useQuery({
     queryKey: ["adminLeads"],
