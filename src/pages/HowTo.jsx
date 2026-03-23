@@ -42,7 +42,7 @@ import EmptyState from "@/components/shared/EmptyState";
 
 const categoryConfig = {
   surplus_basics: { label: "Surplus Basics", icon: GraduationCap, color: "bg-blue-500" },
-  contacting_homeowners: { label: "Contacting Homeowners", icon: Users, color: "bg-green-500" },
+  contacting_homeowners: { label: "Contacting Clients", icon: Users, color: "bg-green-500" },
   handling_objections: { label: "Handling Objections", icon: MessageCircle, color: "bg-orange-500" },
   notary_guidance: { label: "Notary Guidance", icon: Shield, color: "bg-purple-500" },
   filing_by_county: { label: "Filing by County", icon: Building2, color: "bg-indigo-500" },

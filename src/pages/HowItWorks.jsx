@@ -40,7 +40,7 @@ export default function HowItWorks() {
       icon: CheckCircle2,
       number: "04",
       title: "Collect Documents",
-      description: "Homeowners upload ID documents through the portal. Automated validation ensures everything is compliant before filing.",
+      description: "Clients upload ID documents through the portal. Automated validation ensures everything is compliant before filing.",
     },
     {
       icon: FileText,

@@ -32,7 +32,7 @@ const LOGO = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/
 const features = [
 { icon: FileText, title: "CRM + Pipeline", description: "Manage every case from import to payment. Manual stage control on Starter, auto-advance on Pro." },
 { icon: Map, title: "State Compliance Engine", description: "Fee caps, PI/attorney rules, waiting periods — all 50 states + DC. Tax sale vs. sheriff sale, broken out." },
-{ icon: Users, title: "Client Self-Serve Portal", description: "Pro plan: clients sign agreements, upload IDs, and complete notary entirely on their own." },
+{ icon: Users, title: "Client Self-Serve Portal", description: "Pro plan: clients sign agreements, upload IDs, and complete notarization entirely on their own." },
 { icon: Package, title: "Packet Builder", description: "Pro plan: generate county-specific filing packets with one click — affidavit-based or court-motion-based." },
 { icon: Zap, title: "Lead Import Tools", description: "Starter: manual entry + CSV. Pro: also PDF with AI extraction, screenshot, and URL paste." },
 { icon: Shield, title: "Secure by Default", description: "Row-level security — each agent sees only their own cases. Agents are completely invisible to each other." }];
@@ -73,7 +73,7 @@ const faqs = [
 },
 {
   question: "Is my data private from other agents?",
-  answer: "Yes — row-level security means each agent sees only their own cases and homeowners. Multiple agents can work the same lead independently (common in the industry) — they'll never see each other's data."
+  answer: "Yes — row-level security means each agent sees only their own cases and clients. Multiple agents can work the same lead independently (common in the industry) — they'll never see each other's data."
 }];
 
 
@@ -120,6 +120,11 @@ export default function LandingPage() {
                 </button>
                 <span className="text-xs text-slate-600 mt-0.5">New here? Get started above</span>
               </div>
+              <Link to="/Demo">
+                <Button variant="outline" size="sm" className="border-amber-500/50 text-amber-400 hover:bg-amber-500/10 h-8 text-xs">
+                  Try Demo →
+                </Button>
+              </Link>
               <Link to={createPageUrl("PortalLogin")}>
                 <Button variant="outline" size="sm" className="bg-background text-green-500 px-3 text-xs font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border shadow-sm hover:text-accent-foreground h-8 border-slate-600 hover:bg-slate-800">
                   Client Portal
@@ -231,7 +236,7 @@ export default function LandingPage() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl font-bold">How TENNO Compares</h2>
-            <p className="mt-3 text-slate-400">Our moat: Compliance engine + homeowner portal. Nobody else has either.</p>
+            <p className="mt-3 text-slate-400">Our moat: Compliance engine + client portal. Nobody else has either.</p>
           </div>
           <div className="overflow-x-auto rounded-2xl border border-slate-700">
             <table className="w-full text-sm">
