@@ -74,7 +74,7 @@ export default function AgentAssistPanel({ caseData }) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-purple-400">
           <MessageSquare className="w-5 h-5" />
-          Agent Assist
+          Call Script
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">

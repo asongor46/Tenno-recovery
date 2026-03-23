@@ -35,7 +35,7 @@ export default function PreCallAssistPanel({ caseData, county, onOpenScript }) {
   return (
     <Card className="border-slate-700">
       <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-lg">
+        <CardTitle className="flex items-center gap-2 text-base">
           Pre-Call Checklist
         </CardTitle>
       </CardHeader>

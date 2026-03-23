@@ -217,8 +217,7 @@ export default function AutoFilingPacketGenerator({ caseData, countyData }) {
         </div>
 
         <p className="text-xs text-slate-500">
-          Auto-fills all county-specific forms with case data, merges with your documents, 
-          and creates a complete filing-ready packet.
+          Auto-fills all county-specific forms with case data, merges with your documents, and creates a complete filing-ready packet.
         </p>
       </CardContent>
     </Card>
