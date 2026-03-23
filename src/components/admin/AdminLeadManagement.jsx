@@ -396,6 +396,10 @@ export default function AdminLeadManagement() {
           {/* Min surplus + batch defaults */}
           <div className="grid grid-cols-4 gap-3">
             <div>
+              <label className="text-xs text-slate-400">Min Surplus ($)</label>
+              <Input type="number" value={minSurplus} onChange={(e) => setMinSurplus(parseFloat(e.target.value) || 0)} placeholder="1000" className="mt-1 bg-slate-700 border-slate-600 text-sm" />
+            </div>
+            <div>
               <label className="text-xs text-slate-400">Default State</label>
               <Input value={batchState} onChange={(e) => setBatchState(e.target.value)} placeholder="PA" className="mt-1 bg-slate-700 border-slate-600 text-sm" />
             </div>
