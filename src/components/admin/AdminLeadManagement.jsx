@@ -590,6 +590,47 @@ export default function AdminLeadManagement() {
         </CardContent>
       </Card>
 
+      {/* Clean Up */}
+      <Card className="bg-slate-800 border-slate-700">
+        <CardHeader>
+          <CardTitle className="text-white text-sm flex items-center gap-2">🧹 Clean Up Leads</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="flex items-end gap-3 flex-wrap">
+            <div>
+              <label className="text-xs text-slate-400">Archive leads with surplus under</label>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-slate-400 text-sm">$</span>
+                <Input
+                  type="number"
+                  value={cleanupThreshold}
+                  onChange={(e) => { setCleanupThreshold(parseFloat(e.target.value) || 0); setCleanupPreview(null); }}
+                  className="w-28 bg-slate-700 border-slate-600 text-sm"
+                />
+              </div>
+            </div>
+            <Button variant="outline" className="border-slate-600 text-slate-300" onClick={handleCleanupPreview}>
+              Preview
+            </Button>
+            {cleanupPreview !== null && (
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-amber-400">{cleanupPreview} leads would be archived</span>
+                {cleanupPreview > 0 && (
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => window.confirm(`Archive ${cleanupPreview} leads under $${cleanupThreshold.toLocaleString()}?`) && handleArchiveLowValue()}
+                  >
+                    Archive Low-Value Leads
+                  </Button>
+                )}
+              </div>
+            )}
+          </div>
+          <p className="text-xs text-slate-500">Archived leads are hidden from agents but remain in the database.</p>
+        </CardContent>
+      </Card>
+
       {/* Lead Table */}
       <Card className="bg-slate-800 border-slate-700">
         <CardHeader className="flex flex-row items-center justify-between">
