@@ -306,6 +306,7 @@ export default function AgentOnboarding() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  <p className="text-slate-400 text-sm mb-2">The compliance engine warns you about state rules as you work. Understanding the basics now helps avoid surprises.</p>
                   <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl text-sm text-amber-200 space-y-2">
                     <p className="font-semibold">Before you begin, please acknowledge the following:</p>
                     <ul className="space-y-1.5 text-amber-300/90 list-disc list-inside">
@@ -328,11 +329,11 @@ export default function AgentOnboarding() {
                     </Label>
                   </div>
                   <div className="flex justify-between">
-                    <Button variant="outline" onClick={() => setStep(1)}>
+                    <Button variant="outline" onClick={() => setStep(2)}>
                       <ChevronLeft className="w-4 h-4 mr-1" /> Back
                     </Button>
                     <Button
-                      onClick={() => setStep(3)}
+                      onClick={() => setStep(4)}
                       className="bg-emerald-600 hover:bg-emerald-700"
                       disabled={!complianceAgreed}
                     >
