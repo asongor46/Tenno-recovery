@@ -94,7 +94,7 @@ export default function WarmLeadsPanel({ user, profile }) {
           <div className="text-center py-6">
             <Lock className="w-10 h-10 text-slate-600 mx-auto mb-3" />
             <p className="text-slate-300 font-semibold mb-1">
-              {thisWeekCount > 0 ? `${thisWeekCount} homeowner${thisWeekCount > 1 ? "s" : ""} requested help this week.` : "Homeowners searching for help."}
+              {thisWeekCount > 0 ? `${thisWeekCount} client${thisWeekCount > 1 ? "s" : ""} requested help this week.` : "Clients searching for help."}
             </p>
             <p className="text-slate-500 text-sm mb-5">Upgrade to Pro to claim warm leads and have cases pre-filled.</p>
             <Button className="bg-amber-500 hover:bg-amber-400 text-black font-bold">
@@ -112,7 +112,7 @@ export default function WarmLeadsPanel({ user, profile }) {
                   return (
                     <div key={claim.id} className="bg-orange-500/5 border border-orange-500/20 rounded-xl p-3 flex items-center justify-between gap-3">
                       <div>
-                        <p className="text-white text-sm font-semibold">{claim.homeowner_name}</p>
+                        <p className="text-white text-sm font-semibold">{claim.homeowner_name || claim.search_name}</p>
                         <div className="flex items-center gap-2 mt-0.5">
                           <DeadlineCountdown deadline={claim.contact_deadline} />
                           <span className="text-slate-500 text-xs">Contact to keep this lead</span>
@@ -153,7 +153,7 @@ export default function WarmLeadsPanel({ user, profile }) {
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
-                            <p className="text-white font-semibold text-sm">{claim.homeowner_name}</p>
+                            <p className="text-white font-semibold text-sm">{claim.homeowner_name || claim.search_name}</p>
                             <span className="text-slate-500 text-xs">{timeAgo}</span>
                           </div>
                           <p className="text-slate-400 text-xs mb-2">
@@ -215,6 +215,7 @@ export default function WarmLeadsPanel({ user, profile }) {
             <p className="text-xs text-slate-500 mt-4 text-center">
               Contact within 72 hours of claiming. Unclaimed leads return to the pool.
             </p>
+            
           </>
         )}
       </div>

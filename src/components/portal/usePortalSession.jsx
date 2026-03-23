@@ -17,7 +17,6 @@ export function usePortalSession() {
   }, []);
 
   const verifySession = async () => {
-    // Check both localStorage and sessionStorage
     let token = localStorage.getItem("portal_session_token");
     let userEmail = localStorage.getItem("portal_user_email");
     
@@ -26,37 +25,34 @@ export function usePortalSession() {
       userEmail = sessionStorage.getItem("portal_user_email");
     }
 
-    console.log("🔍 usePortalSession - Token found:", token ? "YES" : "NO");
-    console.log("🔍 usePortalSession - User email:", userEmail);
-
     if (!token) {
-      console.log("❌ No token found, setting unauthenticated");
       setIsAuthenticated(false);
       setIsLoading(false);
       return;
     }
 
+    // Check expiry client-side first
+    const sessionExpires = localStorage.getItem("portal_session_expires") || sessionStorage.getItem("portal_session_expires");
+    if (sessionExpires && new Date(sessionExpires) < new Date()) {
+      clearSession();
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      console.log("🔍 Verifying token with portalAuth...");
-      
       const { data } = await base44.functions.invoke("portalAuth", {
         action: "verify",
         session_token: token
       });
 
-      console.log("📦 portalAuth response:", data);
-
       if (data.success) {
-        console.log("✅ Verification successful!");
         setIsAuthenticated(true);
         setUser(data.user);
         setSessionToken(token);
       } else {
-        console.log("❌ Verification failed:", data.error);
         clearSession();
       }
     } catch (error) {
-      console.error("❌ portalAuth error:", error);
       clearSession();
     } finally {
       setIsLoading(false);

@@ -17,7 +17,7 @@ const SAFE_CASE_FIELDS = [
   'id_front_url', 'id_back_url', 'id_uploaded_at',
   'info_submitted_at', 'waiting_period_end', 'filed_at',
   'order_signed_date', 'paid_at', 'closed_at',
-  'portal_link', 'filing_status',
+  'portal_link', 'filing_status', 'agent_id',
   'updated_date', 'created_date',
 ];
 
@@ -55,7 +55,28 @@ Deno.serve(async (req) => {
       if (c[field] !== undefined) safe[field] = c[field];
     }
 
-    // 4. Fetch primary agreement document if any
+    // 4. Fetch agent company info for agreement display
+    let agentCompany = "Recovery Services";
+    let agentPhone = "";
+    let agentEmail = "";
+    if (c.agent_id) {
+      try {
+        const agentProfiles = await base44.asServiceRole.entities.AgentProfile.filter({ id: c.agent_id });
+        const agent = agentProfiles[0];
+        if (agent) {
+          agentCompany = agent.company_name || agentCompany;
+          agentPhone = agent.company_phone || "";
+          agentEmail = agent.company_email || "";
+        }
+      } catch (e) {
+        // non-fatal
+      }
+    }
+    safe.agent_company = agentCompany;
+    safe.agent_phone = agentPhone;
+    safe.agent_email = agentEmail;
+
+    // 5. Fetch primary agreement document if any
     const agreementDocs = await base44.asServiceRole.entities.Document.filter({
       case_id: c.id, category: 'agreement', is_primary: true,
     });

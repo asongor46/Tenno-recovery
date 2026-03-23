@@ -503,7 +503,7 @@ export default function Settings() {
               {agentProfile?.plan !== "pro" && (
                 <div className="p-4 border border-amber-500/30 rounded-xl bg-amber-500/10">
                   <p className="font-semibold text-amber-400 mb-1">Upgrade to Pro — $97/month</p>
-                  <p className="text-sm text-amber-400/80 mb-3">Unlock Packet Builder, Form Library, File Manager, AI imports, and the Homeowner Portal.</p>
+                  <p className="text-sm text-amber-400/80 mb-3">Unlock Packet Builder, Form Library, File Manager, AI imports, and the Client Portal.</p>
                   <Button className="bg-amber-500 hover:bg-amber-600 text-white" onClick={() => {
                     window.location.href = "https://buy.stripe.com/eVq5kD66Y3TOg5baHbdAk00";
                   }}>

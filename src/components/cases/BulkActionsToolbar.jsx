@@ -120,7 +120,7 @@ export default function BulkActionsToolbar({ selectedCases, onClearSelection }) 
       id: 'send_portal',
       label: 'Send Portal Links',
       icon: Mail,
-      description: 'Send portal access emails to homeowners',
+      description: 'Send portal access emails to clients',
       dangerous: false
     },
     {
@@ -158,13 +158,13 @@ export default function BulkActionsToolbar({ selectedCases, onClearSelection }) 
             exit={{ y: 100, opacity: 0 }}
             className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50"
           >
-            <div className="bg-white rounded-xl shadow-2xl border border-slate-200 p-4 min-w-[500px]">
+            <div className="bg-slate-800 rounded-xl shadow-2xl border border-slate-700 p-4 min-w-[500px]">
               {isProcessing ? (
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-semibold text-slate-900">{progress.action}</p>
-                      <p className="text-sm text-slate-500">
+                      <p className="font-semibold text-white">{progress.action}</p>
+                      <p className="text-sm text-slate-400">
                         Processing {progress.current} of {progress.total} cases...
                       </p>
                     </div>
@@ -195,8 +195,8 @@ export default function BulkActionsToolbar({ selectedCases, onClearSelection }) 
                     <Badge variant="secondary" className="text-base px-3 py-1">
                       {selectedCases.length} selected
                     </Badge>
-                    <div className="h-6 w-px bg-slate-200" />
-                    <p className="text-sm text-slate-600">Bulk Actions:</p>
+                    <div className="h-6 w-px bg-slate-600" />
+                    <p className="text-sm text-slate-300">Bulk Actions:</p>
                   </div>
 
                   <div className="flex items-center gap-2">
@@ -238,7 +238,7 @@ export default function BulkActionsToolbar({ selectedCases, onClearSelection }) 
                       </DropdownMenuContent>
                     </DropdownMenu>
 
-                    <div className="h-6 w-px bg-slate-200" />
+                    <div className="h-6 w-px bg-slate-600" />
 
                     <Button
                       variant="ghost"
