@@ -312,12 +312,32 @@ export default function AdminLeadManagement() {
   const filteredLeads = leads.filter((l) => {
     if (statusFilter === "claimed") return l.fund_status === "claimed";
     if (statusFilter === "flagged") return l.claim_flags >= 1;
+    if (statusFilter === "low_value") return l.is_low_value === true || (l.surplus_amount || 0) < 1000;
+    if (statusFilter === "archived") return l.fund_status === "archived";
     if (statusFilter === "stale") {
       const days = Math.floor((new Date() - new Date(l.uploaded_at || 0)) / (1000 * 60 * 60 * 24));
       return days >= 90;
     }
+    if (statusFilter === "all") return l.fund_status !== "archived";
     return true;
   });
+
+  const handleCleanupPreview = () => {
+    const count = leads.filter(l => (l.surplus_amount || 0) < cleanupThreshold && l.fund_status !== "archived").length;
+    setCleanupPreview(count);
+  };
+
+  const handleArchiveLowValue = async () => {
+    if (!cleanupPreview) return;
+    const toArchive = leads.filter(l => (l.surplus_amount || 0) < cleanupThreshold && l.fund_status !== "archived");
+    const CHUNK = 50;
+    for (let i = 0; i < toArchive.length; i += CHUNK) {
+      await Promise.all(toArchive.slice(i, i + CHUNK).map(l => base44.entities.Lead.update(l.id, { fund_status: "archived" })));
+    }
+    qc.invalidateQueries({ queryKey: ["adminLeads"] });
+    setCleanupPreview(null);
+    toast({ title: `Archived ${toArchive.length} low-value leads (under $${cleanupThreshold.toLocaleString()})` });
+  };
 
   const csvHeaders = csvData?.headers || [];
   const previewRows = importableRows.slice(0, 5);
