@@ -223,20 +223,25 @@ export default function CountyDetail() {
             </CardHeader>
             <CardContent>
               <div className="grid md:grid-cols-2 gap-6">
-                <div className="flex items-center justify-between p-4 bg-slate-800/50 rounded-xl">
-                  <span className="font-medium">Representative Filing</span>
-                  {county.rep_allowed ? (
-                    <Badge className="bg-green-500/10 text-green-400 gap-1">
-                      <CheckCircle className="w-3 h-3" /> Allowed
-                    </Badge>
-                  ) : (
-                    <Badge className="bg-red-500/10 text-red-400 gap-1">
-                      <XCircle className="w-3 h-3" /> Not Allowed
-                    </Badge>
+                <div className="flex flex-col gap-2 p-4 bg-slate-800/50 rounded-xl">
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium" title="Can an agent file the surplus claim directly with the county, or must the property owner file in person?">Agent Files Directly</span>
+                    {county.rep_allowed || county.allows_filing_on_behalf ? (
+                      <Badge className="bg-green-500/10 text-green-400 gap-1">
+                        <CheckCircle className="w-3 h-3" /> Yes — Agent can file
+                      </Badge>
+                    ) : (
+                      <Badge className="bg-red-500/10 text-red-400 gap-1">
+                        <XCircle className="w-3 h-3" /> Owner files personally
+                      </Badge>
+                    )}
+                  </div>
+                  {!county.rep_allowed && !county.allows_filing_on_behalf && (
+                    <p className="text-xs text-slate-400">Note: This county requires the property owner to file the claim personally. Your role is to prepare all documents, guide the owner through the process, and ensure all requirements are met. You still earn your fee per the agreement.</p>
                   )}
                 </div>
                 <div className="flex items-center justify-between p-4 bg-slate-800/50 rounded-xl">
-                  <span className="font-medium">Assignment Required</span>
+                  <span className="font-medium" title="Does the county accept an assignment agreement where the owner transfers their right to surplus to the agent?">Assignment of Rights</span>
                   {county.assignment_required ? (
                     <Badge className="bg-amber-500/10 text-amber-400 gap-1">
                       <CheckCircle className="w-3 h-3" /> Required
