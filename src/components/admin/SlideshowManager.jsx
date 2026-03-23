@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
@@ -9,10 +9,113 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus, Trash2, Upload, RefreshCw } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
+// Debounce helper
+function useDebounce(value, delay = 600) {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const t = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(t);
+  }, [value, delay]);
+  return debounced;
+}
+
+// Single slide row with local state so typing doesn't hit the API on every keystroke
+function SlideRow({ slide, onSaved, onDelete, onUpload, uploading }) {
+  const [title, setTitle] = useState(slide.title || "");
+  const [tag, setTag] = useState(slide.tag || "");
+  const [description, setDescription] = useState(slide.description || "");
+
+  const debouncedTitle = useDebounce(title);
+  const debouncedTag = useDebounce(tag);
+  const debouncedDescription = useDebounce(description);
+
+  const isFirstRender = useRef(true);
+
+  useEffect(() => {
+    if (isFirstRender.current) { isFirstRender.current = false; return; }
+    onSaved(slide.id, { title: debouncedTitle, tag: debouncedTag, description: debouncedDescription });
+  }, [debouncedTitle, debouncedTag, debouncedDescription]); // eslint-disable-line
+
+  return (
+    <div className="bg-slate-900/60 rounded-xl border border-slate-700 p-4 flex gap-4">
+      {/* Thumbnail */}
+      <div className="flex-shrink-0 w-24 h-16 rounded-lg overflow-hidden bg-slate-800 relative">
+        {slide.media_type === "video" ? (
+          <video src={slide.image_url} className="w-full h-full object-cover" muted />
+        ) : (
+          <img src={slide.image_url} alt={title} className="w-full h-full object-cover" />
+        )}
+        <label className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 hover:opacity-100 cursor-pointer transition-opacity">
+          {uploading ? (
+            <RefreshCw className="w-4 h-4 text-white animate-spin" />
+          ) : (
+            <Upload className="w-4 h-4 text-white" />
+          )}
+          <input
+            type="file"
+            accept="image/*,video/*"
+            className="hidden"
+            onChange={(e) => e.target.files[0] && onUpload(slide.id, e.target.files[0])}
+          />
+        </label>
+      </div>
+
+      {/* Fields */}
+      <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <Input
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Title"
+          className="bg-slate-800 border-slate-700 text-sm h-8"
+        />
+        <Input
+          value={tag}
+          onChange={(e) => setTag(e.target.value)}
+          placeholder="Tag"
+          className="bg-slate-800 border-slate-700 text-sm h-8"
+        />
+        <Input
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Description"
+          className="bg-slate-800 border-slate-700 text-sm h-8 sm:col-span-2"
+        />
+        <div className="flex items-center gap-3">
+          <Select
+            value={slide.media_type || "image"}
+            onValueChange={(v) => onSaved(slide.id, { media_type: v })}
+          >
+            <SelectTrigger className="h-7 w-24 text-xs bg-slate-800 border-slate-700">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="image">Image</SelectItem>
+              <SelectItem value="video">Video</SelectItem>
+            </SelectContent>
+          </Select>
+          <div className="flex items-center gap-1.5">
+            <Switch
+              checked={slide.is_active !== false}
+              onCheckedChange={(v) => onSaved(slide.id, { is_active: v })}
+            />
+            <span className="text-xs text-slate-400">{slide.is_active !== false ? "Active" : "Hidden"}</span>
+          </div>
+        </div>
+        <div className="flex items-center justify-between">
+          <Badge className="bg-slate-700 text-slate-300 border-0 text-xs">#{slide.slide_index}</Badge>
+          <button onClick={() => onDelete(slide.id)} className="text-slate-500 hover:text-red-400 transition-colors">
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function SlideshowManager() {
   const { toast } = useToast();
   const qc = useQueryClient();
-  const [uploading, setUploading] = useState(null); // slide id being uploaded
+  const [uploading, setUploading] = useState(null);
 
   const { data: slides = [], isLoading } = useQuery({
     queryKey: ["adminSlides"],
@@ -77,78 +180,14 @@ export default function SlideshowManager() {
 
       <div className="space-y-3">
         {slides.map((slide) => (
-          <div key={slide.id} className="bg-slate-900/60 rounded-xl border border-slate-700 p-4 flex gap-4">
-            {/* Thumbnail */}
-            <div className="flex-shrink-0 w-24 h-16 rounded-lg overflow-hidden bg-slate-800 relative">
-              {slide.media_type === "video" ? (
-                <video src={slide.image_url} className="w-full h-full object-cover" muted />
-              ) : (
-                <img src={slide.image_url} alt={slide.title} className="w-full h-full object-cover" />
-              )}
-              <label className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 hover:opacity-100 cursor-pointer transition-opacity">
-                {uploading === slide.id ? (
-                  <RefreshCw className="w-4 h-4 text-white animate-spin" />
-                ) : (
-                  <Upload className="w-4 h-4 text-white" />
-                )}
-                <input
-                  type="file"
-                  accept="image/*,video/*"
-                  className="hidden"
-                  onChange={(e) => e.target.files[0] && handleUpload(slide.id, e.target.files[0])}
-                />
-              </label>
-            </div>
-
-            {/* Fields */}
-            <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <Input
-                value={slide.title}
-                onChange={(e) => updateSlide(slide.id, { title: e.target.value })}
-                placeholder="Title"
-                className="bg-slate-800 border-slate-700 text-sm h-8"
-              />
-              <Input
-                value={slide.tag}
-                onChange={(e) => updateSlide(slide.id, { tag: e.target.value })}
-                placeholder="Tag"
-                className="bg-slate-800 border-slate-700 text-sm h-8"
-              />
-              <Input
-                value={slide.description}
-                onChange={(e) => updateSlide(slide.id, { description: e.target.value })}
-                placeholder="Description"
-                className="bg-slate-800 border-slate-700 text-sm h-8 sm:col-span-2"
-              />
-              <div className="flex items-center gap-3">
-                <Select
-                  value={slide.media_type || "image"}
-                  onValueChange={(v) => updateSlide(slide.id, { media_type: v })}
-                >
-                  <SelectTrigger className="h-7 w-24 text-xs bg-slate-800 border-slate-700">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="image">Image</SelectItem>
-                    <SelectItem value="video">Video</SelectItem>
-                  </SelectContent>
-                </Select>
-                <div className="flex items-center gap-1.5">
-                  <Switch
-                    checked={slide.is_active !== false}
-                    onCheckedChange={(v) => updateSlide(slide.id, { is_active: v })}
-                  />
-                  <span className="text-xs text-slate-400">{slide.is_active !== false ? "Active" : "Hidden"}</span>
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <Badge className="bg-slate-700 text-slate-300 border-0 text-xs">#{slide.slide_index}</Badge>
-                <button onClick={() => deleteSlide(slide.id)} className="text-slate-500 hover:text-red-400 transition-colors">
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          </div>
+          <SlideRow
+            key={slide.id}
+            slide={slide}
+            onSaved={updateSlide}
+            onDelete={deleteSlide}
+            onUpload={handleUpload}
+            uploading={uploading === slide.id}
+          />
         ))}
       </div>
 
