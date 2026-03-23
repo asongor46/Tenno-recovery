@@ -18,7 +18,9 @@ export default function FormLibrary() {
     queryFn: () => base44.entities.AgentProfile.filter({ email: currentUser.email }).then(r => r[0] || null),
     enabled: !!currentUser?.email,
   });
-  const isPro = currentUser?.role === "admin" || agentProfile?.plan === "pro";
+  const isAdmin = currentUser?.role === "admin";
+  const isPro = isAdmin || agentProfile?.plan === "pro";
+  const canUpload = isPro; // pro + admin can upload; starter gets read-only
   const [searchQuery, setSearchQuery] = useState("");
   const toast = useStandardToast();
   const queryClient = useQueryClient();
@@ -76,9 +78,7 @@ export default function FormLibrary() {
     other: "bg-slate-700 text-slate-400"
   };
 
-  if (!isPro && agentProfile !== undefined) {
-    return <ProUpgradePrompt feature="Form Library" onDismiss={() => window.history.back()} />;
-  }
+  // All agents can browse — only upload is gated
 
   return (
     <div className="space-y-6">
@@ -89,21 +89,29 @@ export default function FormLibrary() {
         </div>
         
         <div>
-          <input
-            type="file"
-            id="form-upload"
-            accept=".pdf"
-            onChange={handleFileUpload}
-            className="hidden"
-          />
-          <Button
-            onClick={() => document.getElementById('form-upload')?.click()}
-            disabled={uploadMutation.isPending}
-            className="bg-emerald-600 hover:bg-emerald-700"
-          >
-            <Upload className="w-4 h-4 mr-2" />
-            {uploadMutation.isPending ? 'Uploading...' : 'Upload Form'}
-          </Button>
+          {canUpload ? (
+            <>
+              <input
+                type="file"
+                id="form-upload"
+                accept=".pdf"
+                onChange={handleFileUpload}
+                className="hidden"
+              />
+              <Button
+                onClick={() => document.getElementById('form-upload')?.click()}
+                disabled={uploadMutation.isPending}
+                className="bg-emerald-600 hover:bg-emerald-700"
+              >
+                <Upload className="w-4 h-4 mr-2" />
+                {uploadMutation.isPending ? 'Uploading...' : 'Upload Form'}
+              </Button>
+            </>
+          ) : (
+            <span className="text-xs text-slate-400 bg-slate-800 border border-slate-700 px-3 py-2 rounded-lg">
+              🔒 Upgrade to Pro to upload forms
+            </span>
+          )}
         </div>
       </div>
 
