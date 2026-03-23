@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
@@ -71,10 +71,29 @@ export default function AgentApply() {
       setCheckoutPlan(selectedPlan);
       setShowCheckout(true);
     } catch (error) {
-      toast.error("Failed to start signup: " + error.message);
+      sessionStorage.setItem("tenno_signup_form", JSON.stringify({
+        full_name: formData.full_name,
+        phone: formData.phone,
+        company_name: formData.company_name,
+        plan: selectedPlan,
+      }));
+      base44.auth.redirectToLogin(createPageUrl("AgentApply"));
     }
     setIsSubmitting(false);
   };
+
+  useEffect(() => {
+    const saved = sessionStorage.getItem("tenno_signup_form");
+    if (saved) {
+      try {
+        const data = JSON.parse(saved);
+        setFormData(prev => ({ ...prev, ...data }));
+        if (data.plan) setSelectedPlan(data.plan);
+        setAgreedToTerms(true);
+        sessionStorage.removeItem("tenno_signup_form");
+      } catch {}
+    }
+  }, []);
 
   return (
     <div className="min-h-screen bg-slate-900">
@@ -154,6 +173,7 @@ export default function AgentApply() {
           <Card className="bg-slate-800 border-slate-700">
             <CardHeader>
               <CardTitle className="text-white">Your Details</CardTitle>
+              <p className="text-sm text-slate-400 mt-1">You'll create your account in the next step.</p>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-5">
