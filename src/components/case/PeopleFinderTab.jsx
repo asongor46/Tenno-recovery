@@ -47,9 +47,9 @@ import {
 import PDFIdentityPanel from "./PDFIdentityPanel"; // ADDED
 
 const confidenceColors = {
-  high: "bg-emerald-100 text-emerald-700 border-emerald-300",
-  medium: "bg-amber-100 text-amber-700 border-amber-300",
-  low: "bg-slate-100 text-slate-700 border-slate-300",
+  high: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
+  medium: "bg-amber-500/15 text-amber-400 border-amber-500/30",
+  low: "bg-slate-700 text-slate-300 border-slate-600",
 };
 
 const confidenceIcons = {
@@ -412,7 +412,7 @@ export default function PeopleFinderTab({ caseId, caseData }) {
     <div className="space-y-6">
       {/* PHASE 2 - SECTION B: Core Identity (Primary Person) */}
       {primaryPerson && (
-        <Card className="border-emerald-200 bg-emerald-50/20">
+        <Card className="border-emerald-500/30 bg-emerald-500/5">
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
               <UserCheck className="w-4 h-4 text-emerald-600" />
@@ -443,7 +443,7 @@ export default function PeopleFinderTab({ caseId, caseData }) {
             {/* Full name display */}
             <div className="pt-3 border-t">
               <Label className="text-xs text-slate-600">FULL NAME (DISPLAY)</Label>
-              <p className="text-2xl font-bold text-emerald-900">{primaryPerson.full_name}</p>
+              <p className="text-2xl font-bold text-emerald-400">{primaryPerson.full_name}</p>
             </div>
 
             {/* Aliases */}
@@ -544,12 +544,12 @@ export default function PeopleFinderTab({ caseId, caseData }) {
               )}&citystatezip=${encodeURIComponent(`${caseData.city || ''} ${caseData.state || ''}`)}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3 p-4 border-2 border-blue-200 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
+              className="flex items-center gap-3 p-4 border-2 border-blue-500/30 bg-blue-500/10 hover:bg-blue-500/20 rounded-lg transition-colors"
             >
               <ExternalLink className="w-5 h-5 text-blue-600" />
               <div>
-                <p className="font-semibold text-sm text-blue-900">TruePeopleSearch</p>
-                <p className="text-xs text-blue-700">Free phone & address lookup</p>
+                <p className="font-semibold text-sm text-blue-400">TruePeopleSearch</p>
+                <p className="text-xs text-blue-400/70">Free phone & address lookup</p>
               </div>
             </a>
 
@@ -560,12 +560,12 @@ export default function PeopleFinderTab({ caseId, caseData }) {
               )}_${encodeURIComponent(`${caseData.city || ''}-${caseData.state || ''}`)}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3 p-4 border-2 border-purple-200 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors"
+              className="flex items-center gap-3 p-4 border-2 border-purple-500/30 bg-purple-500/10 hover:bg-purple-500/20 rounded-lg transition-colors"
             >
               <ExternalLink className="w-5 h-5 text-purple-600" />
               <div>
-                <p className="font-semibold text-sm text-purple-900">FastPeopleSearch</p>
-                <p className="text-xs text-purple-700">Alternative free search</p>
+                <p className="font-semibold text-sm text-purple-400">FastPeopleSearch</p>
+                <p className="text-xs text-purple-400/70">Alternative free search</p>
               </div>
             </a>
 
@@ -576,12 +576,12 @@ export default function PeopleFinderTab({ caseId, caseData }) {
               )}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3 p-4 border-2 border-slate-200 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors"
+              className="flex items-center gap-3 p-4 border-2 border-slate-600 bg-slate-800/50 hover:bg-slate-700/50 rounded-lg transition-colors"
             >
               <Search className="w-5 h-5 text-slate-600" />
               <div>
-                <p className="font-semibold text-sm text-slate-900">Google Search</p>
-                <p className="text-xs text-slate-700">General web search</p>
+                <p className="font-semibold text-sm text-slate-100">Google Search</p>
+                <p className="text-xs text-slate-400">General web search</p>
               </div>
             </a>
 
@@ -625,12 +625,12 @@ export default function PeopleFinderTab({ caseId, caseData }) {
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-3 p-4 border-2 border-green-200 bg-green-50 hover:bg-green-100 rounded-lg transition-colors"
+                className="flex items-center gap-3 p-4 border-2 border-green-500/30 bg-green-500/10 hover:bg-green-500/20 rounded-lg transition-colors"
               >
                 <Home className="w-5 h-5 text-green-600" />
                 <div>
-                  <p className="font-semibold text-sm text-green-900">WhitePages</p>
-                  <p className="text-xs text-green-700">Address-based search</p>
+                  <p className="font-semibold text-sm text-green-400">WhitePages</p>
+                  <p className="text-xs text-green-400/70">Address-based search</p>
                 </div>
               </a>
             )}
@@ -670,9 +670,9 @@ export default function PeopleFinderTab({ caseId, caseData }) {
                   <div 
                     key={candidate.id} 
                     className={`border-2 rounded-xl p-5 ${
-                      isHighConf ? "border-emerald-300 bg-emerald-50/30" :
-                      isMediumConf ? "border-amber-300 bg-amber-50/30" :
-                      "border-slate-200 bg-slate-50/30"
+                      isHighConf ? "border-emerald-500/40 bg-emerald-500/5" :
+                         isMediumConf ? "border-amber-500/40 bg-amber-500/5" :
+                         "border-slate-600 bg-slate-800/50"
                     }`}
                   >
                     {/* ADDED: Header with confidence and score */}
@@ -828,7 +828,7 @@ export default function PeopleFinderTab({ caseId, caseData }) {
 
       {/* SECTION F: Identity Reasoning & Warnings - NEW */}
       {candidates.length > 0 && (
-        <Card className="border-amber-200 bg-amber-50/20">
+        <Card className="border-amber-500/30 bg-amber-500/5">
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 text-amber-600" />
@@ -839,11 +839,11 @@ export default function PeopleFinderTab({ caseId, caseData }) {
             <div className="space-y-3">
               {/* ADDED: Dynamic warnings based on candidates */}
               {candidates.some(c => c.raw_source_data?.deceased_indicator) && (
-                <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+                <div className="flex items-start gap-2 p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
                   <AlertTriangle className="w-4 h-4 text-red-600 mt-0.5" />
                   <div className="flex-1">
-                    <p className="font-medium text-sm text-red-900">Possible deceased owner</p>
-                    <p className="text-xs text-red-700 mt-1">
+                    <p className="font-medium text-sm text-red-400">Possible deceased owner</p>
+                    <p className="text-xs text-red-400/70 mt-1">
                       Obituary or death record found. May require probate/estate handling.
                     </p>
                   </div>
@@ -851,11 +851,11 @@ export default function PeopleFinderTab({ caseId, caseData }) {
               )}
               
               {candidates.filter(c => c.confidence_level === "high").length > 1 && (
-                <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                  <AlertTriangle className="w-4 h-4 text-amber-600 mt-0.5" />
+                <div className="flex items-start gap-2 p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+                  <AlertTriangle className="w-4 h-4 text-amber-400 mt-0.5" />
                   <div className="flex-1">
-                    <p className="font-medium text-sm text-amber-900">Multiple high-confidence matches</p>
-                    <p className="text-xs text-amber-700 mt-1">
+                    <p className="font-medium text-sm text-amber-400">Multiple high-confidence matches</p>
+                    <p className="text-xs text-amber-400/70 mt-1">
                       Found multiple strong candidates. May indicate co-owners or similar names.
                     </p>
                   </div>
@@ -909,7 +909,7 @@ export default function PeopleFinderTab({ caseId, caseData }) {
 
       {/* PHASE 3 - Communication Panel */}
       {primaryPersonLink?.person_id && (
-        <Card className="border-purple-200 bg-purple-50/20">
+        <Card className="border-purple-500/30 bg-purple-500/5">
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
               <Phone className="w-4 h-4 text-purple-600" />
@@ -1231,8 +1231,8 @@ export default function PeopleFinderTab({ caseId, caseData }) {
                   <div className="space-y-2">
                     {selectedCandidate.candidate_phones?.length > 0 ? (
                       selectedCandidate.candidate_phones.map((phone, i) => (
-                        <div key={i} className="p-2 bg-slate-50 rounded text-sm">
-                          {phone}
+                        <div key={i} className="p-2 bg-slate-800 rounded text-sm text-slate-300">
+                        {phone}
                         </div>
                       ))
                     ) : (
@@ -1247,8 +1247,8 @@ export default function PeopleFinderTab({ caseId, caseData }) {
                   <div className="space-y-2">
                     {selectedCandidate.candidate_emails?.length > 0 ? (
                       selectedCandidate.candidate_emails.map((email, i) => (
-                        <div key={i} className="p-2 bg-slate-50 rounded text-sm">
-                          {email}
+                        <div key={i} className="p-2 bg-slate-800 rounded text-sm text-slate-300">
+                        {email}
                         </div>
                       ))
                     ) : (
@@ -1266,9 +1266,9 @@ export default function PeopleFinderTab({ caseId, caseData }) {
                 <div className="space-y-2">
                   {selectedCandidate.candidate_addresses?.length > 0 ? (
                     selectedCandidate.candidate_addresses.map((addr, i) => (
-                      <div key={i} className="p-2 bg-slate-50 rounded text-sm">
-                        {addr}
-                      </div>
+                    <div key={i} className="p-2 bg-slate-800 rounded text-sm text-slate-300">
+                      {addr}
+                    </div>
                     ))
                   ) : (
                     <p className="text-sm text-slate-400">None found</p>
@@ -1335,7 +1335,7 @@ function InternalConnectionsPanel({ personId, currentCaseId }) {
   if (otherCases.length === 0) return null;
 
   return (
-    <Card className="border-blue-200 bg-blue-50/20">
+    <Card className="border-blue-500/30 bg-blue-500/5">
       <CardHeader>
         <CardTitle className="text-base flex items-center gap-2">
           <Briefcase className="w-4 h-4 text-blue-600" />
@@ -1343,12 +1343,12 @@ function InternalConnectionsPanel({ personId, currentCaseId }) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <p className="text-sm text-blue-900 mb-3">
+        <p className="text-sm text-blue-400 mb-3">
           This owner appears in <strong>{otherCases.length}</strong> other case(s) in your system:
         </p>
         <div className="space-y-2">
           {otherCases.map(caseItem => (
-            <div key={caseItem.id} className="flex items-center justify-between p-3 bg-white border rounded-lg">
+            <div key={caseItem.id} className="flex items-center justify-between p-3 bg-slate-800 border border-slate-700 rounded-lg">
               <div className="flex items-center gap-3">
                 <FileText className="w-4 h-4 text-slate-400" />
                 <div>
@@ -1389,10 +1389,10 @@ function LinkedPersonCard({ link }) {
   const emails = contacts.filter(c => c.type === "email");
 
   return (
-    <div className="p-4 border rounded-lg bg-white">
+    <div className="p-4 border border-slate-700 rounded-lg bg-slate-800">
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
+          <div className="w-10 h-10 bg-emerald-500/15 rounded-full flex items-center justify-center">
             <User className="w-5 h-5 text-emerald-600" />
           </div>
           <div>
