@@ -250,11 +250,14 @@ export default function AdminLeadManagement() {
 
     const today = new Date().toISOString().split("T")[0];
     let skippedCorp = 0;
+    let skippedLowValue = 0;
     const leadsToCreate = [];
 
     for (const lead of resolvedRows) {
       if (!lead.owner_name) continue;
       if (!includeCorporate && isCorporateEntity(lead.owner_name)) { skippedCorp++; continue; }
+      const isLow = lead.surplus_amount < minSurplus;
+      if (!includeLowValue && isLow) { skippedLowValue++; continue; }
       leadsToCreate.push({
         ...lead,
         fund_status: "active", claim_flags: 0, times_imported: 0,
