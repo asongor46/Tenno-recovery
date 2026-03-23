@@ -240,19 +240,31 @@ export default function AdminLeadManagement() {
     if (!importableRows.length) return;
     setUploading(true);
     setImportResult(null);
-    let success = 0;
+
+    const today = new Date().toISOString().split("T")[0];
     let skippedCorp = 0;
+    const leadsToCreate = [];
+
     for (const lead of resolvedRows) {
       if (!lead.owner_name) continue;
       if (!includeCorporate && isCorporateEntity(lead.owner_name)) { skippedCorp++; continue; }
-      await base44.entities.Lead.create({
+      leadsToCreate.push({
         ...lead,
         fund_status: "active", claim_flags: 0, times_imported: 0,
-        uploaded_at: new Date().toISOString().split("T")[0],
+        uploaded_at: today,
         uploaded_by: "system",
       });
-      success++;
     }
+
+    // Bulk create in chunks of 100 to avoid payload limits
+    const CHUNK_SIZE = 100;
+    let success = 0;
+    for (let i = 0; i < leadsToCreate.length; i += CHUNK_SIZE) {
+      const chunk = leadsToCreate.slice(i, i + CHUNK_SIZE);
+      await base44.entities.Lead.bulkCreate(chunk);
+      success += chunk.length;
+    }
+
     setUploading(false);
     setCsvData(null);
     setColumnMap({});
