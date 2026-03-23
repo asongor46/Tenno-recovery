@@ -239,7 +239,7 @@ export default function PortalAgreement() {
                 <h2 className="font-bold text-lg mb-4">SURPLUS RECOVERY SERVICE AGREEMENT</h2>
                 
                 <p className="mb-4">
-                  This Agreement is entered into by and between Tenno Recovery ("Company") and the property owner 
+                  This Agreement is entered into by and between {caseData?.agent_company || "Recovery Services"} ("Company") and the property owner 
                   identified below ("Client") regarding surplus funds recovery services.
                 </p>
 

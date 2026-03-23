@@ -206,7 +206,7 @@ export default function PortalInfo() {
           animate={{ opacity: 1, y: 0 }}
         >
           <Link to={createPageUrl("PortalDashboard")}>
-            <Button variant="ghost" className="mb-4 text-slate-300 hover:text-white hover:bg-slate-800">
+            <Button variant="ghost" className="mb-4">
               <ArrowLeft className="w-4 h-4 mr-2" /> Back to Dashboard
             </Button>
           </Link>

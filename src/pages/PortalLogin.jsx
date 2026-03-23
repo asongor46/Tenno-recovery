@@ -75,7 +75,6 @@ export default function PortalLogin() {
         setError(data?.error || "Invalid email or access code");
       }
     } catch (err) {
-      console.error("Access code validation error:", err);
       setError("An error occurred. Please try again.");
     } finally {
       setIsLoading(false);
@@ -117,7 +116,6 @@ export default function PortalLogin() {
         setError(data.error || "Account creation failed");
       }
     } catch (err) {
-      console.error("❌ Password setup error:", err);
       setError("An error occurred. Please try again.");
     } finally {
       setIsLoading(false);
@@ -150,7 +148,6 @@ export default function PortalLogin() {
         setError(data.error || "Login failed");
       }
     } catch (err) {
-      console.error("❌ Login error:", err);
       setError("An error occurred. Please try again.");
     } finally {
       setIsLoading(false);
@@ -195,7 +192,7 @@ export default function PortalLogin() {
             </div>
 
             {error && (
-              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm">
                 {error}
               </div>
             )}
@@ -328,7 +325,7 @@ export default function PortalLogin() {
 
             <form onSubmit={handlePasswordSetup} className="space-y-4 mt-4">
               {error && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm">
                   {error}
                 </div>
               )}
