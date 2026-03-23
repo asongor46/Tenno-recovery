@@ -640,9 +640,11 @@ export default function AdminLeadManagement() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="all">Active</SelectItem>
               <SelectItem value="claimed">Claimed</SelectItem>
               <SelectItem value="flagged">Flagged</SelectItem>
+              <SelectItem value="low_value">Low Value</SelectItem>
+              <SelectItem value="archived">Archived</SelectItem>
               <SelectItem value="stale">Stale 90d+</SelectItem>
             </SelectContent>
           </Select>
