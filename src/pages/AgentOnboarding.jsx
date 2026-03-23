@@ -246,7 +246,10 @@ export default function AgentOnboarding() {
                       />
                     </div>
                   </div>
-                  <div className="flex justify-end pt-2">
+                  <div className="flex justify-between pt-2">
+                    <Button variant="outline" onClick={() => setStep(0)}>
+                      <ChevronLeft className="w-4 h-4 mr-1" /> Back
+                    </Button>
                     <Button onClick={handleSaveCompany} className="bg-emerald-600 hover:bg-emerald-700" disabled={updateProfileMutation.isPending}>
                       Save & Continue <ChevronRight className="w-4 h-4 ml-1" />
                     </Button>
@@ -255,8 +258,8 @@ export default function AgentOnboarding() {
               </Card>
             )}
 
-            {/* Step 1: Select States */}
-            {step === 1 && (
+            {/* Step 2: Select States */}
+            {step === 2 && (
               <Card className="bg-slate-800 border-slate-700">
                 <CardHeader>
                   <CardTitle className="text-white flex items-center gap-2">
@@ -264,7 +267,7 @@ export default function AgentOnboarding() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-slate-400 text-sm mb-4">Select the states where you'll be working cases. You can update this anytime in Settings.</p>
+                  <p className="text-slate-400 text-sm mb-2">Start with your home state. You can add more anytime in Settings. Each state has different fee caps and requirements — the compliance engine will warn you.</p>
                   <div className="grid grid-cols-6 sm:grid-cols-8 gap-2 mb-6">
                     {US_STATES.map(s => (
                       <button
