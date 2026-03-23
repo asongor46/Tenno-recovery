@@ -286,9 +286,15 @@ export default function AdminLeadManagement() {
     if (success === 0) {
       setImportResult({ type: "warn", message: `0 leads imported. Check your column mapping — no rows had a valid Owner Name.` });
     } else {
+      const parts = [];
+      if (skippedCorp > 0) parts.push(`${skippedCorp} corporate entities`);
+      if (skippedLowValue > 0) parts.push(`${skippedLowValue} low-value leads (under $${minSurplus.toLocaleString()})`);
+      const skippedMsg = parts.length ? ` Skipped ${parts.join(" and ")}.` : "";
+      const lowFlaggedCount = leadsToCreate.filter(l => l.is_low_value).length;
+      const flaggedMsg = includeLowValue && lowFlaggedCount > 0 ? ` ${lowFlaggedCount} flagged as low-value.` : "";
       setImportResult({
         type: "success",
-        message: `Imported ${success} leads from ${batchCounty || "batch"}, ${batchState || ""}${skippedCorp > 0 ? `. Skipped ${skippedCorp} corporate entities (LLC, Inc, etc.)` : ""}`,
+        message: `Imported ${success} leads from ${batchCounty || "batch"}, ${batchState || ""}.${skippedMsg}${flaggedMsg}`,
       });
     }
   };
