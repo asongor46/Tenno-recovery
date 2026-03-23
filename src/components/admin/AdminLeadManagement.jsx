@@ -260,6 +260,7 @@ export default function AdminLeadManagement() {
       if (!includeLowValue && isLow) { skippedLowValue++; continue; }
       leadsToCreate.push({
         ...lead,
+        is_low_value: lead.surplus_amount < minSurplus,
         fund_status: "active", claim_flags: 0, times_imported: 0,
         uploaded_at: today,
         uploaded_by: "system",
