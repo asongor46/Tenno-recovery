@@ -155,7 +155,7 @@ export default function OrderTreasurerPanel({ caseId, caseData }) {
               {caseData.order_filed ? (
                 <CheckCircle2 className="w-5 h-5 text-green-500" />
               ) : (
-                <Circle className="w-5 h-5 text-slate-300" />
+                <Circle className="w-5 h-5 text-slate-500" />
               )}
               <span className="font-medium">Proposed Order Filed</span>
             </div>
@@ -180,7 +180,7 @@ export default function OrderTreasurerPanel({ caseId, caseData }) {
               {caseData.order_signed ? (
                 <CheckCircle2 className="w-5 h-5 text-green-500" />
               ) : (
-                <Circle className="w-5 h-5 text-slate-300" />
+                <Circle className="w-5 h-5 text-slate-500" />
               )}
               <span className="font-medium">Order Signed by Judge</span>
             </div>
@@ -211,7 +211,7 @@ export default function OrderTreasurerPanel({ caseId, caseData }) {
                   {caseData.treasurer_submission_date ? (
                     <CheckCircle2 className="w-5 h-5 text-green-500" />
                   ) : (
-                    <Circle className="w-5 h-5 text-slate-300" />
+                    <Circle className="w-5 h-5 text-slate-500" />
                   )}
                   <span className="font-medium">Submitted to Treasurer</span>
                 </div>
@@ -237,7 +237,7 @@ export default function OrderTreasurerPanel({ caseId, caseData }) {
                   {caseData.treasurer_payment_received ? (
                     <CheckCircle2 className="w-5 h-5 text-green-500" />
                   ) : (
-                    <Circle className="w-5 h-5 text-slate-300" />
+                    <Circle className="w-5 h-5 text-slate-500" />
                   )}
                   <span className="font-medium">Payment Received</span>
                 </div>
