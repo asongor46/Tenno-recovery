@@ -493,7 +493,10 @@ export default function AdminLeadManagement() {
                 <span className="text-emerald-400 font-medium">{namedRows.length}</span> have owner names.{" "}
                 {skippedNoName > 0 && <span className="text-red-400">{skippedNoName} skipped (no name). </span>}
                 {!includeCorporate && corporateRows.length > 0 && (
-                  <span className="text-amber-400">{corporateRows.length} corporate entities will be filtered out. </span>
+                  <span className="text-amber-400">{corporateRows.length} corporate entities filtered. </span>
+                )}
+                {!includeLowValue && lowValueRows.length > 0 && (
+                  <span className="text-amber-400">{lowValueRows.length} low-value (under ${minSurplus.toLocaleString()}) filtered. </span>
                 )}
                 <span className="text-emerald-300 font-semibold">{importableRows.length} will be imported.</span>
               </p>
