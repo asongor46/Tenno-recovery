@@ -456,16 +456,17 @@ export default function AdminLeadManagement() {
                 ))}
               </div>
 
-              {/* Corporate filter toggle */}
-              <label className="flex items-center gap-2 text-xs text-slate-400 cursor-pointer mt-1">
-                <input
-                  type="checkbox"
-                  checked={includeCorporate}
-                  onChange={(e) => setIncludeCorporate(e.target.checked)}
-                  className="accent-emerald-500"
-                />
-                Include corporate entities (LLC, Inc, Corp, etc.)
-              </label>
+              {/* Filters */}
+              <div className="flex flex-wrap gap-4">
+                <label className="flex items-center gap-2 text-xs text-slate-400 cursor-pointer">
+                  <input type="checkbox" checked={includeCorporate} onChange={(e) => setIncludeCorporate(e.target.checked)} className="accent-emerald-500" />
+                  Include corporate entities (LLC, Inc, Corp, etc.)
+                </label>
+                <label className="flex items-center gap-2 text-xs text-slate-400 cursor-pointer">
+                  <input type="checkbox" checked={includeLowValue} onChange={(e) => setIncludeLowValue(e.target.checked)} className="accent-emerald-500" />
+                  Include low-value leads (flagged)
+                </label>
+              </div>
 
               {/* Row stats */}
               <p className="text-xs text-slate-400">
