@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { CheckCircle, PartyPopper, Clock, Phone, Mail } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import PortalAuthGuard from "@/components/portal/PortalAuthGuard";
+import TennoLogo from "@/components/shared/TennoLogo";
 
 export default function PortalComplete() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -47,10 +48,7 @@ export default function PortalComplete() {
         <div className="max-w-3xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-xl flex items-center justify-center">
-                <span className="text-white font-bold text-lg">T</span>
-              </div>
-              <span className="font-semibold text-xl text-slate-900">TENNO RECOVERY</span>
+              <TennoLogo size="md" light />
             </div>
             <div className="flex items-center gap-1">
               {[1, 2, 3].map((step) => (

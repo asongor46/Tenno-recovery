@@ -17,6 +17,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { createPageUrl } from "@/utils";
+import TennoLogo from "@/components/shared/TennoLogo";
 
 async function hashPassword(password) {
   const encoder = new TextEncoder();
