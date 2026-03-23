@@ -79,7 +79,7 @@ export default function ContactLogger({ caseId, caseData }) {
       if (data.outcome === "call_back" && data.follow_up_date) {
         await base44.entities.Todo.create({
           case_id: caseId,
-          title: `Call back ${caseData?.owner_name || "client"}`,
+          title: `Follow up: ${caseData?.owner_name || "client"}`,
           description: data.notes || "Follow-up call",
           due_date: data.follow_up_date,
           priority: "high",

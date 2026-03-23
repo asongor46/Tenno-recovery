@@ -585,7 +585,7 @@ export default function CaseDetail() {
               {/* [MODIFIED - Portal Invite] */}
             <Card>
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Homeowner Information</CardTitle>
+              <CardTitle>Client Information</CardTitle>
               <Button 
                 variant="outline" 
                 size="sm"

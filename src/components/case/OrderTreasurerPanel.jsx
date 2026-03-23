@@ -257,8 +257,8 @@ export default function OrderTreasurerPanel({ caseId, caseData }) {
                   <div className="text-sm text-slate-500">
                     Received: {format(new Date(caseData.treasurer_payment_received), "MMM d, yyyy")}
                   </div>
-                  <Badge className="bg-emerald-100 text-emerald-700 mt-2">
-                    Ready to Invoice Homeowner
+                  <Badge className="bg-emerald-500/10 text-emerald-400 mt-2 border-0">
+                    Ready to Invoice Client
                   </Badge>
                 </div>
               )}
