@@ -152,8 +152,8 @@ export default function Counties() {
               <TableRow className="bg-slate-900/50 border-slate-700">
                 <TableHead className="font-semibold text-slate-300">County</TableHead>
                 <TableHead className="font-semibold text-slate-300">State</TableHead>
-                <TableHead className="font-semibold text-center text-slate-300">Rep Allowed</TableHead>
-                <TableHead className="font-semibold text-center text-slate-300">Assignment</TableHead>
+                <TableHead className="font-semibold text-center text-slate-300" title="Can an agent file the surplus claim directly with the county, or must the property owner file in person? If No, the agent prepares all documents and the owner submits them.">Agent Files Directly</TableHead>
+                <TableHead className="font-semibold text-center text-slate-300" title="Does the county accept an assignment agreement where the owner transfers their right to surplus to the agent?">Assignment of Rights</TableHead>
                 <TableHead className="font-semibold text-center text-slate-300">Notary Required</TableHead>
                 <TableHead className="font-semibold text-slate-300">Notary Type</TableHead>
                 <TableHead className="font-semibold text-slate-300">Filing Method</TableHead>

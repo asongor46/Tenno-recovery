@@ -94,6 +94,8 @@ export default function AdminLeadManagement() {
   const [batchCounty, setBatchCounty] = useState("");
   const [batchType, setBatchType] = useState("tax_sale");
   const [includeCorporate, setIncludeCorporate] = useState(false);
+  const [minSurplus, setMinSurplus] = useState(1000);
+  const [includeLowValue, setIncludeLowValue] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [pdfStatus, setPdfStatus] = useState("");
   const [importResult, setImportResult] = useState(null);
