@@ -245,6 +245,16 @@ export default function NewCaseForm({ counties, onSuccess }) {
         </div>
       </div>
 
+      {/* Low-value warning */}
+      {formData.surplus_amount && parseFloat(formData.surplus_amount) > 0 && parseFloat(formData.surplus_amount) < 1000 && (
+        <div className="flex items-start gap-2 bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 text-sm text-amber-700">
+          <AlertCircle className="w-4 h-4 mt-0.5 shrink-0 text-amber-500" />
+          <span>
+            This case has a surplus of ${parseFloat(formData.surplus_amount).toLocaleString()}. At {formData.fee_percent}% fee, your earnings would be ~${(parseFloat(formData.surplus_amount) * formData.fee_percent / 100).toFixed(0)}. Low-value cases may not justify the filing effort.
+          </span>
+        </div>
+      )}
+
       {/* Compliance Banner */}
       {stateCompliance && formData.surplus_type && (
         <div className={`p-4 rounded-lg border-2 ${
