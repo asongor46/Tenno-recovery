@@ -22,15 +22,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const stageColors = {
-  imported: "bg-slate-100 text-slate-700",
-  agreement_signed: "bg-blue-100 text-blue-700",
-  info_completed: "bg-indigo-100 text-indigo-700",
-  notary_completed: "bg-purple-100 text-purple-700",
-  packet_ready: "bg-amber-100 text-amber-700",
-  filed: "bg-emerald-100 text-emerald-700",
-  approved: "bg-green-100 text-green-700",
-  paid: "bg-teal-100 text-teal-700",
-  closed: "bg-slate-200 text-slate-600",
+  imported: "bg-slate-800/70 text-slate-300",
+  agreement_signed: "bg-blue-500/15 text-blue-400",
+  info_completed: "bg-indigo-500/15 text-indigo-400",
+  notary_completed: "bg-purple-500/15 text-purple-400",
+  packet_ready: "bg-amber-500/15 text-amber-400",
+  filed: "bg-emerald-500/15 text-emerald-400",
+  approved: "bg-green-500/15 text-green-400",
+  paid: "bg-teal-500/15 text-teal-400",
+  closed: "bg-slate-700 text-slate-400",
 };
 
 const stageLabels = {
@@ -58,10 +58,10 @@ const statusColors = {
 export default function CasesTable({ cases, isLoading, showTitle = true }) {
   if (isLoading) {
     return (
-      <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
+      <div className="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden">
         {showTitle && (
-          <div className="px-6 py-4 border-b border-slate-100">
-            <h2 className="text-lg font-semibold text-slate-900">Ongoing Cases</h2>
+          <div className="px-6 py-4 border-b border-slate-700">
+            <h2 className="text-lg font-semibold text-white">Ongoing Cases</h2>
           </div>
         )}
         <div className="p-8">
@@ -76,11 +76,11 @@ export default function CasesTable({ cases, isLoading, showTitle = true }) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.3 }}
-      className="bg-white rounded-2xl border border-slate-100 overflow-hidden"
+      className="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden"
     >
       {showTitle && (
-        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-slate-900">Ongoing Cases</h2>
+        <div className="px-6 py-4 border-b border-slate-700 flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-white">Ongoing Cases</h2>
           <Link to={createPageUrl("Cases")}>
             <Button variant="ghost" size="sm" className="text-emerald-600 hover:text-emerald-700">
               View All <ArrowUpRight className="w-4 h-4 ml-1" />
@@ -92,7 +92,7 @@ export default function CasesTable({ cases, isLoading, showTitle = true }) {
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
-            <TableRow className="bg-slate-50/50">
+            <TableRow className="bg-slate-800/70">
               <TableHead className="font-semibold">Owner</TableHead>
               <TableHead className="font-semibold">Type</TableHead>
               <TableHead className="font-semibold">Case #</TableHead>
@@ -117,35 +117,35 @@ export default function CasesTable({ cases, isLoading, showTitle = true }) {
               </TableRow>
             ) : (
               cases?.map((caseItem, index) => (
-                <TableRow key={caseItem.id} className="group hover:bg-slate-50/50 transition-colors">
+                <TableRow key={caseItem.id} className="group hover:bg-slate-700/50 transition-colors border-slate-700">
                   <TableCell>
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 bg-gradient-to-br from-slate-100 to-slate-200 rounded-full flex items-center justify-center">
-                        <span className="text-sm font-medium text-slate-600">
+                      <div className="w-9 h-9 bg-gradient-to-br from-slate-700 to-slate-600 rounded-full flex items-center justify-center">
+                        <span className="text-sm font-medium text-slate-300">
                           {caseItem.owner_name?.charAt(0) || "?"}
                         </span>
                       </div>
-                      <span className="font-medium text-slate-900">{caseItem.owner_name}</span>
+                      <span className="font-medium text-white">{caseItem.owner_name}</span>
                     </div>
                   </TableCell>
                   <TableCell>
                     {caseItem.surplus_type === "tax_sale" && (
-                      <Badge className="bg-green-100 text-green-700 border-0 text-xs whitespace-nowrap">Tax</Badge>
+                      <Badge className="bg-green-500/15 text-green-400 border-0 text-xs whitespace-nowrap">Tax</Badge>
                     )}
                     {caseItem.surplus_type === "sheriff_sale" && (
-                      <Badge className="bg-blue-100 text-blue-700 border-0 text-xs whitespace-nowrap">Sheriff</Badge>
+                      <Badge className="bg-blue-500/15 text-blue-400 border-0 text-xs whitespace-nowrap">Sheriff</Badge>
                     )}
                     {!caseItem.surplus_type && (
                       <span className="text-slate-300 text-xs">—</span>
                     )}
                   </TableCell>
-                  <TableCell className="font-mono text-sm text-slate-600">
+                  <TableCell className="font-mono text-sm text-slate-400">
                     {caseItem.case_number}
                   </TableCell>
-                  <TableCell className="text-slate-600">
+                  <TableCell className="text-slate-400">
                     {caseItem.county}, {caseItem.state}
                   </TableCell>
-                  <TableCell className="text-right font-semibold text-slate-900">
+                  <TableCell className="text-right font-semibold text-white">
                     ${caseItem.surplus_amount?.toLocaleString() || "0"}
                   </TableCell>
                   <TableCell>
@@ -153,7 +153,7 @@ export default function CasesTable({ cases, isLoading, showTitle = true }) {
                       {stageLabels[caseItem.stage]}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-slate-500 text-sm">
+                  <TableCell className="text-slate-400 text-sm">
                     {caseItem.updated_date
                       ? format(new Date(caseItem.updated_date), "MMM d, yyyy")
                       : "—"}
