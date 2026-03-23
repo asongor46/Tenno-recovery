@@ -344,39 +344,52 @@ export default function AgentOnboarding() {
               </Card>
             )}
 
-            {/* Step 3: Create First Case */}
-            {step === 3 && (
+            {/* Step 4: Client Portal */}
+            {step === 4 && (
               <Card className="bg-slate-800 border-slate-700">
                 <CardHeader>
                   <CardTitle className="text-white flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-emerald-400" /> Create Your First Case
+                    <Users className="w-5 h-5 text-emerald-400" /> Client Portal
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <p className="text-slate-400 text-sm">You can create your first case now, or skip and do it from the Cases page later. Cases are the core of your workflow — one per homeowner.</p>
-                  <div className="p-4 bg-slate-900/60 rounded-xl border border-slate-600 space-y-3 text-sm text-slate-300">
-                    <p className="font-medium text-white">How to create a case:</p>
-                    <ol className="list-decimal list-inside space-y-1.5 text-slate-400">
-                      <li>Go to <strong className="text-slate-300">Cases</strong> in the sidebar after finishing setup</li>
-                      <li>Click <strong className="text-slate-300">+ New Case</strong> and choose your import method</li>
-                      <li>Fill in the owner name, county, state, and surplus amount</li>
-                      <li>Send a portal invite to the homeowner to start the agreement process</li>
-                    </ol>
+                  <p className="text-slate-400 text-sm">When you're ready to move forward with a client, send them a secure portal link. Here's what they see:</p>
+                  <div className="space-y-3">
+                    {[
+                      { num: "1", title: "SIGN AGREEMENT", desc: "They review your fee agreement (with your company name and fee %). They sign electronically — typed or drawn signature." },
+                      { num: "2", title: "VERIFY IDENTITY", desc: "They enter personal info and upload front/back of their government ID. Required for the county claim." },
+                      { num: "3", title: "NOTARIZATION", desc: "They download claim documents, find a nearby notary, get everything notarized, and upload the completed packet." },
+                      { num: "4", title: "DONE", desc: "You see the status update in your dashboard. The filing packet is ready to assemble." },
+                    ].map(item => (
+                      <div key={item.num} className="flex gap-3 p-3 bg-slate-900/60 rounded-lg border border-slate-700">
+                        <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0 text-white text-xs font-bold">{item.num}</div>
+                        <div>
+                          <p className="font-semibold text-blue-400 text-xs tracking-wider">{item.title}</p>
+                          <p className="text-slate-400 text-sm mt-0.5">{item.desc}</p>
+                        </div>
+                      </div>
+                    ))}
                   </div>
+                  <p className="text-xs text-slate-500">The portal is branded to TENNO but your company info appears on all legal documents. Clients see a clean, professional process.</p>
+                  {profile?.plan === "starter" && (
+                    <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg text-sm text-amber-400">
+                      Note: The Client Portal is a Pro feature. Upgrade anytime in Settings to unlock it.
+                    </div>
+                  )}
                   <div className="flex justify-between">
-                    <Button variant="outline" onClick={() => setStep(2)}>
+                    <Button variant="outline" onClick={() => setStep(3)}>
                       <ChevronLeft className="w-4 h-4 mr-1" /> Back
                     </Button>
-                    <Button onClick={() => setStep(4)} className="bg-emerald-600 hover:bg-emerald-700">
-                      Got It — Finish Setup <ChevronRight className="w-4 h-4 ml-1" />
+                    <Button onClick={() => setStep(5)} className="bg-emerald-600 hover:bg-emerald-700">
+                      I Understand <ChevronRight className="w-4 h-4 ml-1" />
                     </Button>
                   </div>
                 </CardContent>
               </Card>
             )}
 
-            {/* Step 4: Done */}
-            {step === 4 && (
+            {/* Step 5: Done */}
+            {step === 5 && (
               <Card className="bg-slate-800 border-slate-700 text-center">
                 <CardContent className="pt-10 pb-10 space-y-6">
                   <div className="w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto">
