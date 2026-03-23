@@ -321,7 +321,7 @@ export default function OutreachPanel({ caseId, caseData }) {
             ) : (
               <div className="space-y-2 max-h-96 overflow-y-auto">
                 {attempts.map((attempt) => (
-                  <div key={attempt.id} className="p-3 border rounded-lg hover:bg-slate-50">
+                  <div key={attempt.id} className="p-3 border border-slate-700 rounded-lg hover:bg-slate-800/50">
                     <div className="flex items-start justify-between">
                       <div className="flex items-start gap-2 flex-1">
                         {getResultIcon(attempt.result)}
