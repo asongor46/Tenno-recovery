@@ -123,11 +123,7 @@ export default function AgentOnboarding() {
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <img
-            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6935380f41db07237f45b1db/11ed7b05d_Screenshot_20251213_181447_Chrome.jpg"
-            alt="TENNO RECOVERY"
-            className="h-12 w-auto mx-auto mb-4"
-          />
+          <TennoLogo size="md" className="mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-white">Welcome, {user?.full_name?.split(" ")[0]}!</h1>
           <p className="text-slate-400 mt-1">Let's get your account set up in a few quick steps.</p>
         </div>

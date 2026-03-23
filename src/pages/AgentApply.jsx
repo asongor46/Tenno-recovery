@@ -107,11 +107,7 @@ export default function AgentApply() {
       )}
       <header className="bg-slate-900/80 backdrop-blur-xl border-b border-slate-800">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
-          <img 
-            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6935380f41db07237f45b1db/11ed7b05d_Screenshot_20251213_181447_Chrome.jpg" 
-            alt="TENNO RECOVERY" 
-            className="h-10 w-auto"
-          />
+          <TennoLogo size="md" />
           <Link to={createPageUrl("LandingPage")}>
             <Button variant="ghost" className="text-slate-300">
               <ArrowLeft className="w-4 h-4 mr-2" /> Back Home

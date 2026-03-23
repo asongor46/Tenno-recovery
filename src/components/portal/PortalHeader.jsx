@@ -21,11 +21,7 @@ export default function PortalHeader({ currentStep, showBackToDashboard = false 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-4">
-            <img 
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6935380f41db07237f45b1db/11ed7b05d_Screenshot_20251213_181447_Chrome.jpg" 
-              alt="TENNO RECOVERY" 
-              className="h-10 w-auto"
-            />
+            <TennoLogo size="md" light />
             {currentStep && (
               <span className="text-sm text-slate-500 hidden sm:inline">
                 Step: {currentStep}

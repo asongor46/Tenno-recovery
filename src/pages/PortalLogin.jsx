@@ -162,11 +162,7 @@ export default function PortalLogin() {
         className="w-full max-w-md"
       >
         <div className="text-center mb-8">
-          <img 
-            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6935380f41db07237f45b1db/11ed7b05d_Screenshot_20251213_181447_Chrome.jpg" 
-            alt="TENNO RECOVERY" 
-            className="h-12 w-auto mx-auto mb-4"
-          />
+          <TennoLogo size="md" light className="mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-slate-900">Surplus Recovery Portal</h1>
           <p className="text-slate-500 mt-1">Access your case information</p>
         </div>

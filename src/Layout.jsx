@@ -200,11 +200,7 @@ export default function Layout({ children, currentPageName }) {
         {/* Logo */}
         <div className="flex items-center justify-between h-16 px-6 border-b border-slate-800">
           <Link to={createPageUrl("Dashboard")} className="flex items-center gap-3">
-            <img 
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6935380f41db07237f45b1db/11ed7b05d_Screenshot_20251213_181447_Chrome.jpg" 
-              alt="TENNO RECOVERY" 
-              className="h-10 w-auto"
-            />
+            <TennoLogo size="sm" />
           </Link>
           <button
             onClick={() => setSidebarOpen(false)}

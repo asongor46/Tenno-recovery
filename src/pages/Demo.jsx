@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import TennoLogo from "@/components/shared/TennoLogo";
 
 const DEMO_LEADS = [
   { name: "BAKER ELIZABETH S", amount: "$467,865", county: "Maricopa, AZ" },
@@ -82,11 +83,7 @@ export default function Demo() {
         {/* Sidebar */}
         <aside className="w-56 bg-slate-900 border-r border-slate-800 flex-shrink-0 hidden md:flex flex-col">
           <div className="h-14 flex items-center px-5 border-b border-slate-800">
-            <img
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6935380f41db07237f45b1db/11ed7b05d_Screenshot_20251213_181447_Chrome.jpg"
-              alt="TENNO"
-              className="h-8 w-auto"
-            />
+            <TennoLogo size="sm" />
           </div>
           <nav className="flex-1 p-3 space-y-1">
             {navItems.map(item => (

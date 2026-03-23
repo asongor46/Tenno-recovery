@@ -108,7 +108,7 @@ export default function LandingPage() {
       <header className="sticky top-0 z-50 bg-slate-950/90 backdrop-blur-xl border-b border-slate-800/60">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <img src={LOGO} alt="TENNO RECOVERY" className="h-9 w-auto" />
+            <TennoLogo size="sm" />
             <nav className="hidden md:flex items-center gap-6 text-sm">
               <a href="#features" className="text-slate-400 hover:text-white transition-colors">Features</a>
               <a href="#pricing" className="text-slate-400 hover:text-white transition-colors">Pricing</a>
@@ -401,7 +401,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-3 gap-8 mb-8">
             <div>
-              <img src={LOGO} alt="TENNO RECOVERY" className="h-8 w-auto mb-4 brightness-200" />
+              <TennoLogo size="sm" className="mb-4" />
               <p className="text-sm text-slate-500">
                 The surplus recovery platform for agents who are serious about closing deals.
               </p>
