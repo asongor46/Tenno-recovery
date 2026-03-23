@@ -25,6 +25,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { createPageUrl } from "@/utils";
 import { useStandardToast } from "@/components/shared/useStandardToast";
+import TennoLogo from "@/components/shared/TennoLogo";
 
 const US_STATES = [
   "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA",

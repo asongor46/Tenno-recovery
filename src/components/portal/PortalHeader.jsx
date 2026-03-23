@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { usePortalSession } from "@/components/portal/usePortalSession";
+import TennoLogo from "@/components/shared/TennoLogo";
 
 export default function PortalHeader({ currentStep, showBackToDashboard = false }) {
   const { user, logout } = usePortalSession();
