@@ -13,6 +13,8 @@ import {
   FileText,
   Send,
   Check,
+  Lightbulb,
+  Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -32,11 +34,12 @@ const US_STATES = [
 ];
 
 const STEPS = [
-  { id: "company", title: "Company Details", icon: Building2 },
-  { id: "states", title: "Select States", icon: Map },
+  { id: "welcome", title: "How It Works", icon: Lightbulb },
+  { id: "company", title: "Your Business", icon: Building2 },
+  { id: "states", title: "States", icon: Map },
   { id: "compliance", title: "Compliance", icon: Shield },
-  { id: "first_case", title: "Create First Case", icon: FileText },
-  { id: "done", title: "You're Ready!", icon: Check },
+  { id: "portal", title: "Client Portal", icon: Users },
+  { id: "done", title: "Ready", icon: CheckCircle2 },
 ];
 
 export default function AgentOnboarding() {
@@ -88,12 +91,12 @@ export default function AgentOnboarding() {
 
   const handleSaveCompany = async () => {
     await updateProfileMutation.mutateAsync(companyData);
-    setStep(1);
+    setStep(2);
   };
 
   const handleSaveStates = async () => {
     await updateProfileMutation.mutateAsync({ states_active: selectedStates });
-    setStep(2);
+    setStep(3);
   };
 
   const toggleState = (s) => {
