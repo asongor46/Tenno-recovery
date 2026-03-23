@@ -399,6 +399,13 @@ export default function AgentOnboarding() {
                     <h2 className="text-2xl font-bold text-white mb-2">You're All Set!</h2>
                     <p className="text-slate-400">Your account is configured. Head to your dashboard to start working cases.</p>
                   </div>
+                  <div className="p-4 bg-slate-900/60 rounded-xl border border-slate-700 text-sm text-slate-300 mb-4 text-left space-y-2">
+                    <p className="font-medium text-white">Here's what to do next:</p>
+                    <p className="text-slate-400">→ Go to your <strong className="text-slate-300">DASHBOARD</strong> to browse the Lead Feed</p>
+                    <p className="text-slate-400">→ Click <strong className="text-slate-300">+ NEW CASE</strong> to create your first case</p>
+                    <p className="text-slate-400">→ Check <strong className="text-slate-300">COUNTIES</strong> for compliance info in your states</p>
+                    <p className="text-slate-400">→ Visit <strong className="text-slate-300">HOW-TO</strong> for step-by-step guides</p>
+                  </div>
                   <div className="flex flex-col gap-3 max-w-xs mx-auto">
                     <Button
                       onClick={handleComplete}
@@ -408,7 +415,7 @@ export default function AgentOnboarding() {
                     >
                       Go to Dashboard
                     </Button>
-                    <Button variant="outline" onClick={() => setStep(3)}>
+                    <Button variant="outline" onClick={() => setStep(4)}>
                       <ChevronLeft className="w-4 h-4 mr-1" /> Back
                     </Button>
                   </div>
