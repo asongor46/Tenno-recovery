@@ -263,7 +263,16 @@ export default function LeadFeed({ user, profile }) {
                           )}
                         </td>
                         <td className="px-3 py-2 text-slate-300 text-xs hidden sm:table-cell">{lead.county}</td>
-                        <td className="px-3 py-2 text-right font-bold text-white">${lead.surplus_amount?.toLocaleString()}</td>
+                        <td className="px-3 py-2 text-right">
+                          <span className="font-bold text-white">${lead.surplus_amount?.toLocaleString()}</span>
+                          {(!lead.surplus_amount || lead.surplus_amount === 0) ? (
+                            <Badge className="ml-1 bg-slate-600 text-slate-300 border-0 text-xs" title="Amount not confirmed — verify before proceeding">Verify</Badge>
+                          ) : lead.surplus_amount < 500 ? (
+                            <Badge className="ml-1 bg-red-500/20 text-red-400 border-0 text-xs" title="At 20% fee, this lead would earn less than $100. Consider prioritizing higher-value cases.">Very low</Badge>
+                          ) : lead.surplus_amount < 1000 ? (
+                            <Badge className="ml-1 bg-amber-500/20 text-amber-400 border-0 text-xs" title="At 20% fee, this lead would earn less than $200. Consider prioritizing higher-value cases.">Low value</Badge>
+                          ) : null}
+                        </td>
                         <td className="px-3 py-2 text-center">
                           <span title={fresh.title} className={`inline-block w-2.5 h-2.5 rounded-full ${fresh.dot}`} />
                         </td>
