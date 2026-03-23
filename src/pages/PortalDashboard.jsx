@@ -29,7 +29,7 @@ function PortalDashboardContent() {
   const sessionToken = localStorage.getItem("portal_session_token") || sessionStorage.getItem("portal_session_token");
   const [showWelcome, setShowWelcome] = React.useState(false);
 
-  // Check if homeowner has seen welcome modal
+  // Check if client has seen welcome modal
   React.useEffect(() => {
     const hasSeen = localStorage.getItem("portal_welcome_seen");
     if (!hasSeen) {
@@ -83,11 +83,10 @@ function PortalDashboardContent() {
     );
   }
 
-  // [ENHANCED - Tier 2] Dark theme for portal
   return (
-    <div className="min-h-screen bg-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Header */}
-      <div className="bg-slate-900/80 backdrop-blur-xl border-b border-slate-800">
+      <div className="bg-white border-b border-slate-200 shadow-sm">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -97,16 +96,16 @@ function PortalDashboardContent() {
                 className="h-10 w-auto"
               />
               <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-white">
+                <h1 className="text-xl sm:text-2xl font-bold text-slate-900">
                   Welcome, {cases[0]?.owner_name || "Client"}
                 </h1>
-                <p className="text-sm text-slate-400">{userEmail}</p>
+                <p className="text-sm text-slate-500">{userEmail}</p>
               </div>
             </div>
             <Button 
               variant="outline" 
               onClick={handleLogout}
-              className="flex items-center gap-2 border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white"
+              className="flex items-center gap-2"
             >
               <LogOut className="w-4 h-4" />
               <span className="hidden sm:inline">Logout</span>
@@ -118,20 +117,20 @@ function PortalDashboardContent() {
       <div className="max-w-5xl mx-auto p-4 sm:p-6 space-y-6">
         {/* Page Title */}
         <div>
-          <h2 className="text-2xl font-bold text-white">Your Surplus Recovery Cases</h2>
-          <p className="text-slate-300 mt-1">
+          <h2 className="text-2xl font-bold text-slate-900">Your Surplus Recovery Cases</h2>
+          <p className="text-slate-600 mt-1">
             {cases.length} {cases.length === 1 ? 'case' : 'cases'} in progress
           </p>
         </div>
 
         {/* No cases message */}
         {cases.length === 0 && (
-          <Card className="bg-slate-800 border-slate-700">
+          <Card className="bg-white border-slate-200">
             <CardContent className="pt-6">
               <div className="text-center py-8">
-                <AlertCircle className="w-12 h-12 text-slate-500 mx-auto mb-4" />
-                <p className="text-slate-300">No cases found for your account.</p>
-                <p className="text-sm text-slate-400 mt-1">
+                <AlertCircle className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+                <p className="text-slate-700">No cases found for your account.</p>
+                <p className="text-sm text-slate-500 mt-1">
                   Contact tennoassetrecovery@gmail.com if you believe this is an error.
                 </p>
               </div>
@@ -154,7 +153,7 @@ function PortalDashboardContent() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
             >
-              <Card className={`bg-slate-800 border-slate-700 ${action?.urgent ? "border-2 border-orange-400" : ""}`}>
+              <Card className={`bg-white border-slate-200 shadow-sm ${action?.urgent ? "border-2 border-orange-400" : ""}`}>
                 <CardContent className="pt-6">
                   <div className="space-y-4">
                     {/* Case Header */}
@@ -162,15 +161,15 @@ function PortalDashboardContent() {
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
                           <FileText className="w-5 h-5 text-slate-400" />
-                          <h3 className="font-mono font-semibold text-lg text-white">
+                          <h3 className="font-mono font-semibold text-lg text-slate-900">
                             Case #{caseData.case_number}
                           </h3>
                         </div>
-                        <div className="flex items-start gap-2 text-slate-300">
+                        <div className="flex items-start gap-2 text-slate-600">
                           <MapPin className="w-4 h-4 flex-shrink-0 mt-0.5" />
                           <span className="text-sm">{caseData.property_address || "Address not available"}</span>
                         </div>
-                        <p className="text-sm text-slate-400 mt-1">
+                        <p className="text-sm text-slate-500 mt-1">
                           {caseData.county} County, {caseData.state}
                         </p>
                       </div>
@@ -180,22 +179,22 @@ function PortalDashboardContent() {
                     </div>
 
                     {/* Financial Summary */}
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 py-3 border-y border-slate-700">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 py-3 border-y border-slate-200">
                       <div>
-                        <p className="text-xs text-slate-400">Estimated Surplus</p>
-                        <p className="text-lg font-bold text-white">
+                        <p className="text-xs text-slate-500">Estimated Surplus</p>
+                        <p className="text-lg font-bold text-slate-900">
                           ${caseData.surplus_amount?.toLocaleString() || "0"}
                         </p>
                       </div>
                       <div>
-                        <p className="text-xs text-slate-400">Your Fee ({caseData.fee_percent}%)</p>
-                        <p className="text-lg font-semibold text-slate-300">
+                        <p className="text-xs text-slate-500">Your Fee ({caseData.fee_percent}%)</p>
+                        <p className="text-lg font-semibold text-slate-600">
                           ${parseFloat(feeAmount).toLocaleString()}
                         </p>
                       </div>
                       <div>
-                        <p className="text-xs text-slate-400">Your Recovery</p>
-                        <p className="text-lg font-bold text-emerald-400">
+                        <p className="text-xs text-slate-500">Your Recovery</p>
+                        <p className="text-lg font-bold text-emerald-600">
                           ~${parseFloat(recoveryAmount).toLocaleString()}
                         </p>
                       </div>
@@ -204,10 +203,10 @@ function PortalDashboardContent() {
                     {/* Progress Bar */}
                     <div>
                       <div className="flex justify-between text-sm mb-2">
-                        <span className="text-slate-300 font-medium">{statusInfo.label}</span>
-                        <span className="font-semibold text-emerald-400">{progress}%</span>
+                        <span className="text-slate-700 font-medium">{statusInfo.label}</span>
+                        <span className="font-semibold text-emerald-600">{progress}%</span>
                       </div>
-                      <div className="w-full bg-slate-700 rounded-full h-2">
+                      <div className="w-full bg-slate-200 rounded-full h-2">
                         <div
                           className="bg-emerald-500 h-2 rounded-full transition-all"
                           style={{ width: `${progress}%` }}
@@ -223,7 +222,7 @@ function PortalDashboardContent() {
                           <p className="text-sm font-semibold text-emerald-400 mb-1">
                             🤖 {nextAction.title}
                           </p>
-                          <p className="text-xs text-slate-300 mb-3">
+                          <p className="text-xs text-slate-600 mb-3">
                             {nextAction.description}
                           </p>
                           {nextAction.action && (
@@ -239,11 +238,11 @@ function PortalDashboardContent() {
                           )}
                         </div>
                       ) : (
-                        <div className="p-3 bg-slate-900/50 border border-slate-700 rounded-lg">
-                          <p className="text-sm font-medium text-slate-300">
+                        <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg">
+                          <p className="text-sm font-medium text-slate-700">
                             {nextAction.title}
                           </p>
-                          <p className="text-xs text-slate-400 mt-1">
+                          <p className="text-xs text-slate-500 mt-1">
                             {nextAction.description}
                           </p>
                         </div>
@@ -252,7 +251,7 @@ function PortalDashboardContent() {
 
                     {/* [NEW - Tier 2] Checklist */}
                     <div className="space-y-2">
-                      <p className="text-xs font-semibold text-slate-400 uppercase">Your Checklist:</p>
+                      <p className="text-xs font-semibold text-slate-500 uppercase">Your Checklist:</p>
                       {getChecklistEnhanced(caseData).map((item, i) => (
                         <div key={i} className="flex items-center gap-2 text-xs">
                           {item.completed ? (
@@ -260,7 +259,7 @@ function PortalDashboardContent() {
                           ) : (
                             <div className="w-4 h-4 border-2 border-slate-600 rounded" />
                           )}
-                          <span className={item.completed ? "text-slate-500 line-through" : "text-slate-300"}>
+                          <span className={item.completed ? "text-slate-400 line-through" : "text-slate-700"}>
                             {item.label}
                           </span>
                           {item.completed && item.date && (
@@ -292,9 +291,9 @@ function PortalDashboardContent() {
 
         {/* [NEW - Tier 2] Timeline */}
         {activities.length > 0 && (
-          <Card className="bg-slate-800 border-slate-700">
+          <Card className="bg-white border-slate-200">
             <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
+              <CardTitle className="text-slate-900 flex items-center gap-2">
                 <Activity className="w-5 h-5" />
                 Recent Activity
               </CardTitle>
@@ -302,12 +301,12 @@ function PortalDashboardContent() {
             <CardContent>
               <div className="space-y-3">
                 {activities.map((activity) => (
-                  <div key={activity.id} className="flex gap-3 pb-3 border-b border-slate-700 last:border-0">
+                  <div key={activity.id} className="flex gap-3 pb-3 border-b border-slate-200 last:border-0">
                     <div className="w-2 h-2 bg-emerald-500 rounded-full mt-2 flex-shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-white">{activity.action}</p>
+                      <p className="text-sm font-medium text-slate-900">{activity.action}</p>
                       {activity.description && (
-                        <p className="text-xs text-slate-400 mt-0.5">{activity.description}</p>
+                        <p className="text-xs text-slate-600 mt-0.5">{activity.description}</p>
                       )}
                       <p className="text-xs text-slate-500 mt-1">
                         {format(new Date(activity.created_date), "MMM d, yyyy h:mm a")}
@@ -328,12 +327,12 @@ function PortalDashboardContent() {
                 <AlertCircle className="w-5 h-5 text-blue-400" />
               </div>
               <div>
-                <p className="font-semibold text-white">Questions or Need Help?</p>
-                <p className="text-sm text-slate-300 mt-1">
+                <p className="font-semibold text-slate-900">Questions or Need Help?</p>
+                <p className="text-sm text-slate-600 mt-1">
                   Contact us at (555) 123-4567 or reply to any email from us.
                 </p>
-                <p className="text-sm text-slate-300 mt-1">
-                  Email: <a href="mailto:tennoassetrecovery@gmail.com" className="text-blue-400 hover:text-blue-300 hover:underline">
+                <p className="text-sm text-slate-600 mt-1">
+                   Email: <a href="mailto:tennoassetrecovery@gmail.com" className="text-blue-600 hover:text-blue-700 hover:underline">
                     tennoassetrecovery@gmail.com
                   </a>
                 </p>
@@ -558,61 +557,61 @@ function getStatusInfo(caseData) {
   if (caseData.agreement_status !== 'signed') {
     return {
       label: 'AGREEMENT NEEDED',
-      className: 'bg-red-100 text-red-700 border-0'
+      className: 'bg-red-100 text-red-800 border-0'
     };
-  }
-  
-  if (!caseData.id_front_url || !caseData.id_back_url) {
+    }
+
+    if (!caseData.id_front_url || !caseData.id_back_url) {
+      return {
+        label: 'ID NEEDED',
+        className: 'bg-orange-100 text-orange-800 border-0'
+      };
+    }
+
+    if (caseData.notary_required && caseData.notary_status === 'pending') {
+      return {
+        label: 'NOTARY NEEDED',
+        className: 'bg-amber-100 text-amber-800 border-0'
+      };
+    }
+
+    if (caseData.filing_status === 'filed') {
+      return {
+        label: 'FILED',
+        className: 'bg-indigo-100 text-indigo-800 border-0'
+      };
+    }
+
+    if (caseData.filing_status === 'awaiting_period') {
+      return {
+        label: 'WAITING PERIOD',
+        className: 'bg-slate-200 text-slate-700 border-0'
+      };
+    }
+
+    if (caseData.stage === 'approved') {
+      return {
+        label: 'APPROVED',
+        className: 'bg-emerald-100 text-emerald-800 border-0'
+      };
+    }
+
+    if (caseData.stage === 'paid') {
+      return {
+        label: 'PAID',
+        className: 'bg-green-100 text-green-800 border-0'
+      };
+    }
+
+    if (caseData.stage === 'closed') {
+      return {
+        label: 'CLOSED',
+        className: 'bg-green-100 text-green-800 border-0'
+      };
+    }
+
     return {
-      label: 'ID NEEDED',
-      className: 'bg-orange-100 text-orange-700 border-0'
+      label: 'IN PROGRESS',
+      className: 'bg-blue-100 text-blue-800 border-0'
     };
-  }
-  
-  if (caseData.notary_required && caseData.notary_status === 'pending') {
-    return {
-      label: 'NOTARY NEEDED',
-      className: 'bg-amber-100 text-amber-700 border-0'
-    };
-  }
-  
-  if (caseData.filing_status === 'filed') {
-    return {
-      label: 'FILED',
-      className: 'bg-indigo-100 text-indigo-700 border-0'
-    };
-  }
-  
-  if (caseData.filing_status === 'awaiting_period') {
-    return {
-      label: 'WAITING PERIOD',
-      className: 'bg-slate-100 text-slate-700 border-0'
-    };
-  }
-  
-  if (caseData.stage === 'approved') {
-    return {
-      label: 'APPROVED',
-      className: 'bg-emerald-100 text-emerald-700 border-0'
-    };
-  }
-  
-  if (caseData.stage === 'paid') {
-    return {
-      label: 'PAID',
-      className: 'bg-green-100 text-green-700 border-0'
-    };
-  }
-  
-  if (caseData.stage === 'closed') {
-    return {
-      label: 'CLOSED',
-      className: 'bg-green-100 text-green-700 border-0'
-    };
-  }
-  
-  return {
-    label: 'IN PROGRESS',
-    className: 'bg-blue-100 text-blue-700 border-0'
-  };
 }
