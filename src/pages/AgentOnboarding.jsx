@@ -286,7 +286,7 @@ export default function AgentOnboarding() {
                   </div>
                   <p className="text-xs text-slate-500 mb-4">{selectedStates.length} state{selectedStates.length !== 1 ? "s" : ""} selected</p>
                   <div className="flex justify-between">
-                    <Button variant="outline" onClick={() => setStep(0)}>
+                    <Button variant="outline" onClick={() => setStep(1)}>
                       <ChevronLeft className="w-4 h-4 mr-1" /> Back
                     </Button>
                     <Button onClick={handleSaveStates} className="bg-emerald-600 hover:bg-emerald-700" disabled={updateProfileMutation.isPending}>
@@ -297,8 +297,8 @@ export default function AgentOnboarding() {
               </Card>
             )}
 
-            {/* Step 2: Compliance Acknowledgment */}
-            {step === 2 && (
+            {/* Step 3: Compliance Acknowledgment */}
+            {step === 3 && (
               <Card className="bg-slate-800 border-slate-700">
                 <CardHeader>
                   <CardTitle className="text-white flex items-center gap-2">
